@@ -1,11 +1,109 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Store, Plus, TestTube, Settings } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
+  Store,
+  Plus,
+  TestTube,
+  Settings,
+  Loader2,
+  RefreshCw,
+  Trash2,
+  Eye,
+  EyeOff,
+} from "lucide-react";
+import { shopService } from "@/services";
+
+interface Shop {
+  id: number;
+  user_id: number;
+  shop_name: string;
+  platform: string;
+  is_active: boolean;
+  config: Record<string, any>;
+  created_at: string;
+  updated_at: string;
+}
 
 export function ShopsPage() {
+  const [shops, setShops] = useState<Shop[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [showToken, setShowToken] = useState<Record<number, boolean>>({});
+  const [formData, setFormData] = useState({
+    shop_name: "",
+    platform: "shopee_th",
+    shop_token: "",
+    config: "{}",
+  });
+
+  const fetchShops = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const token = localStorage.getItem("access_token");
+      const res = await shopService.getList({
+        credentials_str: `Bearer ${token}`,
+        page: 1,
+        size: 50,
+      });
+      setShops(res || []);
+    } catch (err: any) {
+      console.error("Failed to fetch shops:", err);
+      setError("无法加载店铺列表");
+      setShops([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchShops();
+  }, []);
+
+  const handleCreate = async () => {
+    try {
+      const token = localStorage.getItem("access_token");
+      await shopService.create({
+        ...formData,
+        config: JSON.parse(formData.config || "{}"),
+      }, `Bearer ${token}`);
+      setDialogOpen(false);
+      setFormData({ shop_name: "", platform: "shopee_th", shop_token: "", config: "{}" });
+      fetchShops();
+    } catch (err: any) {
+      alert("创建店铺失败: " + (err.message || "未知错误"));
+    }
+  };
+
+  const handleDelete = async (id: number) => {
+    if (!confirm("确定要删除这个店铺吗？")) return;
+    try {
+      const token = localStorage.getItem("access_token");
+      await shopService.delete(id, `Bearer ${token}`);
+      fetchShops();
+    } catch (err: any) {
+      alert("删除失败: " + (err.message || "未知错误"));
+    }
+  };
+
+  const toggleTokenVisibility = (id: number) => {
+    setShowToken((prev) => ({ ...prev, [id]: !prev[id] }));
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -15,90 +113,162 @@ export function ShopsPage() {
             管理 Shopee 店铺连接与 API 配置
           </p>
         </div>
-        <Button>
-          <Plus className="mr-2 h-4 w-4" />
-          添加店铺
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="outline" size="sm" onClick={fetchShops}>
+            <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
+            刷新
+          </Button>
+          <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+            <DialogTrigger asChild>
+              <Button>
+                <Plus className="mr-2 h-4 w-4" />
+                添加店铺
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>添加店铺</DialogTitle>
+              </DialogHeader>
+              <div className="space-y-4 py-4">
+                <div className="space-y-2">
+                  <Label htmlFor="shop_name">店铺名称</Label>
+                  <Input
+                    id="shop_name"
+                    placeholder="我的泰国店"
+                    value={formData.shop_name}
+                    onChange={(e) => setFormData({ ...formData, shop_name: e.target.value })}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="platform">平台</Label>
+                  <select
+                    id="platform"
+                    className="w-full rounded-md border px-3 py-2"
+                    value={formData.platform}
+                    onChange={(e) => setFormData({ ...formData, platform: e.target.value })}
+                  >
+                    <option value="shopee_th">Shopee Thailand</option>
+                    <option value="shopee_vn">Shopee Vietnam</option>
+                    <option value="shopee_ph">Shopee Philippines</option>
+                  </select>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="shop_token">Shop Token</Label>
+                  <Input
+                    id="shop_token"
+                    type="password"
+                    placeholder="粘贴 Shopee OAuth Token"
+                    value={formData.shop_token}
+                    onChange={(e) => setFormData({ ...formData, shop_token: e.target.value })}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="config">配置（JSON）</Label>
+                  <textarea
+                    id="config"
+                    className="w-full rounded-md border px-3 py-2 min-h-[80px]"
+                    placeholder='{"shipping_template": "free", ...}'
+                    value={formData.config}
+                    onChange={(e) => setFormData({ ...formData, config: e.target.value })}
+                  />
+                </div>
+                <Button onClick={handleCreate} className="w-full">
+                  创建店铺
+                </Button>
+              </div>
+            </DialogContent>
+          </Dialog>
+        </div>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2">
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Store className="h-5 w-5" />
-              泰国Shop_01
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <div className="flex justify-between text-sm">
-              <span className="text-muted-foreground">平台</span>
-              <span>Shopee Thailand</span>
-            </div>
-            <div className="flex justify-between text-sm">
-              <span className="text-muted-foreground">状态</span>
-              <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
-                ✅ 已连接
-              </Badge>
-            </div>
-            <div className="flex justify-between text-sm">
-              <span className="text-muted-foreground">商品数</span>
-              <span>128</span>
-            </div>
-            <div className="flex justify-between text-sm">
-              <span className="text-muted-foreground">最后同步</span>
-              <span>2分钟前</span>
-            </div>
-            <div className="flex gap-2 pt-2">
-              <Button variant="outline" size="sm">
-                <TestTube className="mr-2 h-4 w-4" />
-                测试连接
-              </Button>
-              <Button variant="outline" size="sm">
-                <Settings className="mr-2 h-4 w-4" />
-                配置
-              </Button>
-            </div>
+      {error && (
+        <Card className="border-destructive">
+          <CardContent className="pt-4">
+            <p className="text-sm text-destructive">⚠️ {error}</p>
+            <p className="text-xs text-muted-foreground mt-1">
+              请确保后端 API 服务正在运行（http://localhost:8000）
+            </p>
           </CardContent>
         </Card>
+      )}
 
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Store className="h-5 w-5" />
-              泰国Shop_02
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <div className="flex justify-between text-sm">
-              <span className="text-muted-foreground">平台</span>
-              <span>Shopee Thailand</span>
-            </div>
-            <div className="flex justify-between text-sm">
-              <span className="text-muted-foreground">状态</span>
-              <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200">
-                ⚠️ Token即将过期
-              </Badge>
-            </div>
-            <div className="flex justify-between text-sm">
-              <span className="text-muted-foreground">商品数</span>
-              <span>56</span>
-            </div>
-            <div className="flex justify-between text-sm">
-              <span className="text-muted-foreground">最后同步</span>
-              <span>1小时前</span>
-            </div>
-            <div className="flex gap-2 pt-2">
-              <Button variant="outline" size="sm">
-                <TestTube className="mr-2 h-4 w-4" />
-                测试连接
-              </Button>
-              <Button variant="outline" size="sm">
-                <Settings className="mr-2 h-4 w-4" />
-                配置
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
+      {loading && shops.length === 0 && (
+        <div className="flex items-center justify-center py-12">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          <span className="ml-3 text-muted-foreground">加载中...</span>
+        </div>
+      )}
+
+      <div className="grid gap-4 md:grid-cols-2">
+        {shops.map((shop) => (
+          <Card key={shop.id}>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Store className="h-5 w-5" />
+                {shop.shop_name}
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <div className="flex justify-between text-sm">
+                <span className="text-muted-foreground">平台</span>
+                <span>{shop.platform === "shopee_th" ? "Shopee Thailand" : shop.platform}</span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-muted-foreground">状态</span>
+                <Badge variant="outline" className={shop.is_active ? "bg-green-50 text-green-700 border-green-200" : "bg-red-50 text-red-700 border-red-200"}>
+                  {shop.is_active ? "✅ 已连接" : "❌ 已禁用"}
+                </Badge>
+              </div>
+              <div className="flex justify-between text-sm items-center">
+                <span className="text-muted-foreground">Token</span>
+                <div className="flex items-center gap-1">
+                  <span className="font-mono text-xs">
+                    {showToken[shop.id] ? "eyJ..." : "••••••••"}
+                  </span>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-6 w-6"
+                    onClick={() => toggleTokenVisibility(shop.id)}
+                  >
+                    {showToken[shop.id] ? <EyeOff className="h-3 w-3" /> : <Eye className="h-3 w-3" />}
+                  </Button>
+                </div>
+              </div>
+              <div className="flex gap-2 pt-2">
+                <Button variant="outline" size="sm">
+                  <TestTube className="mr-2 h-4 w-4" />
+                  测试连接
+                </Button>
+                <Button variant="outline" size="sm">
+                  <Settings className="mr-2 h-4 w-4" />
+                  配置
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="ml-auto text-red-500"
+                  onClick={() => handleDelete(shop.id)}
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+
+        {/* Empty State */}
+        {!loading && shops.length === 0 && !error && (
+          <Card className="col-span-2">
+            <CardContent className="flex flex-col items-center justify-center py-12 text-center">
+              <Store className="h-12 w-12 text-muted-foreground mb-4" />
+              <p className="text-lg font-medium">暂无店铺</p>
+              <p className="text-sm text-muted-foreground">
+                点击「添加店铺」按钮开始配置你的 Shopee 店铺
+              </p>
+            </CardContent>
+          </Card>
+        )}
       </div>
     </div>
   );

@@ -2,8 +2,7 @@
 LangGraph 翻译工作流 — 节点函数
 
 翻译工作流有向图：
-    extract_image → translate_text → translate_image → check_risk → generate_tags
-                                              ↘ calculate_finance ↗
+    extract_images → translate_text → translate_images → check_risk → calculate_finance → generate_tags
 """
 
 import json
@@ -17,6 +16,12 @@ from api.models.product import Product
 from api.models.translate import Translate
 from api.models.risk_log import RiskLog
 from api.services.crypto import decrypt_aes256
+from api.services.translator import (
+    translate_text,
+    translate_bulk,
+    generate_seo_tags,
+    get_translation_stats,
+)
 from api.config import settings
 import logging
 
@@ -95,31 +100,34 @@ async def node_translate_text(state: WorkflowState) -> WorkflowState:
     """节点2：AI 翻译商品标题和描述（中→泰）"""
     try:
         product_id = state["product_id"]
-        title_zh = state.get("title_zh", "")
-        desc_zh = state.get("desc_zh")
+        title_zh = state.get("title_zh", "") or ""
+        desc_zh = state.get("desc_zh") or ""
 
-        # 翻译标题
-        if title_zh:
-            state["title_th"] = await ai_translate_text(title_zh, "zh", "th")
+        # 批量翻译（标题 + 描述）
+        texts_to_translate = [t for t in [title_zh, desc_zh] if t]
+        if texts_to_translate:
+            translations = translate_bulk(texts_to_translate, "zh", "th")
+            
+            if title_zh:
+                state["title_th"] = translations[0] if translations else title_zh
+            if desc_zh:
+                state["desc_th"] = translations[-1] if translations else desc_zh
+
             # 保存翻译记录
-            await save_translate_record(
-                db_session=None,  # will be set later
-                product_id=product_id,
-                translate_type="title",
-                source_text=title_zh,
-                target_text=state["title_th"],
-            )
-
-        # 翻译描述
-        if desc_zh:
-            state["desc_th"] = await ai_translate_text(desc_zh, "zh", "th")
-            await save_translate_record(
-                db_session=None,
-                product_id=product_id,
-                translate_type="description",
-                source_text=desc_zh,
-                target_text=state["desc_th"],
-            )
+            if title_zh:
+                await save_translate_record(
+                    product_id=product_id,
+                    translate_type="title",
+                    source_text=title_zh,
+                    target_text=state["title_th"],
+                )
+            if desc_zh:
+                await save_translate_record(
+                    product_id=product_id,
+                    translate_type="description",
+                    source_text=desc_zh,
+                    target_text=state["desc_th"],
+                )
 
         state["translate_status"] = "processing"
         logger.info(f"商品 {product_id} 文本翻译完成")
@@ -132,17 +140,11 @@ async def node_translate_text(state: WorkflowState) -> WorkflowState:
         return state
 
 
-async def ai_translate_text(text: str, src_lang: str, tgt_lang: str) -> str:
+async def ai_translate_text(text: str, src_lang: str = "zh", tgt_lang: str = "th") -> str:
     """
-    调用 LLM 翻译文本
-    TODO: 替换为实际的 LangChain/LangGraph LLM 调用
+    调用 LLM 翻译文本（异步包装）
     """
-    # TODO: LangChain + LLM 实现
-    # from langchain.chat_models import ChatOpenAI
-    # model = ChatOpenAI(model="gpt-4", temperature=0)
-    # prompt = f"将以下{src_lang}翻译为{tgt_lang}，保持电商风格：\n{text}"
-    # return model.predict(prompt)
-    return text  # 占位返回
+    return translate_text(text, src_lang, tgt_lang)
 
 
 async def node_translate_images(state: WorkflowState) -> WorkflowState:
@@ -273,12 +275,7 @@ async def node_generate_tags(state: WorkflowState) -> WorkflowState:
         title_th = state.get("title_th", "") or ""
         desc_th = state.get("desc_th", "") or ""
 
-        # TODO: LLM 生成 SEO 标签
-        tags = [
-            tag.strip() for tag in title_th.split()
-            if len(tag.strip()) > 2
-        ][:10]
-
+        tags = generate_seo_tags(title_th, desc_th)
         state["seo_tags"] = tags
         logger.info(f"商品 SEO 标签生成完成: {tags}")
         return state
@@ -295,7 +292,8 @@ async def save_translate_record(
     source_text: str,
     target_text: str,
     confidence_score: float = 0.95,
-):
+    source_image_url: str = None,
+    target_image_url: str = None,
     """保存翻译记录到数据库"""
     try:
         text_hash = hashlib.sha256(source_text.encode("utf-8")).hexdigest()
@@ -305,10 +303,12 @@ async def save_translate_record(
                 product_id=product_id,
                 translate_type=translate_type,
                 source_text_hash=text_hash,
-                source_text=source_text[:2000],
-                target_text=target_text[:2000],
+                source_text=source_text[:5000],
+                target_text=target_text[:5000],
+                source_image_url=source_image_url,
+                target_image_url=target_image_url,
                 confidence_score=confidence_score,
-                status="completed",
+                status="success",
             )
             db.add(record)
             await db.commit()

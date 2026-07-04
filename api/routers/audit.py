@@ -221,8 +221,13 @@ async def trigger_listing(
                 detail="商品未通过审核，无法上架",
             )
 
-    # TODO: 调用 Celery 上架任务
+    # 调用 Celery 上架任务
+    from worker.tasks import listing_product
+    task = listing_product.delay(product_id, None)
+
     return {
         "status": "queued",
+        "task_id": task.id,
+        "product_id": product_id,
         "message": f"上架任务已提交，商品 ID: {product_id}",
     }

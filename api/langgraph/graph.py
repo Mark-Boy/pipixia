@@ -73,7 +73,7 @@ translate_workflow = workflow.compile()
 
 def run_translation_workflow(product_id: int, **kwargs) -> WorkflowState:
     """
-    运行翻译工作流
+    运行翻译工作流（同步入口）
     
     Args:
         product_id: 商品 ID
@@ -82,6 +82,8 @@ def run_translation_workflow(product_id: int, **kwargs) -> WorkflowState:
     Returns:
         WorkflowState: 工作流输出状态
     """
+    import asyncio
+    
     initial_state: WorkflowState = {
         "product_id": product_id,
         **kwargs,
@@ -99,7 +101,7 @@ def run_translation_workflow(product_id: int, **kwargs) -> WorkflowState:
     }
 
     try:
-        result = translate_workflow.invoke(initial_state)
+        result = asyncio.run(translate_workflow.ainvoke(initial_state))
         return result
     except Exception as e:
         return {

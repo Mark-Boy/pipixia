@@ -1,0 +1,6 @@
+id,name,email,age,score,country,note
+1,Alice Johnson,alice.johnson@example.com,29,87,USA,first entry
+2,Bruno Costa,bruno.costa@example.com,34,72,Brazil,returning user
+3,Chiaki Saito,chiaki.saito@example.com,41,93,Japan,top performer
+4,Dimitri Volkov,dimitri.volkov@example.com,52,68,Russia,mid range
+5,Elena Garcia,elena.garcia@example.com,23,55,Spain,new account

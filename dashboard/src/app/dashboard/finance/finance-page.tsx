@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
@@ -16,6 +17,8 @@ import {
   Bar,
   Legend,
 } from "recharts";
+import { reportService } from "@/services";
+import { Loader2, RefreshCw } from "lucide-react";
 
 const profitTrend = [
   { date: "7/1", estimated: 2500, actual: 2380 },
@@ -31,14 +34,53 @@ const categoryProfit = [
 ];
 
 export function FinancePage() {
+  const [financeData, setFinanceData] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const fetchFinance = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await reportService.getFinance("2026-07-01");
+      setFinanceData(res);
+    } catch (err: any) {
+      console.error("Failed to fetch finance:", err);
+      setError("无法加载财务数据");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchFinance();
+  }, []);
+
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight">财务看板</h1>
-        <p className="text-muted-foreground">
-          监控销售额、利润与熔断机制
-        </p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight">财务看板</h1>
+          <p className="text-muted-foreground">
+            监控销售额、利润与熔断机制
+          </p>
+        </div>
+        <button
+          onClick={fetchFinance}
+          className="flex items-center gap-2 px-3 py-2 text-sm rounded-md border hover:bg-muted transition-colors"
+        >
+          <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
+          刷新
+        </button>
       </div>
+
+      {error && (
+        <Card className="border-destructive">
+          <CardContent className="pt-4">
+            <p className="text-sm text-destructive">⚠️ {error}</p>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Key Metrics */}
       <div className="grid gap-4 md:grid-cols-4">
@@ -48,7 +90,7 @@ export function FinancePage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {mockFinancialMetrics.totalSales.toLocaleString()} ฿
+              {financeData?.summary?.total_revenue_thb?.toLocaleString() || mockFinancialMetrics.totalSales.toLocaleString()} ฿
             </div>
             <p className="text-xs text-muted-foreground">本月累计</p>
           </CardContent>
@@ -59,7 +101,7 @@ export function FinancePage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-green-600">
-              {mockFinancialMetrics.totalProfit.toLocaleString()} ฿
+              {financeData?.summary?.gross_profit_thb?.toLocaleString() || mockFinancialMetrics.totalProfit.toLocaleString()} ฿
             </div>
             <p className="text-xs text-muted-foreground">净利润</p>
           </CardContent>
@@ -70,9 +112,9 @@ export function FinancePage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {mockFinancialMetrics.avgProfitMargin}%
+              {financeData?.summary?.profit_margin || mockFinancialMetrics.avgProfitMargin}%
             </div>
-            <Progress value={mockFinancialMetrics.avgProfitMargin} className="mt-2" />
+            <Progress value={financeData?.summary?.profit_margin || mockFinancialMetrics.avgProfitMargin} className="mt-2" />
           </CardContent>
         </Card>
         <Card>

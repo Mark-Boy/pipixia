@@ -1,0 +1,19 @@
+{
+  "records": [
+    {"id": 1, "name": "Alice Johnson", "email": "alice.johnson@example.com", "age": 29, "score": 87, "country": "USA", "note": "first entry"},
+    {"id": 2, "name": "Bruno Costa ", "email": "bruno.costa@example.com", "age": 34, "score": 72, "country": "Brazil", "note": "returning user"},
+    {"id": 3, "name": "Chiaki Saito", "email": "chiaki.saito@example.com  ", "age": 41, "score": 93, "country": "Japan", "note": ""},
+    {"id": 4, "name": "Dimitri Volkov", "email": "dimitri.volkov@example.com", "age": 52, "score": null, "country": "Russia", "note": "null"},
+    {"id": 5, "name": "Elena Garcia", "email": "elena.garcia@example.com", "age": 23, "score": 55, "country": "Spain", "note": "NA"},
+    {"id": 6, "name": "Farhan Ahmed", "email": "farhan.ahmed@example.com", "age": 38, "score": 64, "country": "Pakistan", "note": "mid score"},
+    {"id": 7, "name": "Greta Lindqvist ", "email": "greta.lindqvist@example.com", "age": 45, "score": 81, "country": "Sweden", "note": null},
+    {"id": 8, "name": "Hassan Al-Mansoori", "email": "hassan.almansoori@example.com", "age": 60, "score": 49, "country": "UAE", "note": "older user"},
+    {"id": 9, "name": "Isla Murphy", "email": "isla.murphy@example.com", "age": 27, "score": 90, "country": "Ireland", "note": ""},
+    {"id": 10, "name": "Jakub Nowak", "email": "jakub.nowak@example.com ", "age": 33, "score": 76, "country": "Poland", "note": "active"},
+    {"id": 11, "name": "Kavita Iyer", "email": "kavita.iyer@example.com", "age": 48, "score": 58, "country": "India", "note": "null"},
+    {"id": 12, "name": "Liam O'Brien", "email": "liam.obrien@example.com", "age": 21, "score": 66, "country": "Ireland", "note": "young adult"},
+    {"id": 1, "name": "Alice Johnson", "email": "alice.johnson@example.com", "age": 29, "score": 87, "country": "USA", "note": "first entry"},
+    {"id": 13, "name": "Mei Chen", "email": "mei.chen@example.com", "age": 36, "score": 84, "country": "China", "note": "NA"},
+    {"id": 7, "name": "Greta Lindqvist ", "email": "greta.lindqvist@example.com", "age": 45, "score": 81, "country": "Sweden", "note": null}
+  ]
+}

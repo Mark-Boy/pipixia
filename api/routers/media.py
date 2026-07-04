@@ -5,12 +5,13 @@
 import uuid
 from typing import Optional
 
-from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File, Query
+from fastapi import APIRouter, HTTPException, status, UploadFile, File, Query
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlalchemy import select
 
 from api.database import async_session
 from api.models.product import Product
+from api.services.storage import upload_image, get_storage_stats
 
 router = APIRouter(prefix="/media", tags=["Media"])
 
@@ -44,7 +45,7 @@ async def upload_media(
     product_id: Optional[int] = Query(None),
     credentials_str: Optional[str] = Query(None),
 ):
-    """上传图片到 OSS（返回 OSS key 和 URL）"""
+    """上传图片到 OSS（返回 URL）"""
     user_id = await get_user_id_from_token(credentials_str) if credentials_str else 0
 
     # 验证文件类型
@@ -63,16 +64,18 @@ async def upload_media(
             detail="文件大小超过 10MB 限制",
         )
 
-    # 生成唯一文件名
-    file_extension = file.filename.split(".")[-1] if "." in file.filename else "jpg"
-    object_key = f"products/{product_id or 'generic'}/{uuid.uuid4().hex}.{file_extension}"
-
-    # TODO: 上传到 MinIO/OSS
-    # from minio import Minio
-    # minio_client.put_object(...)
-    
-    # 模拟上传成功
-    oss_url = f"http://minio:9000/pipixia-images/{object_key}"
+    # 上传到 OSS
+    try:
+        oss_url = upload_image(
+            file_data=content,
+            product_id=product_id,
+            content_type=file.content_type,
+        )
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"图片上传失败: {str(e)}",
+        )
 
     # 如果指定了 product_id，更新产品图片列表
     if product_id:
@@ -88,37 +91,101 @@ async def upload_media(
     return {
         "status": "success",
         "message": "图片上传成功",
-        "oss_key": object_key,
         "url": oss_url,
     }
 
 
-@router.delete("/delete")
+@router.post("/upload/batch")
+async def upload_batch_media(
+    files: list[UploadFile] = File(...),
+    product_id: Optional[int] = Query(None),
+    credentials_str: Optional[str] = Query(None),
+):
+    """批量上传图片"""
+    user_id = await get_user_id_from_token(credentials_str) if credentials_str else 0
+
+    urls = []
+    for i, file in enumerate(files):
+        content = await file.read()
+        try:
+            url = upload_image(
+                file_data=content,
+                product_id=product_id,
+                file_index=i,
+                content_type=file.content_type,
+            )
+            urls.append({"index": i, "url": url, "filename": file.filename})
+        except Exception as e:
+            urls.append({"index": i, "url": None, "filename": file.filename, "error": str(e)})
+
+    # 更新产品图片列表
+    if product_id and urls:
+        async with async_session() as db:
+            result = await db.execute(select(Product).where(Product.id == product_id))
+            product = result.scalar_one_or_none()
+            if product:
+                existing = product.images_oss_keys or []
+                new_urls = [u["url"] for u in urls if u["url"]]
+                product.images_oss_keys = existing + new_urls
+                await db.commit()
+
+    return {
+        "status": "success",
+        "uploaded": len([u for u in urls if u["url"]]),
+        "total": len(urls),
+        "files": urls,
+    }
+
+
+@router.delete("")
 async def delete_media(
-    oss_key: str,
+    url: str = Query(..., description="图片 URL"),
     credentials_str: Optional[str] = Query(None),
 ):
     """删除 OSS 图片"""
-    # TODO: 从 MinIO/OSS 删除
+    from api.services.storage import storage
+
+    # 从 URL 提取 object_key
+    parts = url.split("/")
+    if len(parts) >= 5:
+        object_key = "/".join(parts[-3:])
+    else:
+        object_key = url
+
+    storage.delete_file(object_key)
 
     return {
         "status": "success",
         "message": "图片已删除",
-        "oss_key": oss_key,
     }
 
 
-@router.get("/url")
-async def get_media_url(
-    oss_key: str,
+@router.get("/presigned-url")
+async def get_presigned_url(
+    url: str = Query(..., description="图片 URL"),
     expires: int = Query(3600, ge=60, le=86400),
     credentials_str: Optional[str] = Query(None),
 ):
-    """获取 OSS 图片临时访问 URL"""
-    # TODO: 生成 presigned URL
-    url = f"http://minio:9000/pipixia-images/{oss_key}"
+    """获取图片临时访问 URL"""
+    from api.services.storage import storage
+
+    parts = url.split("/")
+    if len(parts) >= 5:
+        object_key = "/".join(parts[-3:])
+    else:
+        object_key = url
+
+    presigned_url = storage.get_presigned_url(object_key, expires)
 
     return {
-        "url": url,
+        "url": presigned_url,
         "expires_in": expires,
     }
+
+
+@router.get("/stats")
+async def get_media_stats(
+    credentials_str: Optional[str] = Query(None),
+):
+    """获取存储统计"""
+    return get_storage_stats()

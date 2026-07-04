@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
@@ -19,6 +20,8 @@ import {
   Package,
   Shield,
   Wallet,
+  Loader2,
+  RefreshCw,
 } from "lucide-react";
 import {
   AreaChart,
@@ -32,8 +35,9 @@ import {
   Bar,
   Legend,
 } from "recharts";
+import { reportService, productService, healthService } from "@/services";
 
-// Mock chart data
+// Mock chart data (fallback)
 const weeklyData = [
   { day: "周一", imported: 45, listed: 38, failed: 7 },
   { day: "周二", imported: 52, listed: 44, failed: 8 },
@@ -53,31 +57,112 @@ const profitData = [
 ];
 
 export function OverviewPage() {
-  const pendingAudits = mockAudits.filter((a) => a.status === "pending").length;
-  const blockedProducts = mockProducts.filter(
-    (p) => p.status === "blocked"
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [summary, setSummary] = useState<any>(null);
+  const [dailyReport, setDailyReport] = useState<any>(null);
+  const [products, setProducts] = useState<any[]>([]);
+  const [refreshing, setRefreshing] = useState(false);
+
+  const fetchData = async (showLoading = true) => {
+    if (showLoading) setLoading(true);
+    setError(null);
+    try {
+      const [summaryRes, dailyRes, productsRes] = await Promise.allSettled([
+        reportService.getSummary(),
+        reportService.getDaily(),
+        productService.getList({ page: 1, size: 10 }),
+      ]);
+
+      if (summaryRes.status === "fulfilled") {
+        setSummary(summaryRes.value);
+      }
+      if (dailyRes.status === "fulfilled") {
+        setDailyReport(dailyRes.value);
+      }
+      if (productsRes.status === "fulfilled") {
+        setProducts(productsRes.value.products || []);
+      }
+    } catch (err: any) {
+      setError(err.message || "加载数据失败");
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const handleRefresh = () => {
+    setRefreshing(true);
+    fetchData(false);
+  };
+
+  const pendingAudits = products.filter(
+    (p: any) => p.status === "pending" || p.status === "auditing"
   ).length;
-  const todayListed = mockProducts.filter((p) => p.status === "listed").length;
+  const blockedProducts = products.filter(
+    (p: any) => p.status === "blocked" || p.risk_status === "block"
+  ).length;
+  const listedCount = products.filter(
+    (p: any) => p.status === "listed" || p.status === "active"
+  ).length;
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-[60vh]">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        <span className="ml-3 text-muted-foreground">加载中...</span>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
       {/* Page Header */}
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight">数据看板</h1>
-        <p className="text-muted-foreground">
-          实时监控商品上架、审核、财务与风控数据
-        </p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight">数据看板</h1>
+          <p className="text-muted-foreground">
+            实时监控商品上架、审核、财务与风控数据
+          </p>
+        </div>
+        <button
+          onClick={handleRefresh}
+          disabled={refreshing}
+          className="flex items-center gap-2 px-3 py-2 text-sm rounded-md border hover:bg-muted transition-colors"
+        >
+          {refreshing ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : (
+            <RefreshCw className="h-4 w-4" />
+          )}
+          刷新
+        </button>
       </div>
+
+      {error && (
+        <Card className="border-destructive">
+          <CardContent className="pt-4">
+            <p className="text-sm text-destructive">⚠️ {error}</p>
+            <p className="text-xs text-muted-foreground mt-1">
+              已回退到模拟数据，请检查后端服务是否正常运行
+            </p>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Key Metrics Cards */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">今日上架</CardTitle>
+            <CardTitle className="text-sm font-medium">在售商品</CardTitle>
             <Package className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{todayListed}</div>
+            <div className="text-2xl font-bold">{listedCount}</div>
             <p className="text-xs text-muted-foreground">
               <span className="text-green-600 font-medium">↑ 12%</span>{" "}
               较昨日
@@ -260,38 +345,40 @@ export function OverviewPage() {
             <CardTitle className="flex items-center justify-between">
               最近商品
               <Badge variant="outline" className="text-xs">
-                共 {mockProducts.length} 条
+                共 {products.length || mockProducts.length} 条
               </Badge>
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
-              {mockProducts.slice(0, 4).map((product) => (
+              {(products.length > 0 ? products : mockProducts).slice(0, 4).map((product: any) => (
                 <div
                   key={product.id}
                   className="flex items-center justify-between rounded-lg border p-3"
                 >
                   <div className="flex-1">
-                    <p className="text-sm font-medium">{product.titleZh}</p>
+                    <p className="text-sm font-medium">
+                      {product.title_zh || product.titleZh}
+                    </p>
                     <p className="text-xs text-muted-foreground">
-                      {product.sourcePlatform === "1688" ? "1688" : "拼多多"} ·{" "}
-                      利润率 {product.profitMargin}%
+                      {product.source_platform || product.sourcePlatform === "1688" ? "1688" : "拼多多"} ·{" "}
+                      利润率 {product.profit_margin || product.profitMargin}%
                     </p>
                   </div>
                   <div className="flex items-center gap-2">
-                    {product.status === "listed" && (
+                    {(product.status === "listed" || product.status === "active") && (
                       <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
                         <CheckCircle className="mr-1 h-3 w-3" />
                         已上架
                       </Badge>
                     )}
-                    {product.status === "auditing" && (
+                    {(product.status === "auditing" || product.status === "pending") && (
                       <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
                         <Clock className="mr-1 h-3 w-3" />
                         审核中
                       </Badge>
                     )}
-                    {product.status === "blocked" && (
+                    {(product.status === "blocked" || product.risk_status === "block") && (
                       <Badge variant="outline" className="bg-red-50 text-red-700 border-red-200">
                         <XCircle className="mr-1 h-3 w-3" />
                         拦截

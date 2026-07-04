@@ -231,8 +231,8 @@ async def import_product(
         if not shop or shop.user_id != user_info["user_id"]:
             raise HTTPException(status_code=403, detail="无权在该店铺下导入商品")
 
-    # 4. 创建商品记录（占位数据，后续爬虫填充）
-    # TODO: 调用 Playwright 抓取真实数据
+    # 4. 调用爬虫抓取商品详情（TODO: 接入 Playwright 爬虫）
+    # 暂时返回占位数据
     return {
         "status": "queued",
         "task_type": "import",
@@ -258,15 +258,57 @@ async def trigger_translate(
         if not product:
             raise HTTPException(status_code=404, detail="商品不存在")
 
-    # 调用 Celery 异步翻译
-    from worker.tasks import translate_product
-    task = translate_product.delay(product_id)
+        # 调用 Celery 异步翻译
+        from worker.tasks import translate_product
+        task = translate_product.delay(product_id)
 
     return {
         "status": "queued",
         "task_id": task.id,
         "product_id": product_id,
         "message": "翻译工作流已提交",
+    }
+
+
+@router.post("/{product_id}/list")
+async def trigger_listing(
+    product_id: int,
+    credentials_str: Optional[str] = Query(None),
+):
+    """触发上架（审核通过后调用）"""
+    user_info = parse_credentials(credentials_str)
+
+    async with async_session() as db:
+        result = await db.execute(select(Product).where(Product.id == product_id))
+        product = result.scalar_one_or_none()
+        if not product:
+            raise HTTPException(status_code=404, detail="商品不存在")
+
+        if product.status not in ("audited", "reviewed"):
+            raise HTTPException(
+                status_code=400,
+                detail="商品未通过审核，无法上架",
+            )
+
+        # 获取店铺 Token
+        shop_result = await db.execute(select(Shop).where(Shop.id == product.shop_id))
+        shop = shop_result.scalar_one_or_none()
+        if not shop:
+            raise HTTPException(status_code=404, detail="店铺不存在")
+
+        # 解密 Token
+        from api.services.crypto import decrypt_aes256
+        shop_token = decrypt_aes256(shop.shop_token_encrypted)
+
+        # 调用 Celery 上架任务
+        from worker.tasks import listing_product
+        task = listing_product.delay(product_id, None)
+
+    return {
+        "status": "queued",
+        "task_id": task.id,
+        "product_id": product_id,
+        "message": "上架任务已提交",
     }
 
 

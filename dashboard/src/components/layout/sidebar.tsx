@@ -62,7 +62,13 @@ export function Sidebar() {
 
       {/* Footer */}
       <div className="border-t px-3 py-4">
-        <button className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive">
+        <button
+          className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
+          onClick={() => {
+            localStorage.removeItem("access_token");
+            window.location.href = "/login";
+          }}
+        >
           <LogOut className="h-4 w-4" />
           退出登录
         </button>

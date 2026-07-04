@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -7,9 +8,49 @@ import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Save } from "lucide-react";
+import { Save, Loader2, RefreshCw } from "lucide-react";
+import { settingService } from "@/services";
 
 export function SettingsPage() {
+  const [loading, setLoading] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [riskWords, setRiskWords] = useState<{ brand_keywords: string[]; prohibited_words: string[] }>({
+    brand_keywords: [],
+    prohibited_words: [],
+  });
+  const [newWord, setNewWord] = useState("");
+  const [wordType, setWordType] = useState<"brand" | "prohibited">("brand");
+
+  const fetchRiskWords = async () => {
+    setLoading(true);
+    try {
+      const data = await settingService.getRiskWords();
+      setRiskWords(data);
+    } catch (err: any) {
+      console.error("Failed to fetch risk words:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchRiskWords();
+  }, []);
+
+  const handleAddWord = async () => {
+    if (!newWord.trim()) return;
+    setSaving(true);
+    try {
+      await settingService.addRiskWord(newWord.trim(), wordType);
+      setNewWord("");
+      fetchRiskWords();
+    } catch (err: any) {
+      alert("添加失败: " + (err.message || "未知错误"));
+    } finally {
+      setSaving(false);
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div>
@@ -25,6 +66,7 @@ export function SettingsPage() {
           <TabsTrigger value="exchange">汇率配置</TabsTrigger>
           <TabsTrigger value="schedule">定时任务</TabsTrigger>
           <TabsTrigger value="notify">通知设置</TabsTrigger>
+          <TabsTrigger value="risk">风控词库</TabsTrigger>
         </TabsList>
 
         <TabsContent value="circuit" className="space-y-4">
@@ -159,6 +201,75 @@ export function SettingsPage() {
               <Button>
                 <Save className="mr-2 h-4 w-4" />
                 保存设置
+              </Button>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="risk" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>风控词库管理</CardTitle>
+              <CardDescription>
+                管理品牌词和违禁词，用于翻译后风控检测
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex gap-2">
+                <select
+                  className="rounded-md border px-3 py-2"
+                  value={wordType}
+                  onChange={(e) => setWordType(e.target.value as "brand" | "prohibited")}
+                >
+                  <option value="brand">品牌词</option>
+                  <option value="prohibited">违禁词</option>
+                </select>
+                <Input
+                  placeholder="输入新词汇..."
+                  value={newWord}
+                  onChange={(e) => setNewWord(e.target.value)}
+                  className="flex-1"
+                  onKeyDown={(e) => e.key === "Enter" && handleAddWord()}
+                />
+                <Button onClick={handleAddWord} disabled={saving || !newWord.trim()}>
+                  {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+                  添加
+                </Button>
+              </div>
+
+              <Separator />
+
+              <div>
+                <h3 className="text-sm font-medium mb-2">品牌词 ({riskWords.brand_keywords.length})</h3>
+                <div className="flex flex-wrap gap-2">
+                  {riskWords.brand_keywords.map((word, i) => (
+                    <Badge key={i} variant="outline" className="bg-red-50 text-red-700 border-red-200">
+                      {word}
+                    </Badge>
+                  ))}
+                  {riskWords.brand_keywords.length === 0 && (
+                    <p className="text-sm text-muted-foreground">暂无品牌词</p>
+                  )}
+                </div>
+              </div>
+
+              <div>
+                <h3 className="text-sm font-medium mb-2">违禁词 ({riskWords.prohibited_words.length})</h3>
+                <div className="flex flex-wrap gap-2">
+                  {riskWords.prohibited_words.map((word, i) => (
+                    <Badge key={i} variant="outline" className="bg-orange-50 text-orange-700 border-orange-200">
+                      {word}
+                    </Badge>
+                  ))}
+                  {riskWords.prohibited_words.length === 0 && (
+                    <p className="text-sm text-muted-foreground">暂无违禁词</p>
+                  )}
+                </div>
+              </div>
+
+              <Button onClick={fetchRiskWords} variant="outline" className="w-full">
+                <RefreshCw className="mr-2 h-4 w-4" />
+                刷新词库
               </Button>
             </CardContent>
           </Card>

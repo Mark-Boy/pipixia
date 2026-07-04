@@ -34,6 +34,16 @@ celery_app.config_from_object({
             "schedule": 86400,  # 每天
             "options": {"queue": "scheduled"},
         },
+        "stock-sync": {
+            "task": "worker.tasks.sync_inventory",
+            "schedule": 86400,  # 每天
+            "options": {"queue": "scheduled"},
+        },
+        "profit-circuit-breaker": {
+            "task": "worker.tasks.profit_circuit_breaker",
+            "schedule": 86400,  # 每天
+            "options": {"queue": "scheduled"},
+        },
     },
 })
 

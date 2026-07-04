@@ -15,6 +15,14 @@ class ShopCreate(BaseModel):
     config: Optional[Dict[str, Any]] = {}
 
 
+class ShopUpdate(BaseModel):
+    shop_name: Optional[str] = None
+    platform: Optional[str] = None
+    shop_token: Optional[str] = None
+    config: Optional[Dict[str, Any]] = None
+    is_active: Optional[bool] = None
+
+
 class ShopResponse(BaseModel):
     id: int
     user_id: int
@@ -26,3 +34,7 @@ class ShopResponse(BaseModel):
     updated_at: datetime
 
     model_config = {"from_attributes": True}
+
+
+class ShopTokenResponse(BaseModel):
+    shop_token: str

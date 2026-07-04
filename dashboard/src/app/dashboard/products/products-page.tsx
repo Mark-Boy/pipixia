@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -32,6 +32,8 @@ import {
   Eye,
   Edit,
   Trash2,
+  Loader2,
+  RefreshCw,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -39,20 +41,58 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { productService } from "@/services";
 
 export function ProductsPage() {
   const [search, setSearch] = useState("");
   const [platform, setPlatform] = useState("all");
   const [status, setStatus] = useState("all");
+  const [products, setProducts] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [refreshing, setRefreshing] = useState(false);
 
-  const filteredProducts = mockProducts.filter((p) => {
+  const fetchProducts = async (showLoading = true) => {
+    if (showLoading) setLoading(true);
+    setError(null);
+    try {
+      const params: Record<string, any> = { page: 1, size: 50 };
+      if (platform !== "all") params.source_platform = platform;
+      if (status !== "all") params.status = status;
+      
+      const res = await productService.getList(params);
+      setProducts(res.products || []);
+    } catch (err: any) {
+      console.error("Failed to fetch products:", err);
+      // Fallback to mock data
+      setProducts(mockProducts);
+      setError("无法连接后端 API，已使用模拟数据");
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchProducts();
+  }, []);
+
+  const handleRefresh = () => {
+    setRefreshing(true);
+    fetchProducts(false);
+  };
+
+  const filteredProducts = products.filter((p) => {
+    const titleZh = p.title_zh || p.titleZh || "";
+    const titleTh = p.title_th || p.titleTh || "";
     const matchSearch =
       !search ||
-      p.titleZh.toLowerCase().includes(search.toLowerCase()) ||
-      p.titleTh.toLowerCase().includes(search.toLowerCase());
+      titleZh.toLowerCase().includes(search.toLowerCase()) ||
+      titleTh.toLowerCase().includes(search.toLowerCase());
     const matchPlatform =
-      platform === "all" || p.sourcePlatform === platform;
-    const matchStatus = status === "all" || p.status === status;
+      platform === "all" || (p.source_platform || p.sourcePlatform) === platform;
+    const matchStatus =
+      status === "all" || p.status === status;
     return matchSearch && matchPlatform && matchStatus;
   });
 
@@ -65,21 +105,44 @@ export function ProductsPage() {
             管理从 1688/拼多多 采集的商品，查看翻译、财务与风控状态
           </p>
         </div>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button>
-              <Plus className="mr-2 h-4 w-4" />
-              导入商品
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent>
-            <DropdownMenuItem>📋 粘贴 1688 链接</DropdownMenuItem>
-            <DropdownMenuItem>📋 粘贴 拼多多 链接</DropdownMenuItem>
-            <DropdownMenuItem>📁 CSV 批量导入</DropdownMenuItem>
-            <DropdownMenuItem>🔗 Shopee 热销品采集</DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleRefresh}
+            disabled={refreshing}
+          >
+            {refreshing ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <RefreshCw className="h-4 w-4" />
+            )}
+            刷新
+          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button>
+                <Plus className="mr-2 h-4 w-4" />
+                导入商品
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+              <DropdownMenuItem>📋 粘贴 1688 链接</DropdownMenuItem>
+              <DropdownMenuItem>📋 粘贴 拼多多 链接</DropdownMenuItem>
+              <DropdownMenuItem>📁 CSV 批量导入</DropdownMenuItem>
+              <DropdownMenuItem>🔗 Shopee 热销品采集</DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
       </div>
+
+      {error && (
+        <Card className="border-destructive">
+          <CardContent className="pt-4">
+            <p className="text-sm text-destructive">⚠️ {error}</p>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Filters */}
       <Card>
@@ -140,7 +203,7 @@ export function ProductsPage() {
           <CardContent className="pt-6">
             <p className="text-sm text-muted-foreground">已上架</p>
             <p className="text-2xl font-bold text-green-600">
-              {filteredProducts.filter((p) => p.status === "listed").length}
+              {filteredProducts.filter((p: any) => p.status === "listed" || p.status === "active").length}
             </p>
           </CardContent>
         </Card>
@@ -148,7 +211,7 @@ export function ProductsPage() {
           <CardContent className="pt-6">
             <p className="text-sm text-muted-foreground">审核中</p>
             <p className="text-2xl font-bold text-blue-600">
-              {filteredProducts.filter((p) => p.status === "auditing").length}
+              {filteredProducts.filter((p: any) => p.status === "auditing" || p.status === "pending").length}
             </p>
           </CardContent>
         </Card>
@@ -156,99 +219,108 @@ export function ProductsPage() {
           <CardContent className="pt-6">
             <p className="text-sm text-muted-foreground">已拦截</p>
             <p className="text-2xl font-bold text-red-600">
-              {filteredProducts.filter((p) => p.status === "blocked").length}
+              {filteredProducts.filter((p: any) => p.status === "blocked" || p.risk_status === "block").length}
             </p>
           </CardContent>
         </Card>
       </div>
 
+      {/* Loading State */}
+      {loading && (
+        <div className="flex items-center justify-center py-12">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          <span className="ml-3 text-muted-foreground">加载中...</span>
+        </div>
+      )}
+
       {/* Product Table */}
-      <Card>
-        <CardHeader>
-          <CardTitle>商品列表</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="w-12">
-                  <Checkbox />
-                </TableHead>
-                <TableHead>商品标题</TableHead>
-                <TableHead>来源</TableHead>
-                <TableHead>状态</TableHead>
-                <TableHead>利润率</TableHead>
-                <TableHead>泰语标题</TableHead>
-                <TableHead>操作</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredProducts.map((product) => (
-                <TableRow key={product.id}>
-                  <TableCell>
+      {!loading && (
+        <Card>
+          <CardHeader>
+            <CardTitle>商品列表</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="w-12">
                     <Checkbox />
-                  </TableCell>
-                  <TableCell className="font-medium">{product.titleZh}</TableCell>
-                  <TableCell>
-                    <Badge variant="outline">
-                      {product.sourcePlatform === "1688" ? "1688" : "拼多多"}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    {product.status === "listed" && (
-                      <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
-                        已上架
-                      </Badge>
-                    )}
-                    {product.status === "auditing" && (
-                      <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
-                        审核中
-                      </Badge>
-                    )}
-                    {product.status === "blocked" && (
-                      <Badge variant="outline" className="bg-red-50 text-red-700 border-red-200">
-                        已拦截
-                      </Badge>
-                    )}
-                    {product.status === "pending" && (
-                      <Badge variant="outline" className="bg-gray-50 text-gray-700 border-gray-200">
-                        待处理
-                      </Badge>
-                    )}
-                  </TableCell>
-                  <TableCell>
-                    <span
-                      className={
-                        product.profitMargin >= 15
-                          ? "text-green-600 font-medium"
-                          : "text-red-600 font-medium"
-                      }
-                    >
-                      {product.profitMargin}%
-                    </span>
-                  </TableCell>
-                  <TableCell className="max-w-[200px] truncate text-muted-foreground">
-                    {product.titleTh}
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex gap-1">
-                      <Button variant="ghost" size="icon" className="h-8 w-8">
-                        <Eye className="h-4 w-4" />
-                      </Button>
-                      <Button variant="ghost" size="icon" className="h-8 w-8">
-                        <Edit className="h-4 w-4" />
-                      </Button>
-                      <Button variant="ghost" size="icon" className="h-8 w-8 text-red-500">
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </TableCell>
+                  </TableHead>
+                  <TableHead>商品标题</TableHead>
+                  <TableHead>来源</TableHead>
+                  <TableHead>状态</TableHead>
+                  <TableHead>利润率</TableHead>
+                  <TableHead>泰语标题</TableHead>
+                  <TableHead>操作</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
+              </TableHeader>
+              <TableBody>
+                {filteredProducts.map((product) => (
+                  <TableRow key={product.id}>
+                    <TableCell>
+                      <Checkbox />
+                    </TableCell>
+                    <TableCell className="font-medium">
+                      {product.title_zh || product.titleZh}
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant="outline">
+                        {(product.source_platform || product.sourcePlatform) === "1688" ? "1688" : "拼多多"}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      {product.status === "listed" || product.status === "active" ? (
+                        <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+                          已上架
+                        </Badge>
+                      ) : product.status === "auditing" ? (
+                        <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
+                          审核中
+                        </Badge>
+                      ) : product.status === "blocked" || product.risk_status === "block" ? (
+                        <Badge variant="outline" className="bg-red-50 text-red-700 border-red-200">
+                          已拦截
+                        </Badge>
+                      ) : (
+                        <Badge variant="outline" className="bg-gray-50 text-gray-700 border-gray-200">
+                          待处理
+                        </Badge>
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      <span
+                        className={
+                          (product.profit_margin || product.profitMargin) >= 15
+                            ? "text-green-600 font-medium"
+                            : "text-red-600 font-medium"
+                        }
+                      >
+                        {product.profit_margin || product.profitMargin}%
+                      </span>
+                    </TableCell>
+                    <TableCell className="max-w-[200px] truncate text-muted-foreground">
+                      {product.title_th || product.titleTh || "-"}
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex gap-1">
+                        <Button variant="ghost" size="icon" className="h-8 w-8">
+                          <Eye className="h-4 w-4" />
+                        </Button>
+                        <Button variant="ghost" size="icon" className="h-8 w-8">
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                        <Button variant="ghost" size="icon" className="h-8 w-8 text-red-500">
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }

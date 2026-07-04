@@ -1,0 +1,33 @@
+﻿id,name,email,age,score,country,note
+1,Alice Johnson,alice.johnson@example.com,29,87,USA,first entry
+2,Bruno Costa  ,bruno.costa@example.com  ,34,72,Brazil,returning user   
+3,   Chiaki Saito,  chiaki.saito@example.com,41,93,  Japan,  top performer
+
+4,Dimitri Volkov,dimitri.volkov@example.com,52,68,Russia,NA
+5,Elena Garcia,elena.garcia@example.com,23,55,N/A,new account
+6,Farhan Ahmed,farhan.ahmed@example.com,38,64,NULL,null
+7,Greta Lindqvist,greta.lindqvist@example.com,45,81,?,-
+8,Hassan Al-Mansoori,hassan.almansoori@example.com,60,,UAE,
+9,Isla Murphy,isla.murphy@example.com,27,90,Ireland,“great work”
+10,Jakub Nowak,jakub.nowak@example.com,33,76,Poland,‘needs review’
+11,Kavita    Iyer,kavita.iyer@example.com,48,58,India,foo    bar    baz
+12,Liam O'Brien,liam.obrien@example.com,21,9999,Ireland,score outlier high
+13,Mei Chen,mei.chen@example.com,36,-500,China,score outlier low
+
+14,Noa Bernstein,noa.bernstein@example.com,29,high,Israel,mixed type score
+15,Oskar Hoffmann,oskar.hoffmann@example.com,54,n/a,Germany,mixed type score
+16,Priya Nair,priya.nair@example.com,31,72,India,steady
+1,Alice Johnson,alice.johnson@example.com,29,87,USA,first entry
+17,Quentin Lefevre,quentin.lefevre@example.com,67,45,France,senior user
+  18 ,  Rashida Diallo  ,  rashida.diallo@example.com  ,  42 ,  78 ,  Senegal  ,  combined ws  
+19,Sofia Rossi,sofia.rossi@example.com,25,82,Italy,milan office
+
+17,Quentin Lefevre,quentin.lefevre@example.com,67,45,France,senior user
+20,Tomasz Kowalski,tomasz.kowalski@example.com,39,71,Poland,“ok” result
+21,Uma   Sharma,uma.sharma@example.com,28,69,India,hello    world
+22,Viktor Petrov,viktor.petrov@example.com,55,77,Bulgaria,regional lead
+23,Wendy Park   ,wendy.park@example.com,30,85,South Korea,seoul team
+19,Sofia Rossi,sofia.rossi@example.com,25,82,Italy,milan office
+24,Xavier Laurent,xavier.laurent@example.com,46,63,,paris office
+25,Yuki Tanaka,yuki.tanaka@example.com,89,51,Japan,elder user
+26,Zara Khan,zara.khan@example.com,18,74,Bangladesh,youngest
