@@ -1,0 +1,68 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+dist/
+build/
+.eggs/
+*.egg
+
+# Virtual environments
+venv/
+.venv/
+env/
+.env/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Docker
+.docker/
+
+# Database
+*.db
+*.sqlite3
+
+# Logs
+*.log
+logs/
+
+# Node
+node_modules/
+next-env.d.ts
+.next/
+out/
+
+# Environment
+.env
+.env.local
+.env.production
+*.env
+
+# Migrations (optional, uncomment if needed)
+# alembic/versions/*.py
+
+# Coverage
+.coverage
+htmlcov/
+.pytest_cache/
+
+# MinIO data
+minio_data/
+
+# Redis data
+redis_data/
+
+# PG data
+pg_data/
+
+# Test
+.pytest_cache/

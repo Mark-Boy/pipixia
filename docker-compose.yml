@@ -1,0 +1,169 @@
+services:
+  # ===================== PostgreSQL =====================
+  postgres:
+    image: postgres:16-alpine
+    container_name: pipixia-postgres
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: pipixia
+      POSTGRES_USER: pipixia
+      POSTGRES_PASSWORD: pipixia_secret
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U pipixia -d pipixia"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - pipixia-net
+
+  # ===================== Redis =====================
+  redis:
+    image: redis:7-alpine
+    container_name: pipixia-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - pipixia-net
+
+  # ===================== MinIO (对象存储) =====================
+  minio:
+    image: minio/minio:latest
+    container_name: pipixia-minio
+    restart: unless-stopped
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin-secret
+    volumes:
+      - minio_data:/data
+    command: server /data --console-address ":9001"
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - pipixia-net
+
+  # ===================== MinIO Init (创建 Bucket) =====================
+  minio-init:
+    image: minio/mc:latest
+    container_name: pipixia-minio-init
+    depends_on:
+      minio:
+        condition: service_healthy
+    entrypoint: >
+      /bin/sh -c "
+      mc alias set local http://minio:9000 minioadmin minioadmin-secret;
+      mc mb --ignore-existing local/pipixia-images;
+      mc anonymous set download local/pipixia-images;
+      exit 0;
+      "
+    networks:
+      - pipixia-net
+
+  # ===================== API (FastAPI) =====================
+  api:
+    build:
+      context: ./api
+      dockerfile: Dockerfile
+    container_name: pipixia-api
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: postgresql+asyncpg://pipixia:pipixia_secret@postgres:5432/pipixia
+      REDIS_URL: redis://redis:6379/0
+      MINIO_ENDPOINT: minio:9000
+      MINIO_ACCESS_KEY: minioadmin
+      MINIO_SECRET_KEY: minioadmin-secret
+      MINIO_BUCKET: pipixia-images
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+    volumes:
+      - ./api:/app
+      - ./config:/app/config
+    command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+    networks:
+      - pipixia-net
+
+  # ===================== Worker (Celery) =====================
+  worker:
+    build:
+      context: ./worker
+      dockerfile: Dockerfile
+    container_name: pipixia-worker
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: postgresql+asyncpg://pipixia:pipixia_secret@postgres:5432/pipixia
+      REDIS_URL: redis://redis:6379/0
+      MINIO_ENDPOINT: minio:9000
+      MINIO_ACCESS_KEY: minioadmin
+      MINIO_SECRET_KEY: minioadmin-secret
+      MINIO_BUCKET: pipixia-images
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+    volumes:
+      - ./worker:/app
+      - ./config:/app/config
+    command: celery -A celery_app worker --loglevel=info --concurrency=4
+    networks:
+      - pipixia-net
+
+  # ===================== Dashboard (Next.js) =====================
+  dashboard:
+    build:
+      context: ./dashboard
+      dockerfile: Dockerfile
+    container_name: pipixia-dashboard
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    env_file:
+      - ./dashboard/.env.local
+    depends_on:
+      - api
+    volumes:
+      - ./dashboard:/app
+      - /app/node_modules
+    command: npm run dev
+    networks:
+      - pipixia-net
+
+volumes:
+  pg_data:
+  redis_data:
+  minio_data:
+
+networks:
+  pipixia-net:
+    driver: bridge

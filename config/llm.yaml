@@ -1,0 +1,9 @@
+# LLM 配置
+provider: dashscope
+model: qwen-plus
+temperature: 0.3
+max_tokens: 2048
+timeout: 30
+
+# 备用模型（降级用）
+fallback_model: qwen-turbo

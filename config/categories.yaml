@@ -1,0 +1,35 @@
+# Shopee 泰国站类目配置
+categories:
+  - id: 100001
+    name: "มือถือและอุปกรณ์เสริม"
+    name_zh: "手机及配件"
+    commission_rate: 0.05
+  - id: 100002
+    name: "คอมพิวเตอร์และโน้ตบุ๊ก"
+    name_zh: "电脑和笔记本"
+    commission_rate: 0.03
+  - id: 100003
+    name: "เครื่องใช้ไฟฟ้าในบ้าน"
+    name_zh: "家用电器"
+    commission_rate: 0.04
+  - id: 100004
+    name: "เสื้อผ้าผู้หญิง"
+    name_zh: "女装"
+    commission_rate: 0.05
+    excluded: true  # 排除
+  - id: 100005
+    name: "ของเล่นและเกม"
+    name_zh: "玩具和游戏"
+    commission_rate: 0.06
+  - id: 100006
+    name: "สุขภาพและความงาม"
+    name_zh: "健康与美容"
+    commission_rate: 0.05
+  - id: 100007
+    name: "กีฬาและกลางแจ้ง"
+    name_zh: "运动和户外"
+    commission_rate: 0.04
+  - id: 100008
+    name: "บ้านและสวน"
+    name_zh: "家居和花园"
+    commission_rate: 0.05
