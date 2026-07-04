@@ -1,0 +1,6 @@
+# 配置文件目录
+settings.yaml
+llm.yaml
+categories.yaml
+risk_words.json
+prompts.yaml

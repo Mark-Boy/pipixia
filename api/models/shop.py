@@ -1,0 +1,22 @@
+"""
+店铺模型
+"""
+
+from sqlalchemy import Column, Integer, String, Boolean, JSON, DateTime
+from sqlalchemy.sql import func
+from api.database import Base
+
+
+class Shop(Base):
+    __tablename__ = "shops"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, nullable=False, index=True)
+    shop_name = Column(String(100), nullable=False)
+    platform = Column(String(20), default="shopee_th")  # shopee_th, shopee_vn, shopee_ph
+    shop_token_encrypted = Column(String(500), nullable=False)
+    shop_id = Column(String(50), nullable=True)  # Shopee 店铺 ID
+    is_active = Column(Boolean, default=True)
+    config = Column(JSON, default=dict)  # 店铺配置
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())

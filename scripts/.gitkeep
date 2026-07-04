@@ -1,0 +1,6 @@
+# 运维脚本目录
+init_db.py
+create_admin.py
+seed_data.py
+backup.sh
+restore.sh

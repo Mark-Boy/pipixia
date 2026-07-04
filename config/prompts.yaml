@@ -1,0 +1,31 @@
+# AI Prompt 模板
+translation:
+  title_template: |
+    请将以下中文商品标题翻译为泰语，要求简洁、符合泰国电商习惯：
+    原文: {title}
+    翻译:
+  
+  description_template: |
+    请将以下中文商品描述翻译为泰语，要求流畅自然、突出卖点：
+    原文: {description}
+    翻译:
+  
+  seo_keywords_template: |
+    请为以下泰语商品标题推荐3-5个泰语热搜词：
+    标题: {title_th}
+    关键词:
+
+risk:
+  brand_check_template: |
+    请检查以下商品标题和描述中是否包含知名品牌名称：
+    内容: {content}
+    是否包含品牌词:
+
+finance:
+  profit_calculation_template: |
+    请根据以下信息计算商品利润率：
+    采购价: {cost_cny} CNY
+    售价: {price_thb} THB
+    汇率: {exchange_rate}
+    平台佣金: {commission_rate}%
+    计算结果:
