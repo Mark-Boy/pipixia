@@ -6,7 +6,7 @@ from typing import Optional, List
 
 from fastapi import APIRouter, Depends, HTTPException, status, Query
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from sqlalchemy import select, update
+from sqlalchemy import select, update, func
 from sqlalchemy.orm import Session
 
 from api.database import async_session
@@ -59,8 +59,9 @@ async def get_audit_queue(
             query = query.where(Product.shop_id == shop_id)
 
         # 总数
-        count_result = await db.execute(select(query.count()))
-        total = count_result.scalar()
+        count_query = select(func.count()).select_from(query.subquery())
+        count_result = await db.execute(count_query)
+        total = count_result.scalar() or 0
 
         # 分页
         query = query.order_by(Product.created_at.desc())
@@ -223,7 +224,17 @@ async def trigger_listing(
 
     # 调用 Celery 上架任务
     from worker.tasks import listing_product
-    task = listing_product.delay(product_id, None)
+    try:
+        task = listing_product.delay(product_id, None)
+    except Exception:
+        # Celery 不可用时直接执行
+        result = listing_product(product_id, None)
+        return {
+            "status": "success",
+            "result": result,
+            "product_id": product_id,
+            "message": "上架任务完成",
+        }
 
     return {
         "status": "queued",

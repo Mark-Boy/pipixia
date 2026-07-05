@@ -2,8 +2,10 @@
 SQLAlchemy 数据库配置
 """
 
+import os
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine, async_sessionmaker
 from sqlalchemy.orm import DeclarativeBase
+from sqlalchemy import create_engine
 from api.config import get_settings
 
 settings = get_settings()
@@ -20,6 +22,14 @@ async_session = async_sessionmaker(engine, class_=AsyncSession, expire_on_commit
 
 class Base(DeclarativeBase):
     pass
+
+
+def init_db():
+    """同步初始化数据库表（在应用启动时调用）"""
+    db_path = engine.url.database
+    if db_path and db_path != ':memory:':
+        sync_engine = create_engine(f'sqlite:///{os.path.abspath(db_path)}')
+        Base.metadata.create_all(sync_engine)
 
 
 async def get_db() -> AsyncSession:

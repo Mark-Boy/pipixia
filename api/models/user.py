@@ -2,7 +2,7 @@
 用户模型
 """
 
-from sqlalchemy import Column, Integer, String, Boolean, DateTime, ForeignKey, Table
+from sqlalchemy import Column, Integer, String, Boolean, DateTime, ForeignKey
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from api.database import Base
@@ -22,5 +22,4 @@ class User(Base):
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
 
     # 关系
-    shops = relationship("Shop", back_populates="owner", cascade="all, delete-orphan")
-    products = relationship("Product", back_populates="owner")
+    shops = relationship("Shop", back_populates="owner", foreign_keys="Shop.user_id", cascade="all, delete-orphan")

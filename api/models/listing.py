@@ -2,7 +2,7 @@
 上架记录模型
 """
 
-from sqlalchemy import Column, Integer, String, JSON, DateTime, ForeignKey
+from sqlalchemy import Column, Integer, String, JSON, DateTime, ForeignKey, Float
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from api.database import Base
@@ -12,8 +12,8 @@ class Listing(Base):
     __tablename__ = "listings"
 
     id = Column(Integer, primary_key=True, index=True)
-    product_id = Column(Integer, nullable=False, index=True)
-    shop_id = Column(Integer, nullable=False, index=True)
+    product_id = Column(Integer, ForeignKey('products.id'), nullable=False, index=True)
+    shop_id = Column(Integer, ForeignKey('shops.id'), nullable=False, index=True)
     shopee_item_id = Column(String(50), nullable=True)
     shopee_status = Column(String(20), nullable=True)
     listing_price_thb = Column(Float, nullable=True)

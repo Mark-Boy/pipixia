@@ -35,7 +35,7 @@ def parse_credentials(credentials_str: Optional[str]) -> dict:
     return {"user_id": int(payload["sub"]), "role": payload.get("role", "operator")}
 
 
-@router.get("", response_model=List[dict])
+@router.get("")
 async def get_products(
     shop_id: Optional[int] = Query(None),
     status_filter: Optional[str] = Query(None, alias="status"),
@@ -52,10 +52,11 @@ async def get_products(
         # 权限过滤：operator 只能看自己店铺的，admin 可以看所有
         query = select(Product)
         if user_info["role"] != "admin":
-            shop_ids = await db.execute(
-                select(Shop.id).where(Shop.user_id == user_info["user_id"])
+            shop_result = await db.execute(
+                select(Shop).where(Shop.user_id == user_info["user_id"])
             )
-            shop_ids = [s.id for s in shop_ids.scalars().all()]
+            shops = shop_result.scalars().all()
+            shop_ids = [s.id for s in shops]
             if shop_ids:
                 query = query.where(Product.shop_id.in_(shop_ids))
 

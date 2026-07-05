@@ -6,7 +6,7 @@ import logging
 import time
 from datetime import datetime, timedelta
 
-from celery_app import celery_app
+from worker.celery_app import celery_app
 
 logger = logging.getLogger(__name__)
 

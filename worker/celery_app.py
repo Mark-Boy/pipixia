@@ -6,12 +6,8 @@ import os
 from celery import Celery
 
 REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379/0")
-
-celery_app = Celery(
-    "worker",
-    broker=REDIS_URL,
-    backend=REDIS_URL,
-)
+# 如果Redis不可用，使用sqlite作为broker
+celery_app = Celery("worker")
 
 celery_app.config_from_object({
     "broker_connection_retry_on_startup": True,
@@ -20,6 +16,8 @@ celery_app.config_from_object({
     "accept_content": ["json"],
     "timezone": "Asia/Shanghai",
     "enable_utc": False,
+    "task_always_eager": True,  # 开发模式：直接执行任务
+    "task_store_eager_result": True,  # 保存任务结果
     "task_routes": {
         "worker.tasks.*": {"queue": "tasks"},
     },

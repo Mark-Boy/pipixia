@@ -6,7 +6,7 @@ from typing import Optional, List
 
 from fastapi import APIRouter, Depends, HTTPException, status, Query
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from sqlalchemy import select, func, date_trunc
+from sqlalchemy import select, func
 from sqlalchemy.orm import Session
 
 from api.database import async_session

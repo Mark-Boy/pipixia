@@ -12,7 +12,7 @@ class RiskLog(Base):
     __tablename__ = "risk_logs"
 
     id = Column(Integer, primary_key=True, index=True)
-    product_id = Column(Integer, nullable=False, index=True)
+    product_id = Column(Integer, ForeignKey('products.id'), nullable=False, index=True)
     risk_type = Column(String(20), nullable=False)  # brand / prohibited / profit / category
     risk_detail = Column(String(500), nullable=False)
     action_taken = Column(String(200), nullable=True)

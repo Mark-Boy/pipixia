@@ -12,7 +12,7 @@ class Translate(Base):
     __tablename__ = "translates"
 
     id = Column(Integer, primary_key=True, index=True)
-    product_id = Column(Integer, nullable=False, index=True)
+    product_id = Column(Integer, ForeignKey('products.id'), nullable=False, index=True)
     translate_type = Column(String(20), nullable=False)  # title / description / image
     source_text_hash = Column(String(64), nullable=False, index=True)
     source_text = Column(String(5000), nullable=False)

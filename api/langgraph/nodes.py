@@ -22,7 +22,7 @@ from api.services.translator import (
     generate_seo_tags,
     get_translation_stats,
 )
-from api.config import settings
+from api.config import Settings
 import logging
 
 logger = logging.getLogger(__name__)
@@ -43,9 +43,9 @@ class WorkflowState(TypedDict):
     profit_thb: float | None
     profit_margin: float | None
     seo_tags: list[str] | None
-    translate_status: str = "pending"  # pending / processing / completed / failed
-    error_message: str | None
-    updated_at: datetime | None
+    error_message: str | None = None  # pending / processing / completed / failed
+    updated_at: datetime | None = None
+    translate_status: str = "pending"
 
 
 async def node_extract_images(state: WorkflowState) -> WorkflowState:
@@ -294,6 +294,7 @@ async def save_translate_record(
     confidence_score: float = 0.95,
     source_image_url: str = None,
     target_image_url: str = None,
+) -> None:
     """保存翻译记录到数据库"""
     try:
         text_hash = hashlib.sha256(source_text.encode("utf-8")).hexdigest()

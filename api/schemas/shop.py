@@ -8,11 +8,11 @@ from datetime import datetime
 
 
 class ShopCreate(BaseModel):
-    user_id: int
     shop_name: str
     platform: str = "shopee_th"
     shop_token: str
     config: Optional[Dict[str, Any]] = {}
+    user_id: int = 0  # 默认0，路由中会从token解析并覆盖
 
 
 class ShopUpdate(BaseModel):

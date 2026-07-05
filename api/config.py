@@ -16,7 +16,7 @@ class Settings(BaseSettings):
     REFRESH_TOKEN_EXPIRE_DAYS: int = 7
 
     # 数据库
-    DATABASE_URL: str = "postgresql+asyncpg://pipixia:pipixia_secret@localhost:5432/pipixia"
+    DATABASE_URL: str = "sqlite+aiosqlite:///./pipixia.db"
 
     # Redis
     REDIS_URL: str = "redis://localhost:6379/0"
@@ -28,14 +28,25 @@ class Settings(BaseSettings):
     MINIO_BUCKET: str = "pipixia-images"
 
     # LLM
-    DASHSCOPE_API_KEY: str = ""
+    LLM_BASE_URL: str = "http://127.0.0.1:8080/v1"
     LLM_MODEL: str = "qwen-plus"
+    DASHSCOPE_API_KEY: str = ""
+    DASHSCOPE_MODEL: str = "qwen-max"
 
     # Shopee
+    SHOPEE_APP_KEY: str = "your_app_key_here"
+    SHOPEE_SECRET: str = "your_secret_here"
     SHOPEE_MARKET_ID: int = 146
     SHOPEE_SIGNATURE_ENABLED: bool = False
 
-    model_config = {"env_file": ".env", "env_file_encoding": "utf-8"}
+    # Telegram
+    TELEGRAM_BOT_TOKEN: str = ""
+    TELEGRAM_CHAT_ID: str = ""
+
+    # 利润熔断阈值
+    MIN_PROFIT_MARGIN: float = 10.0
+
+    model_config = {"env_file": ".env", "env_file_encoding": "utf-8", "extra": "ignore"}
 
 
 def get_settings() -> Settings:

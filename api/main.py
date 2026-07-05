@@ -14,7 +14,9 @@ logger = logging.getLogger(__name__)
 async def lifespan(app: FastAPI):
     """应用生命周期管理"""
     logger.info("pipixia API 启动中...")
-    # TODO: 初始化数据库连接池
+    # 初始化数据库表
+    init_db()
+    logger.info("数据库初始化完成")
     # TODO: 加载敏感词库
     # TODO: 注册定时任务
     logger.info("pipixia API 启动完成")
@@ -54,7 +56,8 @@ async def health_check():
 
 
 # ==================== 路由注册 ====================
-from .routers import auth, shops, products, audit, listings, settings, webhooks, reports, media
+from .routers import auth, shops, products, audit, listings, settings, webhooks, reports, media, translate
+from .database import init_db
 
 # API v1 路由（需要认证）
 app.include_router(auth.router, prefix="/api/v1", tags=["Auth"])
@@ -65,6 +68,7 @@ app.include_router(listings.router, prefix="/api/v1", tags=["Listings"])
 app.include_router(settings.router, prefix="/api/v1", tags=["Settings"])
 app.include_router(reports.router, prefix="/api/v1", tags=["Reports"])
 app.include_router(media.router, prefix="/api/v1", tags=["Media"])
+app.include_router(translate.router, prefix="/api/v1", tags=["Translate"])
 
 # Webhook 路由（公开）
 app.include_router(webhooks.router, prefix="/webhook", tags=["Webhooks"])

@@ -12,7 +12,7 @@ class ProfitCalibration(Base):
     __tablename__ = "profit_calibration"
 
     id = Column(Integer, primary_key=True, index=True)
-    shop_id = Column(Integer, nullable=False, index=True)
+    shop_id = Column(Integer, ForeignKey('shops.id'), nullable=False, index=True)
     category_id = Column(Integer, nullable=True)
     estimated_profit = Column(Float, nullable=False)
     actual_profit = Column(Float, nullable=True)

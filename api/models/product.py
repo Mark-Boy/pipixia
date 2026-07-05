@@ -12,7 +12,7 @@ class Product(Base):
     __tablename__ = "products"
 
     id = Column(Integer, primary_key=True, index=True)
-    shop_id = Column(Integer, nullable=False, index=True)
+    shop_id = Column(Integer, ForeignKey('shops.id'), nullable=False, index=True)
     source_platform = Column(String(20), nullable=False)  # 1688 / pdd
     source_item_id = Column(String(100), nullable=False)
     title_zh = Column(String(255), nullable=False)
@@ -32,7 +32,6 @@ class Product(Base):
 
     # 关系
     shop = relationship("Shop", back_populates="products")
-    owner = relationship("User", foreign_keys=[shop_id])
     listings = relationship("Listing", back_populates="product", cascade="all, delete-orphan")
     translates = relationship("Translate", back_populates="product", cascade="all, delete-orphan")
     risk_logs = relationship("RiskLog", back_populates="product", cascade="all, delete-orphan")
