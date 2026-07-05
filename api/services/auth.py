@@ -12,6 +12,7 @@ from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlalchemy.orm import Session
 from api.models.user import User
 from api.config import get_settings
+from api.database import async_session
 
 settings = get_settings()
 security = HTTPBearer()
@@ -78,33 +79,68 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
 
 async def get_current_user(
     credentials: HTTPAuthorizationCredentials = Depends(security),
-    db: Session = None,
 ) -> User:
-    """JWT 鉴权中间件"""
+    """从 Header Bearer Token 获取当前用户 (同步引擎版)"""
     token = credentials.credentials
     payload = decode_token(token)
-    
-    # 只接受 access token
+
     if payload.get("type") != "access":
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="无效的 Token 类型",
         )
-    
+
     user_id = payload.get("sub")
     if user_id is None:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Token 无效",
         )
-    
-    user = db.query(User).filter(User.id == int(user_id)).first()
+
+    from api.database import engine
+    with Session(engine) as db:
+        user = db.query(User).filter(User.id == int(user_id)).first()
+
     if not user or not user.is_active:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="用户不存在或已禁用",
         )
-    
+
+    return user
+
+
+async def get_current_user_async(
+    credentials: HTTPAuthorizationCredentials = Depends(security),
+) -> User:
+    """从 Header Bearer Token 获取当前用户 (异步引擎版)"""
+    token = credentials.credentials
+    payload = decode_token(token)
+
+    if payload.get("type") != "access":
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="无效的 Token 类型",
+        )
+
+    user_id = payload.get("sub")
+    if user_id is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Token 无效",
+        )
+
+    async with async_session() as db:
+        from sqlalchemy import select
+        result = await db.execute(select(User).where(User.id == int(user_id)))
+        user = result.scalar_one_or_none()
+
+    if not user or not user.is_active:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="用户不存在或已禁用",
+        )
+
     return user
 
 

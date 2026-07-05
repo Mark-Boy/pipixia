@@ -5,49 +5,25 @@
 import uuid
 from typing import Optional
 
-from fastapi import APIRouter, HTTPException, status, UploadFile, File, Query
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from fastapi import APIRouter, HTTPException, status, UploadFile, File, Query, Depends
 from sqlalchemy import select
 
 from api.database import async_session
 from api.models.product import Product
+from api.models.user import User
+from api.services.auth import get_current_user_async
 from api.services.storage import upload_image, get_storage_stats
 
 router = APIRouter(prefix="/media", tags=["Media"])
-
-
-def parse_token(credentials_str: Optional[str]) -> HTTPAuthorizationCredentials:
-    if not credentials_str:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="缺少认证 Token",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
-    scheme, _, token = credentials_str.partition(" ")
-    if scheme.lower() != "bearer":
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Token 格式错误",
-        )
-    return HTTPAuthorizationCredentials(scheme="Bearer", credentials=token)
-
-
-async def get_user_id_from_token(credentials_str: Optional[str]) -> int:
-    token = parse_token(credentials_str)
-    from api.services.auth import decode_token
-    payload = decode_token(token.credentials)
-    return int(payload["sub"])
 
 
 @router.post("/upload")
 async def upload_media(
     file: UploadFile = File(...),
     product_id: Optional[int] = Query(None),
-    credentials_str: Optional[str] = Query(None),
+    current_user: User = Depends(get_current_user_async),
 ):
     """上传图片到 OSS（返回 URL）"""
-    user_id = await get_user_id_from_token(credentials_str) if credentials_str else 0
-
     # 验证文件类型
     allowed_types = ["image/jpeg", "image/png", "image/webp", "image/gif"]
     if file.content_type not in allowed_types:
@@ -99,11 +75,9 @@ async def upload_media(
 async def upload_batch_media(
     files: list[UploadFile] = File(...),
     product_id: Optional[int] = Query(None),
-    credentials_str: Optional[str] = Query(None),
+    current_user: User = Depends(get_current_user_async),
 ):
     """批量上传图片"""
-    user_id = await get_user_id_from_token(credentials_str) if credentials_str else 0
-
     urls = []
     for i, file in enumerate(files):
         content = await file.read()
@@ -140,7 +114,7 @@ async def upload_batch_media(
 @router.delete("")
 async def delete_media(
     url: str = Query(..., description="图片 URL"),
-    credentials_str: Optional[str] = Query(None),
+    current_user: User = Depends(get_current_user_async),
 ):
     """删除 OSS 图片"""
     from api.services.storage import storage
@@ -164,7 +138,7 @@ async def delete_media(
 async def get_presigned_url(
     url: str = Query(..., description="图片 URL"),
     expires: int = Query(3600, ge=60, le=86400),
-    credentials_str: Optional[str] = Query(None),
+    current_user: User = Depends(get_current_user_async),
 ):
     """获取图片临时访问 URL"""
     from api.services.storage import storage
@@ -185,7 +159,7 @@ async def get_presigned_url(
 
 @router.get("/stats")
 async def get_media_stats(
-    credentials_str: Optional[str] = Query(None),
+    current_user: User = Depends(get_current_user_async),
 ):
     """获取存储统计"""
     return get_storage_stats()

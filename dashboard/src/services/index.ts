@@ -131,18 +131,16 @@ export const settingService = {
 // ==================== 认证服务 ====================
 export const authService = {
   login: (data: { email: string; password: string }) =>
-    api.post("/api/v1/auth/login", data, {
-      withCredentials: true,
-    }),
+    axios.post("/auth/login", data),
   register: (data: {
     username: string;
     email: string;
     password: string;
     role?: string;
-  }) => api.post("/api/v1/auth/register", data),
-  refresh: () => api.post("/api/v1/auth/refresh"),
-  logout: () => api.post("/api/v1/auth/logout"),
-  getMe: () => api.get("/api/v1/auth/me"),
+  }) => axios.post("/auth/register", data),
+  refresh: () => api.post("/auth/refresh"),
+  logout: () => api.post("/auth/logout"),
+  getMe: () => api.get("/auth/me"),
 };
 
 // ==================== 健康检查 ====================

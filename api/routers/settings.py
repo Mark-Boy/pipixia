@@ -3,11 +3,17 @@
 """
 
 import yaml
+import json
 from typing import Optional, Dict, Any
 from pathlib import Path
 
 from fastapi import APIRouter, Depends, HTTPException, status, Query
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from sqlalchemy import select
+
+from api.database import async_session
+from api.models.product import Product
+from api.models.user import User
+from api.services.auth import get_current_user_async
 
 router = APIRouter(prefix="/settings", tags=["Settings"])
 
@@ -15,36 +21,11 @@ router = APIRouter(prefix="/settings", tags=["Settings"])
 SETTINGS_FILE = Path(__file__).parent.parent.parent / "config" / "settings.yaml"
 
 
-def parse_token(credentials_str: Optional[str]) -> HTTPAuthorizationCredentials:
-    if not credentials_str:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="缺少认证 Token",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
-    scheme, _, token = credentials_str.partition(" ")
-    if scheme.lower() != "bearer":
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Token 格式错误",
-        )
-    return HTTPAuthorizationCredentials(scheme="Bearer", credentials=token)
-
-
-async def get_user_id_from_token(credentials_str: Optional[str]) -> int:
-    token = parse_token(credentials_str)
-    from api.services.auth import decode_token
-    payload = decode_token(token.credentials)
-    return int(payload["sub"])
-
-
 @router.get("")
 async def get_settings(
-    credentials_str: Optional[str] = Query(None),
+    current_user: User = Depends(get_current_user_async),
 ):
     """获取系统配置"""
-    user_id = await get_user_id_from_token(credentials_str) if credentials_str else 0
-
     if not SETTINGS_FILE.exists():
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -64,11 +45,9 @@ async def get_settings(
 @router.put("")
 async def update_settings(
     data: Dict[str, Any],
-    credentials_str: Optional[str] = Query(None),
+    current_user: User = Depends(get_current_user_async),
 ):
     """更新系统配置"""
-    user_id = await get_user_id_from_token(credentials_str) if credentials_str else 0
-
     if not SETTINGS_FILE.exists():
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -96,10 +75,9 @@ async def update_settings(
 
 @router.get("/risk-words")
 async def get_risk_words(
-    credentials_str: Optional[str] = Query(None),
+    current_user: User = Depends(get_current_user_async),
 ):
     """获取风控词库"""
-    import json
     risk_file = Path(__file__).parent.parent.parent / "config" / "risk_words.json"
     
     if not risk_file.exists():
@@ -118,7 +96,7 @@ async def get_risk_words(
 async def add_risk_word(
     word: str,
     word_type: str = Query("brand"),  # brand / prohibited
-    credentials_str: Optional[str] = Query(None),
+    current_user: User = Depends(get_current_user_async),
 ):
     """添加风控词"""
     risk_file = Path(__file__).parent.parent.parent / "config" / "risk_words.json"

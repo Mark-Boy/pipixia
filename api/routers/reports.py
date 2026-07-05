@@ -5,49 +5,24 @@
 from typing import Optional, List
 
 from fastapi import APIRouter, Depends, HTTPException, status, Query
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlalchemy import select, func
-from sqlalchemy.orm import Session
 
 from api.database import async_session
 from api.models.product import Product
 from api.models.listing import Listing
 from api.models.profit_calibration import ProfitCalibration
+from api.models.user import User
+from api.services.auth import get_current_user_async
 
 router = APIRouter(prefix="/reports", tags=["Reports"])
-
-
-def parse_token(credentials_str: Optional[str]) -> HTTPAuthorizationCredentials:
-    if not credentials_str:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="缺少认证 Token",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
-    scheme, _, token = credentials_str.partition(" ")
-    if scheme.lower() != "bearer":
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Token 格式错误",
-        )
-    return HTTPAuthorizationCredentials(scheme="Bearer", credentials=token)
-
-
-async def get_user_id_from_token(credentials_str: Optional[str]) -> int:
-    token = parse_token(credentials_str)
-    from api.services.auth import decode_token
-    payload = decode_token(token.credentials)
-    return int(payload["sub"])
 
 
 @router.get("/daily")
 async def get_daily_report(
     date: str = Query(None),  # format: YYYY-MM-DD
-    credentials_str: Optional[str] = Query(None),
+    current_user: User = Depends(get_current_user_async),
 ):
     """日报"""
-    user_id = await get_user_id_from_token(credentials_str) if credentials_str else 0
-
     async with async_session() as db:
         # 统计今日数据
         from datetime import datetime, timedelta
@@ -111,11 +86,9 @@ async def get_daily_report(
 async def get_finance_report(
     start_date: str = Query("2024-01-01"),
     end_date: str = Query(None),
-    credentials_str: Optional[str] = Query(None),
+    current_user: User = Depends(get_current_user_async),
 ):
     """财务对账报表"""
-    user_id = await get_user_id_from_token(credentials_str) if credentials_str else 0
-
     async with async_session() as db:
         from datetime import datetime
         end = datetime.strptime(end_date, "%Y-%m-%d") if end_date else datetime.now()
@@ -155,16 +128,14 @@ async def get_finance_report(
     }
 
 
-@router.get("/profit-calibration")
+@router.get("/profit-calibration", response_model=dict)
 async def get_profit_calibration(
     shop_id: Optional[int] = Query(None),
     page: int = Query(1, ge=1),
     size: int = Query(20, ge=1, le=100),
-    credentials_str: Optional[str] = Query(None),
+    current_user: User = Depends(get_current_user_async),
 ):
     """利润校准报告"""
-    user_id = await get_user_id_from_token(credentials_str) if credentials_str else 0
-
     async with async_session() as db:
         query = select(ProfitCalibration)
         if shop_id:
@@ -172,7 +143,7 @@ async def get_profit_calibration(
 
         # 总数
         count_result = await db.execute(select(func.count()).select_from(query.subquery()))
-        total = count_result.scalar()
+        total = count_result.scalar() or 0
 
         # 分页
         query = query.order_by(ProfitCalibration.created_at.desc())
@@ -180,27 +151,30 @@ async def get_profit_calibration(
         result = await db.execute(query)
         calibrations = result.scalars().all()
 
-    return [
-        {
-            "id": cal.id,
-            "shop_id": cal.shop_id,
-            "category_id": cal.category_id,
-            "estimated_profit": cal.estimated_profit,
-            "actual_profit": cal.actual_profit,
-            "deviation": cal.deviation,
-            "created_at": cal.created_at.isoformat() if cal.created_at else None,
-        }
-        for cal in calibrations
-    ]
+    return {
+        "total": total,
+        "page": page,
+        "size": size,
+        "calibrations": [
+            {
+                "id": cal.id,
+                "shop_id": cal.shop_id,
+                "category_id": cal.category_id,
+                "estimated_profit": cal.estimated_profit,
+                "actual_profit": cal.actual_profit,
+                "deviation": cal.deviation,
+                "created_at": cal.created_at.isoformat() if cal.created_at else None,
+            }
+            for cal in calibrations
+        ],
+    }
 
 
 @router.get("/summary")
 async def get_summary(
-    credentials_str: Optional[str] = Query(None),
+    current_user: User = Depends(get_current_user_async),
 ):
     """Dashboard 汇总数据"""
-    user_id = await get_user_id_from_token(credentials_str) if credentials_str else 0
-
     async with async_session() as db:
         # 总体统计
         total_products_result = await db.execute(select(func.count()).select_from(Product))

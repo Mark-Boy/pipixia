@@ -4,53 +4,30 @@
 
 from typing import Optional, List
 
-from fastapi import APIRouter, Depends, HTTPException, status, Query, Response
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy import select, func
 from sqlalchemy.orm import Session
 
 from api.database import async_session
 from api.schemas.shop import ShopCreate, ShopUpdate, ShopResponse
 from api.models.shop import Shop
+from api.services.auth import get_current_user_async
 from api.services.crypto import encrypt_aes256, decrypt_aes256
+from api.models.user import User
 
 router = APIRouter(prefix="/shops", tags=["Shops"])
 
 
-def parse_token(credentials_str: Optional[str]) -> HTTPAuthorizationCredentials:
-    """解析 Token 字符串"""
-    if not credentials_str:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="缺少认证 Token",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
-    scheme, _, token = credentials_str.partition(" ")
-    if scheme.lower() != "bearer":
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Token 格式错误",
-        )
-    return HTTPAuthorizationCredentials(scheme="Bearer", credentials=token)
-
-
-@router.get("", response_model=List[ShopResponse])
+@router.get("", response_model=dict)
 async def get_shops(
     page: int = Query(1, ge=1),
     size: int = Query(20, ge=1, le=100),
     active: Optional[bool] = Query(None),
-    credentials_str: Optional[str] = Query(None),
+    current_user: User = Depends(get_current_user_async),
 ):
     """店铺列表（支持按状态筛选）"""
-    token = parse_token(credentials_str)
-    
     async with async_session() as db:
-        # 从 token 获取用户 ID（简化：通过 decode_token）
-        from api.services.auth import decode_token
-        payload = decode_token(token.credentials)
-        user_id = int(payload["sub"])
-
-        query = select(Shop).where(Shop.user_id == user_id)
+        query = select(Shop).where(Shop.user_id == current_user.id)
         if active is not None:
             query = query.where(Shop.is_active == active)
 
@@ -64,26 +41,25 @@ async def get_shops(
         result = await db.execute(query)
         shops = result.scalars().all()
 
-    return [ShopResponse.model_validate(s) for s in shops]
+    return {
+        "total": total,
+        "page": page,
+        "size": size,
+        "shops": [ShopResponse.model_validate(s).model_dump() for s in shops],
+    }
 
 
 @router.post("", response_model=ShopResponse, status_code=201)
 async def create_shop(
     data: ShopCreate,
-    credentials_str: Optional[str] = Query(None),
+    current_user: User = Depends(get_current_user_async),
 ):
     """添加店铺（Token 加密存储）"""
-    token = parse_token(credentials_str)
-    
     async with async_session() as db:
-        from api.services.auth import decode_token
-        payload = decode_token(token.credentials)
-        user_id = int(payload["sub"])
-
         # 检查该用户下是否已有同名店铺
         existing = await db.execute(
             select(Shop).where(
-                Shop.user_id == user_id,
+                Shop.user_id == current_user.id,
                 Shop.shop_name == data.shop_name,
             )
         )
@@ -97,7 +73,7 @@ async def create_shop(
         encrypted_token = encrypt_aes256(data.shop_token)
 
         new_shop = Shop(
-            user_id=user_id,
+            user_id=current_user.id,
             shop_name=data.shop_name,
             platform=data.platform or "shopee_th",
             shop_token_encrypted=encrypted_token,
@@ -114,20 +90,14 @@ async def create_shop(
 @router.get("/{shop_id}", response_model=ShopResponse)
 async def get_shop(
     shop_id: int,
-    credentials_str: Optional[str] = Query(None),
+    current_user: User = Depends(get_current_user_async),
 ):
     """获取店铺详情"""
-    token = parse_token(credentials_str)
-    
     async with async_session() as db:
-        from api.services.auth import decode_token
-        payload = decode_token(token.credentials)
-        user_id = int(payload["sub"])
-
         result = await db.execute(
             select(Shop).where(
                 Shop.id == shop_id,
-                Shop.user_id == user_id,
+                Shop.user_id == current_user.id,
             )
         )
         shop = result.scalar_one_or_none()
@@ -145,20 +115,14 @@ async def get_shop(
 async def update_shop(
     shop_id: int,
     data: ShopUpdate,
-    credentials_str: Optional[str] = Query(None),
+    current_user: User = Depends(get_current_user_async),
 ):
     """更新店铺"""
-    token = parse_token(credentials_str)
-    
     async with async_session() as db:
-        from api.services.auth import decode_token
-        payload = decode_token(token.credentials)
-        user_id = int(payload["sub"])
-
         result = await db.execute(
             select(Shop).where(
                 Shop.id == shop_id,
-                Shop.user_id == user_id,
+                Shop.user_id == current_user.id,
             )
         )
         shop = result.scalar_one_or_none()
@@ -190,20 +154,14 @@ async def update_shop(
 @router.delete("/{shop_id}")
 async def delete_shop(
     shop_id: int,
-    credentials_str: Optional[str] = Query(None),
+    current_user: User = Depends(get_current_user_async),
 ):
     """删除店铺（软删除）"""
-    token = parse_token(credentials_str)
-    
     async with async_session() as db:
-        from api.services.auth import decode_token
-        payload = decode_token(token.credentials)
-        user_id = int(payload["sub"])
-
         result = await db.execute(
             select(Shop).where(
                 Shop.id == shop_id,
-                Shop.user_id == user_id,
+                Shop.user_id == current_user.id,
             )
         )
         shop = result.scalar_one_or_none()
@@ -224,20 +182,14 @@ async def delete_shop(
 @router.get("/{shop_id}/token")
 async def get_shop_token(
     shop_id: int,
-    credentials_str: Optional[str] = Query(None),
+    current_user: User = Depends(get_current_user_async),
 ):
     """获取店铺 Token（解密后返回）"""
-    token = parse_token(credentials_str)
-    
     async with async_session() as db:
-        from api.services.auth import decode_token
-        payload = decode_token(token.credentials)
-        user_id = int(payload["sub"])
-
         result = await db.execute(
             select(Shop).where(
                 Shop.id == shop_id,
-                Shop.user_id == user_id,
+                Shop.user_id == current_user.id,
             )
         )
         shop = result.scalar_one_or_none()

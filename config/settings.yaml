@@ -1,37 +1,29 @@
-# 系统配置
 app:
-  name: "pipixia"
-  version: "0.1.0"
   debug: true
-  log_level: "INFO"
-
-# 数据库
+  log_level: INFO
+  name: pipixia
+  version: 0.1.0
 database:
-  url: "postgresql+asyncpg://pipixia:pipixia_secret@localhost:5432/pipixia"
-  pool_size: 10
   max_overflow: 20
-
-# Redis
-redis:
-  url: "redis://localhost:6379/0"
-
-# LLM
-llm:
-  provider: "dashscope"  # dashscope / local
-  model: "qwen-plus"
-  api_key: ""
-
-# 财务
+  pool_size: 10
+  url: postgresql+asyncpg://pipixia:pipixia_secret@localhost:5432/pipixia
 finance:
-  default_profit_threshold: 15  # 默认利润率阈值 %
-  exchange_rate波动_threshold: 2  # 汇率波动告警阈值 %
-
-# 风控
-risk:
-  min_confidence: 0.85  # 最小翻译置信度
-  max_price_deviation: 30  # 最大价格偏离 %
-
-# 上架
+  default_profit_threshold: 15
+  exchange_rate波动_threshold: 2
 listing:
-  max_retry: 5  # 最大重试次数
-  retry_interval: [60, 120, 240, 480, 960]  # 重试间隔（秒）
+  max_retry: 5
+  retry_interval:
+  - 60
+  - 120
+  - 240
+  - 480
+  - 960
+llm:
+  api_key: ''
+  model: qwen-plus
+  provider: dashscope
+redis:
+  url: redis://localhost:6379/0
+risk:
+  max_price_deviation: 30
+  min_confidence: 0.85

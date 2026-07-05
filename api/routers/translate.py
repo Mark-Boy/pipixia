@@ -3,43 +3,27 @@
 """
 
 from typing import Optional, List
-from fastapi import APIRouter, HTTPException, status, Query
+from fastapi import APIRouter, HTTPException, status, Query, Depends
 from sqlalchemy import select, func
 
 from api.database import async_session
 from api.models.translate import Translate
 from api.models.product import Product
 from api.models.risk_log import RiskLog
-from api.langgraph.graph import run_translation_workflow
-from api.services.auth import decode_token
+from api.models.user import User
+from api.services.auth import get_current_user_async
 import logging
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/translate", tags=["翻译工作流"])
 
 
-def parse_credentials(credentials_str: Optional[str]) -> dict:
-    """解析 Token，返回用户信息"""
-    if not credentials_str:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="缺少认证 Token",
-        )
-    scheme, _, token = credentials_str.partition(" ")
-    if scheme.lower() != "bearer":
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token 格式错误")
-    payload = decode_token(token)
-    return {"user_id": int(payload["sub"]), "role": payload.get("role", "operator")}
-
-
 @router.post("/trigger")
 async def trigger_translate(
     product_id: int,
-    credentials_str: Optional[str] = Query(None),
+    current_user: User = Depends(get_current_user_async),
 ):
     """触发单个商品翻译工作流"""
-    user_info = parse_credentials(credentials_str)
-
     async with async_session() as db:
         result = await db.execute(select(Product).where(Product.id == product_id))
         product = result.scalar_one_or_none()
@@ -47,11 +31,8 @@ async def trigger_translate(
             raise HTTPException(status_code=404, detail="商品不存在")
 
         # 启动翻译工作流（异步）
-        from celery_app import celery_app
-        task = celery_app.send_task(
-            "worker.tasks.translate_product",
-            args=[product_id],
-        )
+        from worker.tasks import translate_product
+        task = translate_product.delay(product_id)
 
     return {
         "status": "queued",
@@ -64,16 +45,11 @@ async def trigger_translate(
 @router.post("/batch")
 async def batch_translate(
     product_ids: list[int],
-    credentials_str: Optional[str] = Query(None),
+    current_user: User = Depends(get_current_user_async),
 ):
     """批量翻译"""
-    user_info = parse_credentials(credentials_str)
-
-    from celery_app import celery_app
-    task = celery_app.send_task(
-        "worker.tasks.batch_translate",
-        args=[product_ids],
-    )
+    from worker.tasks import batch_translate_task
+    task = batch_translate_task.delay(product_ids)
 
     return {
         "status": "queued",
@@ -83,16 +59,14 @@ async def batch_translate(
     }
 
 
-@router.get("/history")
+@router.get("/history", response_model=dict)
 async def get_translate_history(
     product_id: Optional[int] = Query(None),
     page: int = Query(1, ge=1),
     size: int = Query(20, ge=1, le=100),
-    credentials_str: Optional[str] = Query(None),
+    current_user: User = Depends(get_current_user_async),
 ):
     """查询翻译历史"""
-    user_info = parse_credentials(credentials_str)
-
     async with async_session() as db:
         query = select(Translate)
         if product_id:
@@ -131,11 +105,9 @@ async def get_translate_history(
 @router.post("/sync/{product_id}")
 async def sync_translation(
     product_id: int,
-    credentials_str: Optional[str] = Query(None),
+    current_user: User = Depends(get_current_user_async),
 ):
     """同步翻译结果到商品（审核前自动调用）"""
-    user_info = parse_credentials(credentials_str)
-
     async with async_session() as db:
         # 获取所有翻译记录
         result = await db.execute(

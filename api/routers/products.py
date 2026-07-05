@@ -14,25 +14,12 @@ from api.models.product import Product
 from api.models.shop import Shop
 from api.models.translate import Translate
 from api.models.risk_log import RiskLog
-from api.services.auth import decode_token
+from api.models.user import User
+from api.services.auth import get_current_user_async
 import logging
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/products", tags=["Products"])
-
-
-def parse_credentials(credentials_str: Optional[str]) -> dict:
-    """解析 Token，返回用户信息"""
-    if not credentials_str:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="缺少认证 Token",
-        )
-    scheme, _, token = credentials_str.partition(" ")
-    if scheme.lower() != "bearer":
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token 格式错误")
-    payload = decode_token(token)
-    return {"user_id": int(payload["sub"]), "role": payload.get("role", "operator")}
 
 
 @router.get("")
@@ -43,17 +30,16 @@ async def get_products(
     risk_status: Optional[str] = Query(None),
     page: int = Query(1, ge=1),
     size: int = Query(20, ge=1, le=100),
-    credentials_str: Optional[str] = Query(None),
+    current_user: User = Depends(get_current_user_async),
 ):
     """商品列表（分页 + 多条件筛选）"""
-    user_info = parse_credentials(credentials_str)
-
     async with async_session() as db:
-        # 权限过滤：operator 只能看自己店铺的，admin 可以看所有
         query = select(Product)
-        if user_info["role"] != "admin":
+
+        # 权限过滤：operator 只能看自己店铺的，admin 可以看所有
+        if current_user.role != "admin":
             shop_result = await db.execute(
-                select(Shop).where(Shop.user_id == user_info["user_id"])
+                select(Shop).where(Shop.user_id == current_user.id)
             )
             shops = shop_result.scalars().all()
             shop_ids = [s.id for s in shops]
@@ -108,11 +94,9 @@ async def get_products(
 @router.get("/{product_id}", response_model=ProductResponse)
 async def get_product(
     product_id: int,
-    credentials_str: Optional[str] = Query(None),
+    current_user: User = Depends(get_current_user_async),
 ):
     """获取商品详情"""
-    user_info = parse_credentials(credentials_str)
-
     async with async_session() as db:
         result = await db.execute(select(Product).where(Product.id == product_id))
         product = result.scalar_one_or_none()
@@ -120,12 +104,12 @@ async def get_product(
             raise HTTPException(status_code=404, detail="商品不存在")
 
         # 权限检查
-        if user_info["role"] != "admin":
+        if current_user.role != "admin":
             shop_result = await db.execute(
                 select(Shop).where(Shop.id == product.shop_id)
             )
             shop = shop_result.scalar_one_or_none()
-            if not shop or shop.user_id != user_info["user_id"]:
+            if not shop or shop.user_id != current_user.id:
                 raise HTTPException(status_code=403, detail="无权查看该商品")
 
     return ProductResponse.model_validate(product)
@@ -134,16 +118,14 @@ async def get_product(
 @router.post("", response_model=dict, status_code=201)
 async def create_product(
     data: ProductCreate,
-    credentials_str: Optional[str] = Query(None),
+    current_user: User = Depends(get_current_user_async),
 ):
     """手动创建商品"""
-    user_info = parse_credentials(credentials_str)
-
     async with async_session() as db:
         # 检查店铺归属
         shop_result = await db.execute(select(Shop).where(Shop.id == data.shop_id))
         shop = shop_result.scalar_one_or_none()
-        if not shop or shop.user_id != user_info["user_id"]:
+        if not shop or shop.user_id != current_user.id:
             raise HTTPException(status_code=403, detail="无权在该店铺下创建商品")
 
         # 去重检查
@@ -197,7 +179,7 @@ async def create_product(
 async def import_product(
     url: str = Query(..., description="商品链接"),
     shop_id: int = Query(...),
-    credentials_str: Optional[str] = Query(None),
+    current_user: User = Depends(get_current_user_async),
 ):
     """
     导入商品（URL 解析 + 爬虫抓取）
@@ -208,8 +190,6 @@ async def import_product(
     3. 创建商品记录
     4. 触发翻译工作流
     """
-    user_info = parse_credentials(credentials_str)
-
     # 1. 解析 URL 获取平台
     source_platform = "unknown"
     if "1688.com" in url or "1688" in url:
@@ -229,7 +209,7 @@ async def import_product(
     async with async_session() as db:
         shop_result = await db.execute(select(Shop).where(Shop.id == shop_id))
         shop = shop_result.scalar_one_or_none()
-        if not shop or shop.user_id != user_info["user_id"]:
+        if not shop or shop.user_id != current_user.id:
             raise HTTPException(status_code=403, detail="无权在该店铺下导入商品")
 
     # 4. 调用爬虫抓取商品详情（TODO: 接入 Playwright 爬虫）
@@ -248,11 +228,9 @@ async def import_product(
 @router.post("/{product_id}/translate")
 async def trigger_translate(
     product_id: int,
-    credentials_str: Optional[str] = Query(None),
+    current_user: User = Depends(get_current_user_async),
 ):
     """触发 LangGraph 翻译工作流"""
-    user_info = parse_credentials(credentials_str)
-
     async with async_session() as db:
         result = await db.execute(select(Product).where(Product.id == product_id))
         product = result.scalar_one_or_none()
@@ -274,11 +252,9 @@ async def trigger_translate(
 @router.post("/{product_id}/list")
 async def trigger_listing(
     product_id: int,
-    credentials_str: Optional[str] = Query(None),
+    current_user: User = Depends(get_current_user_async),
 ):
     """触发上架（审核通过后调用）"""
-    user_info = parse_credentials(credentials_str)
-
     async with async_session() as db:
         result = await db.execute(select(Product).where(Product.id == product_id))
         product = result.scalar_one_or_none()
@@ -316,11 +292,9 @@ async def trigger_listing(
 @router.post("/{product_id}/finance/check")
 async def check_finance(
     product_id: int,
-    credentials_str: Optional[str] = Query(None),
+    current_user: User = Depends(get_current_user_async),
 ):
     """手动利润核算"""
-    user_info = parse_credentials(credentials_str)
-
     async with async_session() as db:
         result = await db.execute(select(Product).where(Product.id == product_id))
         product = result.scalar_one_or_none()
@@ -367,11 +341,9 @@ async def check_finance(
 async def update_product(
     product_id: int,
     data: ProductUpdate,
-    credentials_str: Optional[str] = Query(None),
+    current_user: User = Depends(get_current_user_async),
 ):
     """更新商品"""
-    user_info = parse_credentials(credentials_str)
-
     async with async_session() as db:
         result = await db.execute(select(Product).where(Product.id == product_id))
         product = result.scalar_one_or_none()
@@ -392,11 +364,9 @@ async def update_product(
 @router.delete("/{product_id}")
 async def delete_product(
     product_id: int,
-    credentials_str: Optional[str] = Query(None),
+    current_user: User = Depends(get_current_user_async),
 ):
     """删除商品（软删除）"""
-    user_info = parse_credentials(credentials_str)
-
     async with async_session() as db:
         result = await db.execute(select(Product).where(Product.id == product_id))
         product = result.scalar_one_or_none()
@@ -404,12 +374,12 @@ async def delete_product(
             raise HTTPException(status_code=404, detail="商品不存在")
 
         # 权限检查
-        if user_info["role"] != "admin":
+        if current_user.role != "admin":
             shop_result = await db.execute(
                 select(Shop).where(Shop.id == product.shop_id)
             )
             shop = shop_result.scalar_one_or_none()
-            if not shop or shop.user_id != user_info["user_id"]:
+            if not shop or shop.user_id != current_user.id:
                 raise HTTPException(status_code=403, detail="无权删除该商品")
 
         product.status = "removed"

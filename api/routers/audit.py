@@ -5,52 +5,27 @@
 from typing import Optional, List
 
 from fastapi import APIRouter, Depends, HTTPException, status, Query
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlalchemy import select, update, func
-from sqlalchemy.orm import Session
 
 from api.database import async_session
 from api.schemas.audit import AuditRequest, AuditResponse
 from api.models.product import Product
 from api.models.listing import Listing
+from api.models.user import User
+from api.services.auth import get_current_user_async
 
 router = APIRouter(prefix="/audit", tags=["Audit"])
 
 
-def parse_token(credentials_str: Optional[str]) -> HTTPAuthorizationCredentials:
-    if not credentials_str:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="缺少认证 Token",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
-    scheme, _, token = credentials_str.partition(" ")
-    if scheme.lower() != "bearer":
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Token 格式错误",
-        )
-    return HTTPAuthorizationCredentials(scheme="Bearer", credentials=token)
-
-
-async def get_user_id_from_token(credentials_str: Optional[str]) -> int:
-    token = parse_token(credentials_str)
-    from api.services.auth import decode_token
-    payload = decode_token(token.credentials)
-    return int(payload["sub"])
-
-
-@router.get("/queue", response_model=List[AuditResponse])
+@router.get("/queue", response_model=dict)
 async def get_audit_queue(
     status_filter: str = Query("pending", alias="status"),
     shop_id: Optional[int] = Query(None),
     page: int = Query(1, ge=1),
     size: int = Query(20, ge=1, le=100),
-    credentials_str: Optional[str] = Query(None),
+    current_user: User = Depends(get_current_user_async),
 ):
     """获取审核队列"""
-    user_id = await get_user_id_from_token(credentials_str)
-
     async with async_session() as db:
         query = select(Product).where(
             Product.status == status_filter,
@@ -71,23 +46,27 @@ async def get_audit_queue(
 
     responses = []
     for product in products:
-        responses.append(AuditResponse(
-            id=product.id,
-            product_id=product.id,
-            status=product.status,
-            comment=None,
-        ))
-    return responses
+        responses.append({
+            "id": product.id,
+            "product_id": product.id,
+            "status": product.status,
+            "comment": None,
+            "created_at": product.created_at.isoformat() if product.created_at else None,
+        })
+    return {
+        "total": total,
+        "page": page,
+        "size": size,
+        "items": responses,
+    }
 
 
 @router.post("/{product_id}/approve")
 async def approve_product(
     product_id: int,
-    credentials_str: Optional[str] = Query(None),
+    current_user: User = Depends(get_current_user_async),
 ):
     """审核通过"""
-    user_id = await get_user_id_from_token(credentials_str)
-
     async with async_session() as db:
         result = await db.execute(select(Product).where(Product.id == product_id))
         product = result.scalar_one_or_none()
@@ -113,11 +92,9 @@ async def approve_product(
 async def reject_product(
     product_id: int,
     data: AuditRequest = None,
-    credentials_str: Optional[str] = Query(None),
+    current_user: User = Depends(get_current_user_async),
 ):
     """审核拒绝"""
-    user_id = await get_user_id_from_token(credentials_str)
-
     async with async_session() as db:
         result = await db.execute(select(Product).where(Product.id == product_id))
         product = result.scalar_one_or_none()
@@ -143,11 +120,9 @@ async def reject_product(
 @router.post("/batch/approve")
 async def batch_approve(
     ids: list[int],
-    credentials_str: Optional[str] = Query(None),
+    current_user: User = Depends(get_current_user_async),
 ):
     """批量通过"""
-    user_id = await get_user_id_from_token(credentials_str)
-
     async with async_session() as db:
         result = await db.execute(select(Product).where(Product.id.in_(ids)))
         products = result.scalars().all()
@@ -172,11 +147,9 @@ async def batch_approve(
 async def batch_reject(
     ids: list[int],
     comment: str = "",
-    credentials_str: Optional[str] = Query(None),
+    current_user: User = Depends(get_current_user_async),
 ):
     """批量拒绝"""
-    user_id = await get_user_id_from_token(credentials_str)
-
     async with async_session() as db:
         result = await db.execute(select(Product).where(Product.id.in_(ids)))
         products = result.scalars().all()
@@ -201,11 +174,9 @@ async def batch_reject(
 @router.post("/{product_id}/list")
 async def trigger_listing(
     product_id: int,
-    credentials_str: Optional[str] = Query(None),
+    current_user: User = Depends(get_current_user_async),
 ):
     """触发上架（审核通过后调用）"""
-    user_id = await get_user_id_from_token(credentials_str)
-
     async with async_session() as db:
         result = await db.execute(select(Product).where(Product.id == product_id))
         product = result.scalar_one_or_none()

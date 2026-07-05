@@ -1,24 +1,18 @@
 import axios from "axios";
 import { toast } from "sonner";
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8001";
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api/v1";
 
 export const api = axios.create({
   baseURL: API_BASE,
   timeout: 30000,
 });
 
-// Request interceptor — 自动附加 JWT（Header + Query Param 双重兼容）
+// Request interceptor — 自动附加 JWT (Header Bearer Token)
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem("access_token");
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
-    // API 路由使用 credentials_str 查询参数鉴权，附加到 params 中
-    if (config.params) {
-      config.params.credentials_str = `Bearer ${token}`;
-    } else {
-      config.params = { credentials_str: `Bearer ${token}` };
-    }
   }
   return config;
 });
