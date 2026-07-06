@@ -66,3 +66,27 @@ pg_data/
 
 # Test
 .pytest_cache/
+
+# Translation cache
+config/translation_cache.json
+
+# Docker config
+docker-config.json
+
+# GitHub fix scripts
+github-fix.sh
+github-fix-comprehensive.sh
+GITHUB-FIX-GUIDE.md
+
+# EasyBoss Plugin
+"EasyBoss ERP - Plugin/"
+"EasyBoss ERP - Plugin.zip"
+
+# Understand Anything
+.understand-anything/
+
+# Chinese docs
+"文档/"
+
+# DB file
+pipixia.db

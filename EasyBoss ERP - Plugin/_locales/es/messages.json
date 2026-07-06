@@ -1,0 +1,173 @@
+{
+    "extensionName": {
+        "message": "EasyBoss ERP"
+    },
+    "extensionDescription": {
+        "message": "Compatible con la recolección de productos de múltiples plataformas"
+    },
+    "welcome": {
+        "message": "Bienvenido"
+    },
+    "collectThisProduct": {
+        "message": "Recoger este producto"
+    },
+    "deactivate": {
+        "message": "Desactivar"
+    },
+    "switchToTopBarMode": {
+        "message": "Cambiar a modo de barra superior"
+    },
+    "switchToSidebarMode": {
+        "message": "Cambiar a modo de barra lateral"
+    },
+    "notSupportBatchCollectionTips": {
+        "message": "Esta plataforma no admite la recolección por lotes a través del complemento, por favor, recoja desde la página de detalles del producto"
+    },
+    "getThisPageLink": {
+        "message": "Obtener enlace de esta página"
+    },
+    "collected": {
+        "message": "Ya recolectado"
+    },
+    "download": {
+        "message": "Descargar"
+    },
+    "clear": {
+        "message": "Limpiar"
+    },
+    "selectAll": {
+        "message": "Seleccionar todo"
+    },
+    "collectSelected": {
+        "message": "Recoger lo seleccionado"
+    },
+    "collectThisPage": {
+        "message": "Recoger esta página"
+    },
+    "copy": {
+        "message": "Copiar"
+    },
+    "copyLink": {
+        "message": "Copiar enlace"
+    },
+    "notLoggedInToSoftware": {
+        "message": "Actualmente no has iniciado sesión en el software, por favor, inicia sesión primero"
+    },
+    "tips": {
+        "message": "Consejo"
+    },
+    "logInNow": {
+        "message": "Iniciar sesión ahora"
+    },
+    "cancel": {
+        "message": "Cancelar"
+    },
+    "selectLoginPlatform": {
+        "message": "Selecciona la plataforma de inicio de sesión"
+    },
+    "loginShop": {
+        "message": "Iniciar sesión en la tienda"
+    },
+    "pleaseSetCollectInfo": {
+        "message": "Por favor, configura la información de recolección primero"
+    },
+    "collectPlugInIsSetToDoNotCollect": {
+        "message": "El complemento de recolección ya está configurado para no recolectar"
+    },
+    "collectionContentIsEmpty": {
+        "message": "El contenido de recolección está vacío"
+    },
+    "submitCollectTaskGotoPageView": {
+        "message": "Se ha enviado la tarea de recolección, por favor, ve a la página de 'Recolección de productos' en el ERP para ver"
+    },
+    "submitFailed": {
+        "message": "Fallo al enviar [$1]"
+    },
+    "processingDataPleaseWait": {
+        "message": "Procesando los datos, por favor, espera..."
+    },
+    "illegalRequest": {
+        "message": "Solicitud no válida"
+    },
+    "illegalRequest0": {
+        "message": "Solicitud no válida 0"
+    },
+    "notLoggedInPleaseRefreshThePageAndTryAgain": {
+        "message": "No has iniciado sesión en $1, por favor, inicia sesión y actualiza la página para intentarlo de nuevo"
+    },
+    "getMoveDataEmptyPleaseCheckSourceLegal": {
+        "message": "No se pudo obtener los datos de migración, por favor, verifica si la fuente es válida"
+    },
+    "currMonthCollectNumReachLimit": {
+        "message": "Has alcanzado el límite de productos que puedes recolectar este mes. Si deseas recolectar más productos, por favor, suscríbete al paquete de recursos de recolección"
+    },
+    "collectConfigNotExist": {
+        "message": "La configuración de recolección de $1 no existe"
+    },
+    "addCollectionTaskFailedAndPleaseContactCustomerService": {
+        "message": "Falló al agregar la tarea de recolección, por favor, contacta al servicio al cliente."
+    },
+    "enableCollectPlugins": {
+        "message": "Habilitar los complementos de recolección"
+    },
+    "productLinkGetCompleted": {
+        "message": "El enlace del producto se ha obtenido satisfactoriamente"
+    },
+    "placeAddProductLink": {
+        "message": "Por favor, agrega primero el enlace del producto"
+    },
+    "copySuccess": {
+        "message": "Copiado exitosamente"
+    },
+    "isClearLinkCache": {
+        "message": "Se borrará la caché de enlaces de productos, ¿estás seguro?"
+    },
+    "confirm": {
+        "message": "Confirmar"
+    },
+    "productLinkCacheCleared": {
+        "message": "La caché de enlaces de productos se ha borrado"
+    },
+    "accountIsAbnormalPleaseTryAgainFrequently": {
+        "message": "La cuenta presenta anomalías y la recolección de productos ha fallado. Por favor, reduce la frecuencia de recolección y vuelve a intentarlo más tarde o cambia a otra cuenta de comprador de Pinduoduo"
+    },
+    "currentBrowserIsNotSignedIn": {
+        "message": "El navegador actual no tiene una sesión iniciada,"
+    },
+    "clickHereToLogIn": {
+        "message": "haz clic aquí para iniciar sesión"
+    },
+    "ifAlreadyLoggedInRefreshThePageAndTryAgain": {
+        "message": "Si ya has iniciado sesión, por favor, actualiza la página y vuelve a intentarlo"
+    },
+    "failedToGetTheProductPleaseLogInOrSwipeTheVerificationCodeToVerify": {
+        "message": "No se pudo obtener el producto, por favor, inicia sesión o desliza el código de verificación para verificar"
+    },
+    "currentBrowserAccountRequiresSecurityVerification": {
+        "message": "La cuenta del navegador actual requiere verificación de seguridad,"
+    },
+    "clickHereToVerify": {
+        "message": "haz clic aquí para verificar"
+    },
+    "collectProgress": {
+        "message": "Progreso de recolección"
+    },
+    "notSupportCollectPageData": {
+        "message": "No se admite la recolección de datos de la página"
+    },
+    "viewUsageTutorial": {
+        "message": "Ver el tutorial de uso"
+    },
+    "goToSourcePlatformCollectProducts": {
+        "message": "Ir a la Plataforma de suministro correspondiente puede recoger directamente el producto, antes de recogerlo $1Personalizar sus reglas de adquisición exclusivas$2"
+    },
+    "unableToCollectInventoryTips": {
+        "message": "Debido a las restricciones de la plataforma, algunos productos no estarán disponibles en stock. ¿Quieres continuar?"
+    },
+    "noFurtherPrompt": {
+        "message": "No más sugerencias en el futuro"
+    },
+    "continuedCollection": {
+        "message": "Continuar con colección"
+    }
+}

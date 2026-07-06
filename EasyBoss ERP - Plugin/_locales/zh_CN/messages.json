@@ -1,0 +1,173 @@
+{
+    "extensionName": {
+        "message": "EasyBoss ERP"
+    },
+    "extensionDescription": {
+        "message": "支持采集多平台产品"
+    },
+    "welcome": {
+        "message": "欢迎使用"
+    },
+    "collectThisProduct": {
+        "message": "采集此商品"
+    },
+    "deactivate": {
+        "message": "停用"
+    },
+    "switchToTopBarMode": {
+        "message": "切为顶栏模式"
+    },
+    "switchToSidebarMode": {
+        "message": "切为侧边栏模式"
+    },
+    "notSupportBatchCollectionTips": {
+        "message": "此平台不支持使用插件批量采集，请到产品详情页采集"
+    },
+    "getThisPageLink": {
+        "message": "获取本页链接"
+    },
+    "collected": {
+        "message": "已采集"
+    },
+    "download": {
+        "message": "下载"
+    },
+    "clear": {
+        "message": "清除"
+    },
+    "selectAll": {
+        "message": "全选"
+    },
+    "collectSelected": {
+        "message": "采集选中"
+    },
+    "collectThisPage": {
+        "message": "采集本页"
+    },
+    "copy": {
+        "message": "复制"
+    },
+    "copyLink": {
+        "message": "复制链接"
+    },
+    "notLoggedInToSoftware": {
+        "message": "您当前还没登录软件，请先登录"
+    },
+    "tips": {
+        "message": "提示"
+    },
+    "logInNow": {
+        "message": "立即登录"
+    },
+    "cancel": {
+        "message": "取消"
+    },
+    "selectLoginPlatform": {
+        "message": "选择登录平台"
+    },
+    "loginShop": {
+        "message": "登录店铺"
+    },
+    "pleaseSetCollectInfo": {
+        "message": "请先设置采集信息"
+    },
+    "collectPlugInIsSetToDoNotCollect": {
+        "message": "采集插件已设置不采集"
+    },
+    "collectionContentIsEmpty": {
+        "message": "采集内容为空"
+    },
+    "submitCollectTaskGotoPageView": {
+        "message": "已提交采集任务，请到ERP“产品采集”页面查看"
+    },
+    "submitFailed": {
+        "message": "提交失败[$1]"
+    },
+    "processingDataPleaseWait": {
+        "message": "正在处理数据，请稍等..."
+    },
+    "illegalRequest": {
+        "message": "非法请求"
+    },
+    "illegalRequest0": {
+        "message": "非法请求0"
+    },
+    "notLoggedInPleaseRefreshThePageAndTryAgain": {
+        "message": "你还没有登录$1，请登录后刷新页面重试"
+    },
+    "getMoveDataEmptyPleaseCheckSourceLegal": {
+        "message": "获取搬家数据为空，请检查来源是否合法!"
+    },
+    "currMonthCollectNumReachLimit": {
+        "message": "您本月可采集的产品数量已达上限，若您需要采集更多产品，请订阅采集资源包"
+    },
+    "collectConfigNotExist": {
+        "message": "$1采集配置不存在"
+    },
+    "addCollectionTaskFailedAndPleaseContactCustomerService": {
+        "message": "添加采集任务失败，请联系客服。"
+    },
+    "enableCollectPlugins": {
+        "message": "启用采集插件"
+    },
+    "productLinkGetCompleted": {
+        "message": "商品链接已获取完成"
+    },
+    "placeAddProductLink": {
+        "message": "请先添加商品链接"
+    },
+    "copySuccess": {
+        "message": "复制成功"
+    },
+    "isClearLinkCache": {
+        "message": "将清除商品链接数据缓存, 确定清除吗？"
+    },
+    "confirm": {
+        "message": "确定"
+    },
+    "productLinkCacheCleared": {
+        "message": "商品链接缓存已清除"
+    },
+    "accountIsAbnormalPleaseTryAgainFrequently": {
+        "message": "账号异常，当前商品采集失败，请降低采集频率稍候重试或更换拼多多买家账号重试"
+    },
+    "currentBrowserIsNotSignedIn": {
+        "message": "当前浏览器未登录帐号，"
+    },
+    "clickHereToLogIn": {
+        "message": "点此去登录"
+    },
+    "ifAlreadyLoggedInRefreshThePageAndTryAgain": {
+        "message": "，若已登录请刷新页面后重试"
+    },
+    "failedToGetTheProductPleaseLogInOrSwipeTheVerificationCodeToVerify": {
+        "message": "获取商品失败，请进行登录或者滑动验证码验证"
+    },
+    "currentBrowserAccountRequiresSecurityVerification": {
+        "message": "当前浏览器帐号，需要安全验证，"
+    },
+    "clickHereToVerify": {
+        "message": "点此去验证"
+    },
+    "collectProgress": {
+        "message": "采集进度"
+    },
+    "notSupportCollectPageData": {
+        "message": "不支持采集页面数据"
+    },
+    "viewUsageTutorial": {
+        "message": "查看使用教程"
+    },
+    "goToSourcePlatformCollectProducts": {
+        "message": "前往对应货源平台可直接采集产品，在您采集前可$1定制您的专属采集规则$2"
+    },
+    "unableToCollectInventoryTips": {
+        "message": "因平台限制，部分产品将无法采集到库存，是否继续？"
+    },
+    "noFurtherPrompt": {
+        "message": "以后不再提示"
+    },
+    "continuedCollection": {
+        "message": "继续采集"
+    }
+}

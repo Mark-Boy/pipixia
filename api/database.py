@@ -24,12 +24,10 @@ class Base(DeclarativeBase):
     pass
 
 
-def init_db():
-    """同步初始化数据库表（在应用启动时调用）"""
-    db_path = engine.url.database
-    if db_path and db_path != ':memory:':
-        sync_engine = create_engine(f'sqlite:///{os.path.abspath(db_path)}')
-        Base.metadata.create_all(sync_engine)
+async def init_db():
+    """异步初始化数据库表（在应用启动时调用）"""
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
 
 
 async def get_db() -> AsyncSession:

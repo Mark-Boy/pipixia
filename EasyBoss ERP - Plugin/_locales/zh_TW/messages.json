@@ -1,0 +1,173 @@
+{
+    "extensionName": {
+        "message": "EasyBoss ERP"
+    },
+    "extensionDescription": {
+        "message": "支援採集多平台產品"
+    },
+    "welcome": {
+        "message": "歡迎使用"
+    },
+    "collectThisProduct": {
+        "message": "採集此商品"
+    },
+    "deactivate": {
+        "message": "停用"
+    },
+    "switchToTopBarMode": {
+        "message": "切為頂欄模式"
+    },
+    "switchToSidebarMode": {
+        "message": "切為側邊欄模式"
+    },
+    "notSupportBatchCollectionTips": {
+        "message": "此平台不支援使用外掛批量採集，請到產品詳情頁採集"
+    },
+    "getThisPageLink": {
+        "message": "取得本頁連結"
+    },
+    "collected": {
+        "message": "已採集"
+    },
+    "download": {
+        "message": "下載"
+    },
+    "clear": {
+        "message": "清除"
+    },
+    "selectAll": {
+        "message": "全選"
+    },
+    "collectSelected": {
+        "message": "採集選中"
+    },
+    "collectThisPage": {
+        "message": "採集本頁"
+    },
+    "copy": {
+        "message": "複製"
+    },
+    "copyLink": {
+        "message": "複製連結"
+    },
+    "notLoggedInToSoftware": {
+        "message": "您目前還沒登入軟體，請先登入"
+    },
+    "tips": {
+        "message": "提示"
+    },
+    "logInNow": {
+        "message": "立即登入"
+    },
+    "cancel": {
+        "message": "取消"
+    },
+    "selectLoginPlatform": {
+        "message": "選擇登入平台"
+    },
+    "loginShop": {
+        "message": "登入店鋪"
+    },
+    "pleaseSetCollectInfo": {
+        "message": "請先設定採集資訊"
+    },
+    "collectPlugInIsSetToDoNotCollect": {
+        "message": "採集外掛已設定不採集"
+    },
+    "collectionContentIsEmpty": {
+        "message": "採集內容為空"
+    },
+    "submitCollectTaskGotoPageView": {
+        "message": "已提交採集任務，請到ERP「產品採集」頁面查看"
+    },
+    "submitFailed": {
+        "message": "提交失敗[$1]"
+    },
+    "processingDataPleaseWait": {
+        "message": "正在處理資料，請稍候..."
+    },
+    "illegalRequest": {
+        "message": "非法請求"
+    },
+    "illegalRequest0": {
+        "message": "非法請求0"
+    },
+    "notLoggedInPleaseRefreshThePageAndTryAgain": {
+        "message": "您還沒有登入$1，請登入後重新整理頁面重試"
+    },
+    "getMoveDataEmptyPleaseCheckSourceLegal": {
+        "message": "取得搬家資料為空，請檢查來源是否合法!"
+    },
+    "currMonthCollectNumReachLimit": {
+        "message": "您本月可採集的產品數量已達上限，若您需要採集更多產品，請訂閱採集資源包"
+    },
+    "collectConfigNotExist": {
+        "message": "$1採集設定不存在"
+    },
+    "addCollectionTaskFailedAndPleaseContactCustomerService": {
+        "message": "新增採集任務失敗，請聯絡客服。"
+    },
+    "enableCollectPlugins": {
+        "message": "啟用採集外掛"
+    },
+    "productLinkGetCompleted": {
+        "message": "商品連結已取得完成"
+    },
+    "placeAddProductLink": {
+        "message": "請先新增商品連結"
+    },
+    "copySuccess": {
+        "message": "複製成功"
+    },
+    "isClearLinkCache": {
+        "message": "將清除商品連結資料快取，確定清除嗎？"
+    },
+    "confirm": {
+        "message": "確定"
+    },
+    "productLinkCacheCleared": {
+        "message": "商品連結快取已清除"
+    },
+    "accountIsAbnormalPleaseTryAgainFrequently": {
+        "message": "帳號異常，目前商品採集失敗，請降低採集頻率稍候重試或更換拼多多買家帳號重試"
+    },
+    "currentBrowserIsNotSignedIn": {
+        "message": "目前瀏覽器未登入帳號，"
+    },
+    "clickHereToLogIn": {
+        "message": "點此去登入"
+    },
+    "ifAlreadyLoggedInRefreshThePageAndTryAgain": {
+        "message": "，若已登入請重新整理頁面後重試"
+    },
+    "failedToGetTheProductPleaseLogInOrSwipeTheVerificationCodeToVerify": {
+        "message": "取得商品失敗，請進行登入或滑動驗證碼驗證"
+    },
+    "currentBrowserAccountRequiresSecurityVerification": {
+        "message": "目前瀏覽器帳號，需要安全驗證，"
+    },
+    "clickHereToVerify": {
+        "message": "點此去驗證"
+    },
+    "collectProgress": {
+        "message": "採集進度"
+    },
+    "notSupportCollectPageData": {
+        "message": "不支援採集頁面資料"
+    },
+    "viewUsageTutorial": {
+        "message": "檢視使用教學"
+    },
+    "goToSourcePlatformCollectProducts": {
+        "message": "前往對應貨源平台可直接採集產品，在您採集前可$1客製您的專屬採集規則$2"
+    },
+    "unableToCollectInventoryTips": {
+        "message": "因平台限制，部分產品將無法採集到庫存，是否繼續？"
+    },
+    "noFurtherPrompt": {
+        "message": "以後不再提示"
+    },
+    "continuedCollection": {
+        "message": "繼續採集"
+    }
+}

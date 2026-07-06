@@ -1,0 +1,81 @@
+{
+  "_comment": "SaaS demo commercial — 45-60s. Hook → Problem → Solution walkthrough → Proof → CTA. Best when client has app screenshots. Replace ALLCAPS placeholders with project-specific values.",
+  "type": "saas-demo",
+  "duration": 55,
+  "aspectRatios": ["16:9", "9:16"],
+  "voice": {
+    "voice_id": "ELEVENLABS_VOICE_ID_OR_BLANK_FOR_ENV_DEFAULT",
+    "style": "commercial-narrator",
+    "stability": 0.5,
+    "similarity_boost": 0.75
+  },
+  "music": {
+    "style": "cinematic",
+    "volume": 0.22
+  },
+  "brand": {
+    "name": "PRODUCT_NAME",
+    "logo": "assets/logo.png",
+    "tagline": "TAGLINE",
+    "url": "https://PRODUCT.COM",
+    "primaryColor": "#3b82f6",
+    "accentColor": "#8b5cf6"
+  },
+  "scenes": [
+    {
+      "id": "hook",
+      "duration": 4,
+      "type": "runway_atmosphere",
+      "prompt": "Cinematic close-up of a developer's hands typing on a sleek mechanical keyboard, soft blue and purple LED light from a monitor screen, shallow depth of field, slow camera push-in, dramatic backlighting. No text or logos."
+    },
+    {
+      "id": "problem",
+      "duration": 8,
+      "type": "screenshot_kenburns",
+      "image": "assets/problem-screenshot.png",
+      "vo": "Still managing this in a spreadsheet?",
+      "motion": "zoom_in",
+      "_note": "Show the messy 'before' state. Spreadsheet, old tool, manual process."
+    },
+    {
+      "id": "transition",
+      "duration": 3,
+      "type": "runway_atmosphere",
+      "prompt": "Abstract motion graphics in PRIMARY_COLOR and ACCENT_COLOR — clean geometric shapes morphing and assembling, suggesting transformation from chaos to order. Modern tech aesthetic, no text or logos."
+    },
+    {
+      "id": "solution-1",
+      "duration": 10,
+      "type": "screenshot_kenburns",
+      "image": "assets/dashboard.png",
+      "vo": "PRODUCT_NAME replaces your spreadsheet with a dashboard that actually does the work.",
+      "motion": "pan_right"
+    },
+    {
+      "id": "solution-2",
+      "duration": 8,
+      "type": "screenshot_kenburns",
+      "image": "assets/feature-2.png",
+      "vo": "Track customers, send invoices, and see your numbers — all in one place.",
+      "motion": "zoom_out"
+    },
+    {
+      "id": "proof",
+      "duration": 6,
+      "type": "testimonial",
+      "quote": "Saved us 10 hours every week.",
+      "name": "TESTIMONIAL_NAME, COMPANY",
+      "photo": "assets/testimonial-photo.jpg",
+      "vo": "Customers save hours every single week."
+    },
+    {
+      "id": "cta",
+      "duration": 8,
+      "type": "cta_slide",
+      "headline": "Try it free for 14 days",
+      "subhead": "No credit card required",
+      "vo": "Visit PRODUCT dot com today and start your free trial.",
+      "ctaUrl": "PRODUCT.COM"
+    }
+  ]
+}

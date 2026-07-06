@@ -1,0 +1,173 @@
+{
+    "extensionName": {
+        "message": "ایزی بوس ای آر پی (EasyBoss ERP)"
+    },
+    "extensionDescription": {
+        "message": "متعدد پلیٹ فارمز کی مصنوعات جمع کرنے کی حمایت"
+    },
+    "welcome": {
+        "message": "خوش آمدید"
+    },
+    "collectThisProduct": {
+        "message": "اس مصنوعات کو جمع کرو"
+    },
+    "deactivate": {
+        "message": "غیر فعال کریں"
+    },
+    "switchToTopBarMode": {
+        "message": "ٹاپ بار موڈ میں تبدیل کریں"
+    },
+    "switchToSidebarMode": {
+        "message": "سائیڈ بار موڈ میں تبدیل کریں"
+    },
+    "notSupportBatchCollectionTips": {
+        "message": "اس پلیٹ فارم پر پلگ ان کا بیچ جمع کرنے کی حمایت نہیں کرتا، براہ کرم مصنوعات کی تفصیلات صفحہ پر جمع کریں"
+    },
+    "getThisPageLink": {
+        "message": "اس صفحے کا لنک حاصل کریں"
+    },
+    "collected": {
+        "message": "جمع کر لیا گیا"
+    },
+    "download": {
+        "message": "ڈاؤن لوڈ کریں"
+    },
+    "clear": {
+        "message": "صفائی دیں"
+    },
+    "selectAll": {
+        "message": "سب کو منتخب کریں"
+    },
+    "collectSelected": {
+        "message": "منتخب کردہ جمع کرو"
+    },
+    "collectThisPage": {
+        "message": "اس صفحے کو جمع کریں"
+    },
+    "copy": {
+        "message": "کاپی کریں"
+    },
+    "copyLink": {
+        "message": "لنک کاپی کریں"
+    },
+    "notLoggedInToSoftware": {
+        "message": "آپ فی الوقت سافٹ ویئر میں لاگ ان نہیں ہیں، براہ کرم پہلے لاگ ان کریں"
+    },
+    "tips": {
+        "message": "مشورے"
+    },
+    "logInNow": {
+        "message": "ابھی لاگ ان کریں"
+    },
+    "cancel": {
+        "message": "منسوخ کریں"
+    },
+    "selectLoginPlatform": {
+        "message": "لاگ ان پلیٹ فارم منتخب کریں"
+    },
+    "loginShop": {
+        "message": "سٹور میں لاگ ان کریں"
+    },
+    "pleaseSetCollectInfo": {
+        "message": "براہ کرم جمع کرنے کی معلومات ترتیب دیں"
+    },
+    "collectPlugInIsSetToDoNotCollect": {
+        "message": "جمع کرنے کا پلگ ان جمع نہیں کرنے کے لئے ترتیب دیا گیا ہے"
+    },
+    "collectionContentIsEmpty": {
+        "message": "جمع کرنے کی مواد خالی ہے"
+    },
+    "submitCollectTaskGotoPageView": {
+        "message": "جمع کرنے کا کام جمع کر لیا گیا ہے، براہ کرم ای آر پی“ مصنوعات جمع کریں” صفحہ پر جائیں اور دیکھیں"
+    },
+    "submitFailed": {
+        "message": "جمع کرنے کا کام کامیابی سے جمع نہیں کرایا [$1]"
+    },
+    "processingDataPleaseWait": {
+        "message": "ڈیٹا پر معالجت کی جا رہی ہے، براہ کرم انتظار کریں..."
+    },
+    "illegalRequest": {
+        "message": "غیر قانونی درخواست"
+    },
+    "illegalRequest0": {
+        "message": "غیر قانونی درخواست0"
+    },
+    "notLoggedInPleaseRefreshThePageAndTryAgain": {
+        "message": "آپ ابھی تک لاگ ان نہیں کیا ہے $1، براہ کرم لاگ ان کریں اور صفحہ کو دوبارہ تازہ کریں"
+    },
+    "getMoveDataEmptyPleaseCheckSourceLegal": {
+        "message": "منتقلی کا ڈیٹا خالی ہے، براہ کرم ماخذ کی قانونیت کی جانچ پڑتال کریں!"
+    },
+    "currMonthCollectNumReachLimit": {
+        "message": "آپ کی موجودہ مہینے کی مصنوعات کی تعداد حد سر پر پہنچ گئی ہے، اگر آپ مزید مصنوعات جمع کرنا چاہتے ہیں تو براہ کرم جمع کرنے کی وسائل کا سبسکرائب کریں"
+    },
+    "collectConfigNotExist": {
+        "message": "$1 جمع کرنے کی ترتیب موجود نہیں ہے"
+    },
+    "addCollectionTaskFailedAndPleaseContactCustomerService": {
+        "message": "جمع کرنے کا کام شدت سے ناکام رہا، براہ کرم خریدار سروس سے رابطہ کریں۔"
+    },
+    "enableCollectPlugins": {
+        "message": "جمع کرنے کے پلگ ان کو فعال کریں"
+    },
+    "productLinkGetCompleted": {
+        "message": "مصنوعات کا لنک حاصل کر لیا گیا"
+    },
+    "placeAddProductLink": {
+        "message": "براہ کرم پہلے مصنوعات کا لنک شامل کریں"
+    },
+    "copySuccess": {
+        "message": "کاپی کامیابی سے ہوگئی"
+    },
+    "isClearLinkCache": {
+        "message": "مصنوعات کے لنک ڈیٹا کی کیش صفائی کرنا ہوگا، کیا آپ واقعی صفائی کرنا چاہتے ہیں؟"
+    },
+    "confirm": {
+        "message": "تصدیق کریں"
+    },
+    "productLinkCacheCleared": {
+        "message": "مصنوعات کے لنک کی کیش صفائی ہوگئی ہے"
+    },
+    "accountIsAbnormalPleaseTryAgainFrequently": {
+        "message": "اکاؤنٹ غیر عادی ہے، موجودہ مصنوعات جمع کرنے میں ناکام رہا، براہ کرم جمع کرنے کی تعداد کم کریں اور بعد میں دوبارہ کوشش کریں یا پینگ ڈو ڈو کی خریدار اکاؤنٹ کو دوبارہ کوشش کریں"
+    },
+    "currentBrowserIsNotSignedIn": {
+        "message": "موجودہ ویب براؤزر میں کوئی اکاؤنٹ لاگ ان نہیں کیا گیا ہے،"
+    },
+    "clickHereToLogIn": {
+        "message": "لاگ ان کرنے کے لئے یہاں کلک کریں"
+    },
+    "ifAlreadyLoggedInRefreshThePageAndTryAgain": {
+        "message": "، اگر پہلے سے لاگ ان کیا ہو تو براہ کرم صفحہ کو تازہ کر کے دوبارہ کوشش کریں"
+    },
+    "failedToGetTheProductPleaseLogInOrSwipeTheVerificationCodeToVerify": {
+        "message": "مصنوعات حاصل کرنے میں ناکام رہا، براہ کرم لاگ ان کریں یا تصدیق کوڈ کو منظور کرنے کیلئے مسح کریں"
+    },
+    "currentBrowserAccountRequiresSecurityVerification": {
+        "message": "موجودہ ویب براؤزر اکاؤنٹ کی حفاظتی تصدیق کی ضرورت ہے،"
+    },
+    "clickHereToVerify": {
+        "message": "تصدیق کرنے کے لئے یہاں کلک کریں"
+    },
+    "collectProgress": {
+        "message": "جمع کرنے کی پیش رفت"
+    },
+    "notSupportCollectPageData": {
+        "message": "صفحہ ڈیٹا کی جمع وردی نہیں کرتا"
+    },
+    "viewUsageTutorial": {
+        "message": "استعمال تعلیم کو دیکھو"
+    },
+    "goToSourcePlatformCollectProducts": {
+        "message": "$2اپنا خالص مجموعہ قانون مطلوب کریں1$مستقیماً محصولات جمع کرنے کے لئے مناسب سراسر پلٹورم پر جاؤ. آپ جمع کرنے سے پہلے، آپ قادر ہیں"
+    },
+    "unableToCollectInventoryTips": {
+        "message": "پلیٹ فارم کی پابندیوں کی وجہ سے ، کچھ مصنوعات انوینٹری جمع کرنے کے قابل نہیں ہوں گی ، کیا آپ جاری رکھنا چاہتے ہیں؟"
+    },
+    "noFurtherPrompt": {
+        "message": "مستقبل میں مزید اشارے نہیں"
+    },
+    "continuedCollection": {
+        "message": "جمع کرنا جاری رکھیں"
+    }
+}

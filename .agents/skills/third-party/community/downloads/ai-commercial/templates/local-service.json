@@ -1,0 +1,65 @@
+{
+  "_comment": "Local service ad — 30s. Hook → Problem → Service shown → CTA. Best for plumbers, restaurants, repair, contractors, lawyers, etc. High-energy, action-driven, ends with phone + URL.",
+  "type": "local-service",
+  "duration": 30,
+  "aspectRatios": ["16:9", "9:16", "1:1"],
+  "voice": {
+    "voice_id": "ELEVENLABS_VOICE_ID_OR_BLANK_FOR_ENV_DEFAULT",
+    "style": "energetic-narrator",
+    "stability": 0.4,
+    "similarity_boost": 0.8
+  },
+  "music": {
+    "style": "upbeat",
+    "volume": 0.28
+  },
+  "brand": {
+    "name": "BUSINESS_NAME",
+    "logo": "assets/logo.png",
+    "tagline": "TAGLINE_OR_PROMISE",
+    "url": "https://BUSINESS.COM",
+    "phone": "555-555-5555",
+    "primaryColor": "#dc2626",
+    "accentColor": "#f59e0b"
+  },
+  "scenes": [
+    {
+      "id": "hook",
+      "duration": 4,
+      "type": "runway_atmosphere",
+      "prompt": "Dramatic close-up of SERVICE_VISUAL — e.g. a burst pipe spraying water, a flickering broken light fixture, an overgrown lawn — fast camera push-in, high energy, photo-real, no text or logos. Suggesting problem the service solves."
+    },
+    {
+      "id": "problem-vo",
+      "duration": 6,
+      "type": "runway_atmosphere",
+      "prompt": "BROADER_PROBLEM_VISUAL — frustrated homeowner looking at the problem, hands on hips, dim domestic lighting. Subtle motion. No text or logos.",
+      "vo": "Got a problem you can't fix? Don't waste your weekend on it."
+    },
+    {
+      "id": "solution-hero",
+      "duration": 8,
+      "type": "runway_i2v",
+      "seedImage": "assets/team-or-truck.jpg",
+      "prompt": "Slow camera push-in toward the BUSINESS_NAME team/truck arriving with confidence. Warm lighting, professional appearance, slight smile. Suggesting competence and reliability.",
+      "vo": "BUSINESS_NAME has been fixing SERVICE_AREA problems for OVER_X_YEARS years."
+    },
+    {
+      "id": "service-shot",
+      "duration": 6,
+      "type": "screenshot_kenburns",
+      "image": "assets/work-photo.jpg",
+      "motion": "zoom_in",
+      "vo": "Fast response, fair pricing, work guaranteed."
+    },
+    {
+      "id": "cta",
+      "duration": 6,
+      "type": "cta_slide",
+      "headline": "Call BUSINESS_NAME today",
+      "subhead": "PHONE_NUMBER  |  BUSINESS.COM",
+      "vo": "Call PHONE_NUMBER or visit BUSINESS dot com today.",
+      "ctaUrl": "BUSINESS.COM"
+    }
+  ]
+}

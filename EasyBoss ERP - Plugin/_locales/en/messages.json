@@ -1,0 +1,173 @@
+{
+    "extensionName": {
+        "message": "EasyBoss ERP"
+    },
+    "extensionDescription": {
+        "message": "Support collecting products from multiple platforms"
+    },
+    "welcome": {
+        "message": "Welcome"
+    },
+    "collectThisProduct": {
+        "message": "Collect this product"
+    },
+    "deactivate": {
+        "message": "Deactivate"
+    },
+    "switchToTopBarMode": {
+        "message": "Switch to top bar mode"
+    },
+    "switchToSidebarMode": {
+        "message": "Switch to sidebar mode"
+    },
+    "notSupportBatchCollectionTips": {
+        "message": "This platform does not support batch collection using the plugin. Please collect from the product details page."
+    },
+    "getThisPageLink": {
+        "message": "Get this page's link"
+    },
+    "collected": {
+        "message": "Collected"
+    },
+    "download": {
+        "message": "Download"
+    },
+    "clear": {
+        "message": "Clear"
+    },
+    "selectAll": {
+        "message": "Select all"
+    },
+    "collectSelected": {
+        "message": "Collect selected"
+    },
+    "collectThisPage": {
+        "message": "Collect this page"
+    },
+    "copy": {
+        "message": "Copy"
+    },
+    "copyLink": {
+        "message": "Copy link"
+    },
+    "notLoggedInToSoftware": {
+        "message": "You are not currently logged in to the software. Please log in first."
+    },
+    "tips": {
+        "message": "Tips"
+    },
+    "logInNow": {
+        "message": "Log in now"
+    },
+    "cancel": {
+        "message": "Cancel"
+    },
+    "selectLoginPlatform": {
+        "message": "Select login platform"
+    },
+    "loginShop": {
+        "message": "Login to shop"
+    },
+    "pleaseSetCollectInfo": {
+        "message": "Please set the collection information first."
+    },
+    "collectPlugInIsSetToDoNotCollect": {
+        "message": "The collection plugin is set not to collect."
+    },
+    "collectionContentIsEmpty": {
+        "message": "Collection content is empty."
+    },
+    "submitCollectTaskGotoPageView": {
+        "message": "Collect task submitted. Please check the ERP 'Product Collection' page for details."
+    },
+    "submitFailed": {
+        "message": "Submission failed: [$1]"
+    },
+    "processingDataPleaseWait": {
+        "message": "Processing data. Please wait..."
+    },
+    "illegalRequest": {
+        "message": "Illegal request"
+    },
+    "illegalRequest0": {
+        "message": "Illegal request 0"
+    },
+    "notLoggedInPleaseRefreshThePageAndTryAgain": {
+        "message": "You are not logged in to $1. Please log in and refresh the page to try again."
+    },
+    "getMoveDataEmptyPleaseCheckSourceLegal": {
+        "message": "Move data is empty. Please check if the source is legal!"
+    },
+    "currMonthCollectNumReachLimit": {
+        "message": "You have reached the maximum number of products you can collect this month. If you need to collect more products, please subscribe to the collection resource package."
+    },
+    "collectConfigNotExist": {
+        "message": "$1 collection configuration does not exist."
+    },
+    "addCollectionTaskFailedAndPleaseContactCustomerService": {
+        "message": "Failed to add collection task. Please contact customer service."
+    },
+    "enableCollectPlugins": {
+        "message": "Enable collection plugins"
+    },
+    "productLinkGetCompleted": {
+        "message": "Product link retrieval completed."
+    },
+    "placeAddProductLink": {
+        "message": "Please add product links first."
+    },
+    "copySuccess": {
+        "message": "Copy successful"
+    },
+    "isClearLinkCache": {
+        "message": "Clear link cache. Are you sure?"
+    },
+    "confirm": {
+        "message": "Confirm"
+    },
+    "productLinkCacheCleared": {
+        "message": "Product link cache cleared."
+    },
+    "accountIsAbnormalPleaseTryAgainFrequently": {
+        "message": "Account is abnormal. Product collection has failed. Please reduce the collection frequency and try again later or switch to a different Pinduoduo buyer account."
+    },
+    "currentBrowserIsNotSignedIn": {
+        "message": "The current browser is not signed in. "
+    },
+    "clickHereToLogIn": {
+        "message": "Click here to log in."
+    },
+    "ifAlreadyLoggedInRefreshThePageAndTryAgain": {
+        "message": "If you are already logged in, please refresh the page and try again."
+    },
+    "failedToGetTheProductPleaseLogInOrSwipeTheVerificationCodeToVerify": {
+        "message": "Failed to retrieve the product. Please log in or complete the verification code to verify."
+    },
+    "currentBrowserAccountRequiresSecurityVerification": {
+        "message": "The current browser account requires security verification. "
+    },
+    "clickHereToVerify": {
+        "message": "Click here to verify."
+    },
+    "collectProgress": {
+        "message": "Collection Progress"
+    },
+    "notSupportCollectPageData": {
+        "message": "Page data collection not supported"
+    },
+    "viewUsageTutorial": {
+        "message": "View the usage tutorial"
+    },
+    "goToSourcePlatformCollectProducts": {
+        "message": "You can directly collect products by going to the corresponding source platform. Before you collect, you can $1customize your exclusive collection rules$2"
+    },
+    "unableToCollectInventoryTips": {
+        "message": "Due to platform restrictions, some products will not be able to collect inventory, do you want to continue?"
+    },
+    "noFurtherPrompt": {
+        "message": "No further prompt"
+    },
+    "continuedCollection": {
+        "message": "Continued collection"
+    }
+}

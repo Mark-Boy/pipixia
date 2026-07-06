@@ -1,0 +1,778 @@
+{
+    "manifest_version": 3,
+    "name": "__MSG_extensionName__",
+    "version": "1.3.4",
+    "description": "__MSG_extensionDescription__",
+    "default_locale": "en",
+    "content_security_policy": {
+        "extension_pages": "script-src 'self'; object-src 'self';",
+        "sandbox": "sandbox allow-scripts; script-src 'self'; object-src 'self';"
+    },
+    "icons": {
+        "16": "images/logo16.png",
+        "24": "images/logo24.png",
+        "48": "images/logo48.png",
+        "128": "images/logo128.png"
+    },
+    "background": {
+        "service_worker": "background.js"
+    },
+    "action": {
+        "default_icon": {
+            "24": "images/logo24.png"
+        },
+        "default_title": "EasyBoss ERP",
+        "default_popup": "popup.html"
+    },
+    "content_scripts": [
+        {
+            "matches": [
+                "<all_urls>"
+            ],
+            "js": [
+                "js/jquery.js",
+                "js/underscore-1.8.3.min.js",
+                "js/bootstrap/bootstrap.3.3.4.min.js",
+                "js/lib.js",
+                "js/md5.js",
+                "js/ric_plugin.js"
+            ],
+            "css": [
+                "js/layer-3.0.1/skin/default/layer.css",
+                "css/niuniu.css"
+            ],
+            "run_at": "document_start"
+        },
+        {
+            "matches": [
+                "<all_urls>"
+            ],
+            "js": [
+                "js/layer-3.0.1/layer.min.js"
+            ],
+            "css": [
+
+            ],
+            "run_at": "document_end"
+        },
+        {
+            "matches": [
+                "<all_urls>"
+            ],
+            "js": [
+                "js/biz/common/fetch_tool.js",
+                "js/biz/common/common_util.js",
+                "js/biz/common/common_tool.js",
+                "js/biz/platform/platform-hook-config.js",
+                "js/biz/platform/platform-base.js"
+            ],
+            "run_at": "document_start"
+        },
+        {
+            "matches": [
+                "*://*.2tong.cn/*"
+            ],
+            "js": [
+                "js/biz/platform/platform-2tong.js"
+            ],
+            "run_at": "document_end"
+        },
+        {
+            "matches": [
+                "*://*.3e3e.cn/*"
+            ],
+            "js": [
+                "js/biz/platform/platform-3e.js"
+            ],
+            "run_at": "document_end"
+        },
+        {
+            "matches": [
+                "*://*.5ts.com/*"
+            ],
+            "js": [
+                "js/biz/platform/platform-5ts.js"
+            ],
+            "run_at": "document_end"
+        },
+        {
+            "matches": [
+                "*://*.17qcc.com/*"
+            ],
+            "js": [
+                "js/biz/platform/platform-17qcc.js"
+            ],
+            "run_at": "document_end"
+        },
+        {
+            "matches": [
+                "*://*.17zwd.com/*"
+            ],
+            "js": [
+                "js/biz/platform/platform-17zwd.js"
+            ],
+            "run_at": "document_end"
+        },
+        {
+            "matches": [
+                "*://*.51taoyang.com/*"
+            ],
+            "js": [
+                "js/biz/platform/platform-51taoyang.js"
+            ],
+            "run_at": "document_end"
+        },
+        {
+            "matches": [
+                "*://*.51zwd.com/*",
+                "*://*.360wp.com/*"
+            ],
+            "js": [
+                "js/biz/platform/platform-51zwd.js"
+            ],
+            "run_at": "document_end"
+        },
+        {
+            "matches": [
+                "*://*.91jf.com/*"
+            ],
+            "js": [
+                "js/biz/platform/platform-91jf.js"
+            ],
+            "run_at": "document_end"
+        },
+        {
+            "matches": [
+                "*://*.571xz.com/*"
+            ],
+            "js": [
+                "js/biz/platform/platform-571xz.js"
+            ],
+            "run_at": "document_end"
+        },
+        {
+            "matches": [
+                "*://*.591wx.com/*"
+            ],
+            "js": [
+                "js/biz/platform/platform-591wx.js"
+            ],
+            "run_at": "document_end"
+        },
+        {
+            "matches": [
+                "*://*.1688.com/*"
+            ],
+            "js": [
+                "js/biz/platform/platform-1688.js"
+            ],
+            "run_at": "document_end"
+        },
+        {
+            "matches": [
+                "*://*.alibaba.com/*"
+            ],
+            "js": [
+                "js/biz/platform/platform-alibaba.js"
+            ],
+            "run_at": "document_end"
+        },
+        {
+            "matches": [
+                "*://*.aliexpress.com/*",
+                "*://*.aliexpress.ru/*",
+                "*://*.aliexpress.us/*"
+            ],
+            "js": [
+                "js/biz/platform/platform-aliexpress.js"
+            ],
+            "run_at": "document_end"
+        },
+        {
+            "matches": [
+                "*://*.allegro.pl/*"
+            ],
+            "js": [
+                "js/biz/platform/platform-allegro.js"
+            ],
+            "run_at": "document_end"
+        },
+        {
+            "matches": [
+                "*://*.amazon.com/*",
+                "*://*.amazon.co.uk/*",
+                "*://*.amazon.fr/*"
+            ],
+            "js": [
+                "js/biz/platform/platform-amazon.js"
+            ],
+            "run_at": "document_end"
+        },
+        {
+            "matches": [
+                "*://*.bag8.com/*"
+            ],
+            "js": [
+                "js/biz/platform/platform-bag8.js"
+            ],
+            "run_at": "document_end"
+        },
+        {
+            "matches": [
+                "*://*.bao66.cn/*"
+            ],
+            "js": [
+                "js/biz/platform/platform-bao66.js"
+            ],
+            "run_at": "document_end"
+        },
+        {
+            "matches": [
+                "*://*.biyao.com/*"
+            ],
+            "js": [
+                "js/biz/platform/platform-biyao.js"
+            ],
+            "run_at": "document_end"
+        },
+        {
+            "matches": [
+                "*://*.coupang.com/*"
+            ],
+            "js": [
+                "js/biz/platform/platform-coupang.js"
+            ],
+            "run_at": "document_end"
+        },
+        {
+            "matches": [
+                "*://*.csnzw.com/*"
+            ],
+            "js": [
+                "js/biz/platform/platform-csnzw.js"
+            ],
+            "run_at": "document_end"
+        },
+        {
+            "matches": [
+                "*://*.dangdang.com/*"
+            ],
+            "js": [
+                "js/biz/platform/platform-dangdang.js"
+            ],
+            "run_at": "document_end"
+        },
+        {
+            "matches": [
+                "*://*.dhgate.com/*"
+            ],
+            "js": [
+                "js/biz/platform/platform-dh.js"
+            ],
+            "run_at": "document_end"
+        },
+        {
+            "matches": [
+                "*://*.ebay.com/*",
+                "*://*.ebay.com.au/*",
+                "*://*.ebay.com.sg/*",
+                "*://*.ebay.it/*",
+                "*://*.ebay.co.uk/*",
+                "*://*.ebay.de/*",
+                "*://*.ebay.ca/*",
+                "*://*.ebay.fr/*"
+            ],
+            "js": [
+                "js/biz/platform/platform-ebay.js"
+            ],
+            "run_at": "document_end"
+        },
+        {
+            "matches": [
+                "*://*.eelly.com/*"
+            ],
+            "js": [
+                "js/biz/platform/platform-eelly.js"
+            ],
+            "run_at": "document_end"
+        },
+        {
+            "matches": [
+                "*://*.go2.cn/*"
+            ],
+            "js": [
+                "js/biz/platform/platform-go2.js"
+            ],
+            "run_at": "document_end"
+        },
+        {
+            "matches": [
+                "*://*.huoniuniu.com/*"
+            ],
+            "js": [
+                "js/biz/platform/platform-huoniuniu.js"
+            ],
+            "run_at": "document_end"
+        },
+        {
+            "matches": [
+                "*://*.huopin.cn/*"
+            ],
+            "js": [
+                "js/biz/platform/platform-huopin.js"
+            ],
+            "run_at": "document_end"
+        },
+        {
+            "matches": [
+                "*://*.hznzcn.com/*"
+            ],
+            "js": [
+                "js/biz/platform/platform-hznz.js"
+            ],
+            "run_at": "document_end"
+        },
+        {
+            "matches": [
+                "*://*.joom.com/*"
+            ],
+            "js": [
+                "js/biz/platform/platform-joom.js"
+            ],
+            "run_at": "document_end"
+        },
+        {
+            "matches": [
+                "*://*.juyi5.cn/*"
+            ],
+            "js": [
+                "js/biz/platform/platform-juyiwang.js"
+            ],
+            "run_at": "document_end"
+        },
+        {
+            "matches": [
+                "*://*.k3.cn/*"
+            ],
+            "js": [
+                "js/biz/platform/platform-k3.js"
+            ],
+            "run_at": "document_end"
+        },
+        {
+            "matches": [
+                "*://*.kaola.com/*"
+            ],
+            "js": [
+                "js/biz/platform/platform-kaola.js"
+            ],
+            "run_at": "document_end"
+        },
+        {
+            "matches": [
+                "*://*.kongfz.com/*"
+            ],
+            "js": [
+                "js/biz/platform/platform-kongfz.js"
+            ],
+            "run_at": "document_end"
+        },
+        {
+            "matches": [
+                "*://*.kwaixiaodian.com/*"
+            ],
+            "js": [
+                "js/biz/platform/platform-kwaixiaodian.js"
+            ],
+            "run_at": "document_end"
+        },
+        {
+            "matches": [
+                "*://*.lazada.co/*",
+                "*://*.lazada.co.th/*",
+                "*://*.lazada.co.id/*",
+                "*://*.lazada.co.my/*",
+                "*://*.lazada.co.vn/*",
+                "*://*.lazada.co.sg/*",
+                "*://*.lazada.co.ph/*",
+                "*://*.lazada.th/*",
+                "*://*.lazada.id/*",
+                "*://*.lazada.my/*",
+                "*://*.lazada.vn/*",
+                "*://*.lazada.sg/*",
+                "*://*.lazada.ph/*",
+                "*://*.lazada.com.co/*",
+                "*://*.lazada.com.th/*",
+                "*://*.lazada.com.id/*",
+                "*://*.lazada.com.my/*",
+                "*://*.lazada.com.vn/*",
+                "*://*.lazada.com.sg/*",
+                "*://*.lazada.com.ph/*"
+            ],
+            "js": [
+                "js/biz/platform/platform-lazada.js"
+            ],
+            "run_at": "document_end"
+        },
+        {
+            "matches": [
+                "*://*.daraz.pk/*",
+                "*://*.daraz.lk/*",
+                "*://*.daraz.com.mm/*",
+                "*://*.daraz.com.bd/*",
+                "*://*.daraz.com.np/*"
+            ],
+            "js": [
+                "js/biz/platform/platform-daraz.js"
+            ],
+            "run_at": "document_end"
+        },
+        {
+            "matches": [
+                "*://*.mmgg.com/*"
+            ],
+            "js": [
+                "js/biz/platform/platform-mmgg.js"
+            ],
+            "run_at": "document_end"
+        },
+        {
+            "matches": [
+                "*://*.ozon.ru/*"
+            ],
+            "js": [
+                "js/biz/platform/platform-ozon.js"
+            ],
+            "run_at": "document_end"
+        },
+        {
+            "matches": [
+                "*://*.ppkoo.com/*"
+            ],
+            "js": [
+                "js/biz/platform/platform-ppkoo.js"
+            ],
+            "run_at": "document_end"
+        },
+        {
+            "matches": [
+                "*://*.secoo.com/*"
+            ],
+            "js": [
+                "js/biz/platform/platform-secoo.js"
+            ],
+            "run_at": "document_end"
+        },
+        {
+            "matches": [
+                "*://*.xiapibuy.com/*",
+                "*://*.shopee.co.id/*",
+                "*://*.shopee.tw/*",
+                "*://*.shopee.vn/*",
+                "*://*.shopee.co.th/*",
+                "*://*.shopee.ph/*",
+                "*://*.shopee.com.my/*",
+                "*://*.shopee.sg/*",
+                "*://*.shopee.com.br/*",
+                "*://*.shopee.com.mx/*",
+                "*://*.shopee.com.co/*",
+                "*://*.shopee.cl/*",
+                "*://*.shopee.pl/*",
+                "*://*.shopee.es/*",
+                "*://*.shopee.com.ar/*"
+            ],
+            "js": [
+                "js/biz/platform/platform-shopee.js"
+            ],
+            "run_at": "document_end"
+        },
+        {
+            "matches": [
+                "*://*.shuiyipifa.cn/*"
+            ],
+            "js": [
+                "js/biz/platform/platform-shuiyipifa.js"
+            ],
+            "run_at": "document_end"
+        },
+        {
+            "matches": [
+                "*://*.sjq.cn/*"
+            ],
+            "js": [
+                "js/biz/platform/platform-sjq.js"
+            ],
+            "run_at": "document_end"
+        },
+        {
+            "matches": [
+                "*://*.sooxie.com/*"
+            ],
+            "js": [
+                "js/biz/platform/platform-sooxie.js"
+            ],
+            "run_at": "document_end"
+        },
+        {
+            "matches": [
+                "*://*.suning.com/*"
+            ],
+            "js": [
+                "js/biz/platform/platform-suning.js"
+            ],
+            "run_at": "document_end"
+        },
+        {
+            "matches": [
+                "*://*.temu.com/*"
+            ],
+            "js": [
+                "js/biz/platform/platform-temu.js"
+            ],
+            "run_at": "document_end"
+        },
+        {
+            "matches": [
+                "*://*.jinritemai.com/*"
+            ],
+            "js": [
+                "js/biz/platform/platform-toutiaomall.js"
+            ],
+            "run_at": "document_end"
+        },
+        {
+            "matches": [
+                "*://*.vip.com/*"
+            ],
+            "js": [
+                "js/biz/platform/platform-vip.js"
+            ],
+            "run_at": "document_end"
+        },
+        {
+            "matches": [
+                "*://*.vvic.com/*"
+            ],
+            "js": [
+                "js/biz/platform/platform-vvic.js"
+            ],
+            "run_at": "document_end"
+        },
+        {
+            "matches": [
+                "*://*.wsy.com/*"
+            ],
+            "js": [
+                "js/biz/platform/platform-wsy.js"
+            ],
+            "run_at": "document_end"
+        },
+        {
+            "matches": [
+                "*://*.xidibuy.com/*"
+            ],
+            "js": [
+                "js/biz/platform/platform-xidi.js"
+            ],
+            "run_at": "document_end"
+        },
+        {
+            "matches": [
+                "*://*.xingfujie.cn/*"
+            ],
+            "js": [
+                "js/biz/platform/platform-xingfujie.js"
+            ],
+            "run_at": "document_end"
+        },
+        {
+            "matches": [
+                "*://*.yedemall.com/*"
+            ],
+            "js": [
+                "js/biz/platform/platform-yedemall.js"
+            ],
+            "run_at": "document_end"
+        },
+        {
+            "matches": [
+                "*://*.yhd.com/*"
+            ],
+            "js": [
+                "js/biz/platform/platform-yhd.js"
+            ],
+            "run_at": "document_end"
+        },
+        {
+            "matches": [
+                "*://*.yiwugo.com/*"
+            ],
+            "js": [
+                "js/biz/platform/platform-yiwugou.js"
+            ],
+            "run_at": "document_end"
+        },
+        {
+            "matches": [
+                "*://*.yunchepin.cn/*"
+            ],
+            "js": [
+                "js/biz/platform/platform-yunchepin.js"
+            ],
+            "run_at": "document_end"
+        },
+        {
+            "matches": [
+                "*://*.zhaojiafang.com/*"
+            ],
+            "js": [
+                "js/biz/platform/platform-zhaojiafang.js"
+            ],
+            "run_at": "document_end"
+        },
+        {
+            "matches": [
+                "*://*.zhe800.com/*"
+            ],
+            "js": [
+                "js/biz/platform/platform-zhe800.js"
+            ],
+            "run_at": "document_end"
+        },
+        {
+            "matches": [
+                "*://*.walmart.com/*"
+            ],
+            "js": [
+                "js/biz/platform/platform-walmart.js"
+            ],
+            "run_at": "document_end"
+        },
+        {
+            "matches": [
+                "*://*.gigab2b.com/*"
+            ],
+            "js": [
+                "js/biz/platform/platform-gigab2b.js"
+            ],
+            "run_at": "document_end"
+        },
+        {
+            "matches": [
+                "*://*.tiktok.com/*",
+                "*://*.tiktokw.eu/*",
+                "*://*.tokopedia.com/*",
+                "*://*.tiktokglobalshop.com/*"
+            ],
+            "js": [
+                "js/biz/platform/platform-tiktok.js"
+            ],
+            "run_at": "document_end"
+        },
+        {
+            "matches": [
+                "*://*.saleyee.cn/*",
+                "*://*.saleyee.com/*"
+            ],
+            "js": [
+                "js/biz/platform/platform-saleyee.js"
+            ],
+            "run_at": "document_end"
+        },
+        {
+            "matches": [
+                "*://*.shein.com/*",
+                "*://*.shein.com.hk/*",
+                "*://*.shein.com.mx/*",
+                "*://*.shein.com.vn/*",
+                "*://*.shein.com.uk/*",
+                "*://*.shein.tw/*"
+            ],
+            "js": [
+                "js/biz/platform/platform-shein.js"
+            ],
+            "run_at": "document_end"
+        },
+        {
+            "matches": [
+                "*://*.yms.com/*"
+            ],
+            "js": [
+                "js/biz/platform/platform-yms.js"
+            ],
+            "run_at": "document_end"
+        },
+        {
+            "matches": [
+                "*://*.tikmesh.com/*"
+            ],
+            "js": [
+                "js/biz/platform/platform-tikmesh.js"
+            ],
+            "run_at": "document_end"
+        },
+        {
+            "matches": [
+                "*://*.etsy.com/*"
+            ],
+            "js": [
+                "js/biz/platform/platform-etsy.js"
+            ],
+            "run_at": "document_end"
+        },
+        {
+            "matches": [
+                "*://*.jumia.com.ng/*",
+                "*://*.jumia.com.tn/*",
+                "*://*.jumia.com.eg/*",
+                "*://*.jumia.com.gh/*",
+                "*://*.jumia.co.za/*",
+                "*://*.jumia.co.ke/*",
+                "*://*.jumia.ci/*"
+            ],
+            "js": [
+                "js/biz/platform/platform-jumia.js"
+            ],
+            "run_at": "document_end"
+        }
+    ],
+    "permissions": [
+        "storage",
+        "unlimitedStorage",
+        "activeTab",
+        "scripting"
+    ],
+    "host_permissions": [
+        "http://*/*",
+        "https://*/*"
+    ],
+    "web_accessible_resources": [
+        {
+            "resources": [
+                "images/*.png",
+                "fonts/*",
+                "js/biz/platform/inject/platform-shopee.js",
+                "js/biz/platform/inject/platform-lazada.js",
+                "js/biz/platform/inject/platform-kwaixiaodian.js",
+                "js/biz/platform/inject/platform-aliexpress.js",
+                "js/biz/platform/inject/platform-gigab2b.js",
+                "js/biz/platform/inject/platform-walmart.js",
+                "js/biz/platform/inject/platform-coupang.js",
+                "js/biz/platform/inject/platform-shein.js",
+                "js/biz/platform/inject/platform-1688-inject.js",
+                "js/biz/platform/inject/platform-bao66.js",
+                "js/biz/platform/inject/platform-tiktok.js"
+            ],
+            "matches": [
+                "<all_urls>"
+            ]
+        }
+    ],
+    "externally_connectable": {
+        "matches": [
+            "*://localhost/*",
+            "*://*.jiancent.com/*",
+            "*://*.easyboss.com/*"
+        ]
+    }
+}

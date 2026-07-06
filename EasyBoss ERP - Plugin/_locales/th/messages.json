@@ -1,0 +1,173 @@
+{
+    "extensionName": {
+        "message": "EasyBoss ERP"
+    },
+    "extensionDescription": {
+        "message": "รองรับการเก็บรวบรวมสินค้าจากหลายแพลตฟอร์ม"
+    },
+    "welcome": {
+        "message": "ยินดีต้อนรับ"
+    },
+    "collectThisProduct": {
+        "message": "เก็บสินค้านี้"
+    },
+    "deactivate": {
+        "message": "ปิดการใช้งาน"
+    },
+    "switchToTopBarMode": {
+        "message": "เปลี่ยนเป็นโหมดแถบบน"
+    },
+    "switchToSidebarMode": {
+        "message": "เปลี่ยนเป็นโหมดแถบข้าง"
+    },
+    "notSupportBatchCollectionTips": {
+        "message": "แพลตฟอร์มนี้ไม่รองรับการเก็บรวบรวมแบบกลุ่มโดยใช้ปลั๊กอิน กรุณาเก็บรวบรวมในหน้ารายละเอียดสินค้า"
+    },
+    "getThisPageLink": {
+        "message": "รับลิงก์หน้านี้"
+    },
+    "collected": {
+        "message": "เก็บแล้ว"
+    },
+    "download": {
+        "message": "ดาวน์โหลด"
+    },
+    "clear": {
+        "message": "ล้าง"
+    },
+    "selectAll": {
+        "message": "เลือกทั้งหมด"
+    },
+    "collectSelected": {
+        "message": "เก็บที่เลือก"
+    },
+    "collectThisPage": {
+        "message": "เก็บหน้านี้"
+    },
+    "copy": {
+        "message": "คัดลอก"
+    },
+    "copyLink": {
+        "message": "คัดลอกลิงก์"
+    },
+    "notLoggedInToSoftware": {
+        "message": "คุณยังไม่ได้เข้าสู่ระบบซอฟต์แวร์ โปรดเข้าสู่ระบบก่อน"
+    },
+    "tips": {
+        "message": "เคล็ดลับ"
+    },
+    "logInNow": {
+        "message": "เข้าสู่ระบบเดี๋ยวนี้"
+    },
+    "cancel": {
+        "message": "ยกเลิก"
+    },
+    "selectLoginPlatform": {
+        "message": "เลือกแพลตฟอร์มการเข้าสู่ระบบ"
+    },
+    "loginShop": {
+        "message": "เข้าสู่ระบบร้านค้า"
+    },
+    "pleaseSetCollectInfo": {
+        "message": "โปรดตั้งค่าข้อมูลการเก็บรวบรวมก่อน"
+    },
+    "collectPlugInIsSetToDoNotCollect": {
+        "message": "ปลั๊กอินการเก็บรวบรวมถูกตั้งค่าเพื่อไม่เก็บรวบรวม"
+    },
+    "collectionContentIsEmpty": {
+        "message": "เนื้อหาการเก็บรวบรวมว่างเปล่า"
+    },
+    "submitCollectTaskGotoPageView": {
+        "message": "ส่งงานเก็บรวบรวมแล้ว โปรดไปที่หน้า 'เก็บรวบรวมสินค้า' ใน ERP เพื่อตรวจสอบ"
+    },
+    "submitFailed": {
+        "message": "การส่งล้มเหลว [$1]"
+    },
+    "processingDataPleaseWait": {
+        "message": "กำลังประมวลผลข้อมูล โปรดรอ..."
+    },
+    "illegalRequest": {
+        "message": "คำขอผิดกฎหมาย"
+    },
+    "illegalRequest0": {
+        "message": "คำขอผิดกฎหมาย 0"
+    },
+    "notLoggedInPleaseRefreshThePageAndTryAgain": {
+        "message": "คุณยังไม่ได้เข้าสู่ระบบ $1 โปรดเข้าสู่ระบบและรีเฟรชหน้าเพื่อลองอีกครั้ง"
+    },
+    "getMoveDataEmptyPleaseCheckSourceLegal": {
+        "message": "ไม่มีข้อมูลการย้าย โปรดตรวจสอบความถูกต้องของแหล่งที่มา!"
+    },
+    "currMonthCollectNumReachLimit": {
+        "message": "คุณได้รับจำนวนสินค้าที่คุณสามารถเก็บรวบรวมในเดือนนี้แล้ว หากคุณต้องการเก็บรวบรวมสินค้าเพิ่มเติม โปรดสมัครสมาชิกแพ็คเกจการเก็บรวบรวม"
+    },
+    "collectConfigNotExist": {
+        "message": "การกำหนดการเก็บรวบรวม $1 ไม่มีอยู่"
+    },
+    "addCollectionTaskFailedAndPleaseContactCustomerService": {
+        "message": "เพิ่มงานเก็บรวบรวมล้มเหลว โปรดติดต่อฝ่ายบริการลูกค้า"
+    },
+    "enableCollectPlugins": {
+        "message": "เปิดใช้งานปลั๊กอินการเก็บรวบรวม"
+    },
+    "productLinkGetCompleted": {
+        "message": "รับลิงก์สินค้าเรียบร้อยแล้ว"
+    },
+    "placeAddProductLink": {
+        "message": "โปรดเพิ่มลิงก์สินค้าก่อน"
+    },
+    "copySuccess": {
+        "message": "คัดลอกสำเร็จ"
+    },
+    "isClearLinkCache": {
+        "message": "นี่จะล้างแคชลิงก์สินค้า ยืนยันหรือไม่?"
+    },
+    "confirm": {
+        "message": "ยืนยัน"
+    },
+    "productLinkCacheCleared": {
+        "message": "ล้างแคชลิงก์สินค้าเรียบร้อยแล้ว"
+    },
+    "accountIsAbnormalPleaseTryAgainFrequently": {
+        "message": "บัญชีผิดปกติ การเก็บรวบรวมสินค้าปัจจุบันล้มเหลว โปรดลดความถี่ในการเก็บรวบรวมและลองอีกครั้งหรือเปลี่ยนบัญชีผู้ซื้อ Pinduoduo"
+    },
+    "currentBrowserIsNotSignedIn": {
+        "message": "เบราว์เซอร์ปัจจุบันยังไม่ได้เข้าสู่ระบบ"
+    },
+    "clickHereToLogIn": {
+        "message": "คลิกที่นี่เพื่อเข้าสู่ระบบ"
+    },
+    "ifAlreadyLoggedInRefreshThePageAndTryAgain": {
+        "message": "หากคุณเคยเข้าสู่ระบบแล้ว โปรดรีเฟรชหน้าและลองอีกครั้ง"
+    },
+    "failedToGetTheProductPleaseLogInOrSwipeTheVerificationCodeToVerify": {
+        "message": "ล้มเหลวในการรับสินค้า โปรดเข้าสู่ระบบหรือลากรหัสยืนยันเพื่อตรวจสอบ"
+    },
+    "currentBrowserAccountRequiresSecurityVerification": {
+        "message": "บัญชีในเบราว์เซอร์ปัจจุบันต้องการการตรวจสอบความปลอดภัย"
+    },
+    "clickHereToVerify": {
+        "message": "คลิกที่นี่เพื่อตรวจสอบ"
+    },
+    "collectProgress": {
+        "message": "ความคืบหน้าในการเก็บรวบรวม"
+    },
+    "notSupportCollectPageData": {
+        "message": "ไม่รองรับการเก็บข้อมูลจากหน้า"
+    },
+    "viewUsageTutorial": {
+        "message": "ดูการสอนการใช้งาน"
+    },
+    "goToSourcePlatformCollectProducts": {
+        "message": "ไปที่แพลตฟอร์มต้นทางที่สอดคล้องกันสามารถเก็บผลิตภัณฑ์ได้โดยตรงและก่อนที่คุณจะเก็บ$1ปรับแต่งกฎการเก็บรวบรวมเฉพาะของคุณ$2"
+    },
+    "unableToCollectInventoryTips": {
+        "message": "ผลิตภัณฑ์บางส่วนจะไม่สามารถเก็บสินค้าได้เนื่องจากข้อ จำกัด ของแพลตฟอร์มคุณต้องการจะทำต่อไป หรือไม่?"
+    },
+    "noFurtherPrompt": {
+        "message": "ไม่มีคำแนะนำในอนาคต"
+    },
+    "continuedCollection": {
+        "message": "เก็บต่อไป"
+    }
+}

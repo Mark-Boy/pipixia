@@ -15,7 +15,7 @@ async def lifespan(app: FastAPI):
     """应用生命周期管理"""
     logger.info("pipixia API 启动中...")
     # 初始化数据库表
-    init_db()
+    await init_db()
     logger.info("数据库初始化完成")
     # TODO: 加载敏感词库
     # TODO: 注册定时任务

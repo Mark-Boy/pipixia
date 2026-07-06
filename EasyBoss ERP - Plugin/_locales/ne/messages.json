@@ -1,0 +1,173 @@
+{
+    "extensionName": {
+        "message": "EasyBoss ERP"
+    },
+    "extensionDescription": {
+        "message": "धेरै प्लेटफर्म उत्पादनहरूको संग्रहणमा साथी"
+    },
+    "welcome": {
+        "message": "स्वागत छ"
+    },
+    "collectThisProduct": {
+        "message": "यस वस्त्र संग्रहण गर्नुहोस्"
+    },
+    "deactivate": {
+        "message": "निष्क्रिय गर्नुहोस्"
+    },
+    "switchToTopBarMode": {
+        "message": "शीर्ष बार मोडमा परिवर्तन गर्नुहोस्"
+    },
+    "switchToSidebarMode": {
+        "message": "साइडबार मोडमा परिवर्तन गर्नुहोस्"
+    },
+    "notSupportBatchCollectionTips": {
+        "message": "यस प्लेटफर्मले प्लगइनको बृद्धि संग्रहमा समर्थन गर्दैन, कृपया उत्पादन विवरण पृष्ठमा जानुहोस्"
+    },
+    "getThisPageLink": {
+        "message": "यस पृष्ठको लिङ्क प्राप्त गर्नुहोस्"
+    },
+    "collected": {
+        "message": "प्राप्त गरिएको छ"
+    },
+    "download": {
+        "message": "डाउनलोड गर्नुहोस्"
+    },
+    "clear": {
+        "message": "स्पष्ट गर्नुहोस्"
+    },
+    "selectAll": {
+        "message": "सबै छन्नुहोस्"
+    },
+    "collectSelected": {
+        "message": "चयन गरिएको संग्रहण गर्नुहोस्"
+    },
+    "collectThisPage": {
+        "message": "यस पृष्ठ संग्रहण गर्नुहोस्"
+    },
+    "copy": {
+        "message": "प्रतिलिपि गर्नुहोस्"
+    },
+    "copyLink": {
+        "message": "लिङ्क प्रतिलिपि गर्नुहोस्"
+    },
+    "notLoggedInToSoftware": {
+        "message": "तपाईंको हालकोमा सफ्टवेयरमा प्रवेश गरिएको छैन, कृपया पहिलो प्रवेश गर्नुहोस्"
+    },
+    "tips": {
+        "message": "सुझाव"
+    },
+    "logInNow": {
+        "message": "अब प्रवेश गर्नुहोस्"
+    },
+    "cancel": {
+        "message": "रद्द गर्नुहोस्"
+    },
+    "selectLoginPlatform": {
+        "message": "प्रवेश प्लेटफर्म छन्नुहोस्"
+    },
+    "loginShop": {
+        "message": "दुकानमा प्रवेश गर्नुहोस्"
+    },
+    "pleaseSetCollectInfo": {
+        "message": "कृपया संग्रहण जानकारी सेट गर्नुहोस्"
+    },
+    "collectPlugInIsSetToDoNotCollect": {
+        "message": "संग्रहण प्लगइन प्राप्त गर्नका लागि सेट गरिएको छैन"
+    },
+    "collectionContentIsEmpty": {
+        "message": "संग्रहण सामग्री खाली छ"
+    },
+    "submitCollectTaskGotoPageView": {
+        "message": "संग्रहण काम पेश गरिएको छ, कृपया ERP 'उत्पादन संग्रहण' पृष्ठमा जानुहोस्"
+    },
+    "submitFailed": {
+        "message": "पेश गर्न असफल[$1]"
+    },
+    "processingDataPleaseWait": {
+        "message": "डाटा प्रस्सिंग गर्दै, कृपया प्रतीक्षा गर्नुहोस्..."
+    },
+    "illegalRequest": {
+        "message": "अवैध अनुरोध"
+    },
+    "illegalRequest0": {
+        "message": "अवैध अनुरोध 0"
+    },
+    "notLoggedInPleaseRefreshThePageAndTryAgain": {
+        "message": "तपाईंले हाइनुभएको छैन $1, कृपया प्रवेश गर्न र पृष्ठ पुन: प्राप्त गर्नका लागि प्रवेश गर्नुहोस्"
+    },
+    "getMoveDataEmptyPleaseCheckSourceLegal": {
+        "message": "स्रोतमा अवैध छ भने, कृपया मोबाइल डेटा प्राप्त गर्न खाली छ!"
+    },
+    "currMonthCollectNumReachLimit": {
+        "message": "तपाईंको यस महिनाको लागि प्राप्त गर्न मिति सीमा पुर्याइसकेको छ, यदि तपाईं अधिक उत्पादन प्राप्त गर्न चाहनुहुन्छ भने, कृपया संग्रहण स्रोत प्याक पर्दैछन्"
+    },
+    "collectConfigNotExist": {
+        "message": "$1 संग्रहण बनावट मौजूद छैन"
+    },
+    "addCollectionTaskFailedAndPleaseContactCustomerService": {
+        "message": "संग्रहण काम थप्न सकिएन, कृपया ग्राहक सेवासँग सम्पर्क गर्नुहोस्"
+    },
+    "enableCollectPlugins": {
+        "message": "संग्रहण प्लगइन सक्षम गर्नुहोस्"
+    },
+    "productLinkGetCompleted": {
+        "message": "उत्पादन लिङ्क प्राप्त गरिएको छ"
+    },
+    "placeAddProductLink": {
+        "message": "कृपया पहिलो उत्पादन लिङ्क थप्नुहोस्"
+    },
+    "copySuccess": {
+        "message": "प्रतिलिपि गरिएको छ"
+    },
+    "isClearLinkCache": {
+        "message": "उत्पादन लिङ्क क्यास खाली गर्न जाने, के तपाईं खाली गर्न चाहनुहुन्छ?"
+    },
+    "confirm": {
+        "message": "पुष्टि गर्नुहोस्"
+    },
+    "productLinkCacheCleared": {
+        "message": "उत्पादन लिङ्क क्यास सफा गरिएको छ"
+    },
+    "accountIsAbnormalPleaseTryAgainFrequently": {
+        "message": "खाता असामान्य छ, हाइनुहोस् तपाईंको उत्पादन प्राप्त गर्न दिनुस्, कृपया उत्पादन प्राप्त गर्नका फ्रिक्वेन्सी घटाउनुहोस् र तलकना गर्ने मापदण्ड बदल्नुहोस्"
+    },
+    "currentBrowserIsNotSignedIn": {
+        "message": "हाइनु भएको छ"
+    },
+    "clickHereToLogIn": {
+        "message": "प्रवेश गर्नका लागि यहाँ क्लिक गर्नुहोस्"
+    },
+    "ifAlreadyLoggedInRefreshThePageAndTryAgain": {
+        "message": "यदि पहिलोदेखि प्रवेश गरिएको छ भने, कृपया पृष्ठ पुन: प्राप्त गर्दै प्रयास गर्नुहोस्"
+    },
+    "failedToGetTheProductPleaseLogInOrSwipeTheVerificationCodeToVerify": {
+        "message": "उत्पादन प्राप्त गर्न असफल भएको छ, कृपया प्रवेश गर्नुहोस् वा प्रमाणीकरण कोडलाई स्वाइप गर्नुहोस्"
+    },
+    "currentBrowserAccountRequiresSecurityVerification": {
+        "message": "हाइनु भएको छ"
+    },
+    "clickHereToVerify": {
+        "message": "प्रमाणीकरण गर्नका लागि यहाँ क्लिक गर्नुहोस्"
+    },
+    "collectProgress": {
+        "message": "संग्रह प्रगति"
+    },
+    "notSupportCollectPageData": {
+        "message": "पृष्ठ डेटा संग्रह गर्न मिल्दैन"
+    },
+    "viewUsageTutorial": {
+        "message": "प्रयोग शिक्षक हेर्नुहोस्"
+    },
+    "goToSourcePlatformCollectProducts": {
+        "message": "सिधै उत्पादक सङ्कलन गर्न सम्बन्धित स्रोत प्लेटफर्ममा जानुहोस् । तपाईँले सङ्कलन गर्नु भन्दा पह $1तपाईँको विशेष सङ्कलन नियम अनुकूलन गर्नुहोस्$2"
+    },
+    "unableToCollectInventoryTips": {
+        "message": "प्लेटफर्म प्रतिबन्धका कारण, केही उत्पादनहरू सूची सङ्कलन गर्न सक्षम हुनेछैनन्, के तपाईं जारी राख्न चाहनुहुन्छ?"
+    },
+    "noFurtherPrompt": {
+        "message": "भविष्यमा थप सङ्केतहरू छैनन्"
+    },
+    "continuedCollection": {
+        "message": "संग्रह जारी राख्नुहोस्"
+    }
+}

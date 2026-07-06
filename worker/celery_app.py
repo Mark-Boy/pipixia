@@ -10,6 +10,8 @@ REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379/0")
 celery_app = Celery("worker")
 
 celery_app.config_from_object({
+    "broker_url": REDIS_URL,
+    "result_backend": REDIS_URL,
     "broker_connection_retry_on_startup": True,
     "task_serializer": "json",
     "result_serializer": "json",
@@ -46,4 +48,5 @@ celery_app.config_from_object({
 })
 
 # 自动发现所有 tasks 模块
-celery_app.autodiscover_tasks(["worker"])
+# 注意：容器内使用空列表，因为 worker 目录即 /app 根目录
+celery_app.autodiscover_tasks([])

@@ -1,0 +1,173 @@
+{
+    "extensionName": {
+        "message": "EasyBoss ERP"
+    },
+    "extensionDescription": {
+        "message": "Sokong pengumpulan produk pelbagai platform"
+    },
+    "welcome": {
+        "message": "Selamat datang"
+    },
+    "collectThisProduct": {
+        "message": "Kumpulkan produk ini"
+    },
+    "deactivate": {
+        "message": "Nyahaktifkan"
+    },
+    "switchToTopBarMode": {
+        "message": "Tukar ke mod bar atas"
+    },
+    "switchToSidebarMode": {
+        "message": "Tukar ke mod bar sisi"
+    },
+    "notSupportBatchCollectionTips": {
+        "message": "Platform ini tidak menyokong pengumpulan berkelompok melalui plugin, sila lakukan pengumpulan dari halaman butiran produk"
+    },
+    "getThisPageLink": {
+        "message": "Dapatkan pautan halaman ini"
+    },
+    "collected": {
+        "message": "Telah dikumpulkan"
+    },
+    "download": {
+        "message": "Muat turun"
+    },
+    "clear": {
+        "message": "Kosongkan"
+    },
+    "selectAll": {
+        "message": "Pilih semua"
+    },
+    "collectSelected": {
+        "message": "Kumpulkan yang dipilih"
+    },
+    "collectThisPage": {
+        "message": "Kumpulkan halaman ini"
+    },
+    "copy": {
+        "message": "Salin"
+    },
+    "copyLink": {
+        "message": "Salin pautan"
+    },
+    "notLoggedInToSoftware": {
+        "message": "Anda belum log masuk ke perisian, sila log masuk terlebih dahulu"
+    },
+    "tips": {
+        "message": "Tip"
+    },
+    "logInNow": {
+        "message": "Log masuk sekarang"
+    },
+    "cancel": {
+        "message": "Batal"
+    },
+    "selectLoginPlatform": {
+        "message": "Pilih platform log masuk"
+    },
+    "loginShop": {
+        "message": "Log masuk kedai"
+    },
+    "pleaseSetCollectInfo": {
+        "message": "Sila tetapkan maklumat pengumpulan terlebih dahulu"
+    },
+    "collectPlugInIsSetToDoNotCollect": {
+        "message": "Plugin pengumpulan telah ditetapkan untuk tidak mengumpulkan"
+    },
+    "collectionContentIsEmpty": {
+        "message": "Kandungan pengumpulan kosong"
+    },
+    "submitCollectTaskGotoPageView": {
+        "message": "Tugasan pengumpulan telah dihantar, sila periksa halaman 'Pengumpulan Produk' di ERP"
+    },
+    "submitFailed": {
+        "message": "Gagal menghantar [$1]"
+    },
+    "processingDataPleaseWait": {
+        "message": "Sedang memproses data, sila tunggu..."
+    },
+    "illegalRequest": {
+        "message": "Permintaan haram"
+    },
+    "illegalRequest0": {
+        "message": "Permintaan haram 0"
+    },
+    "notLoggedInPleaseRefreshThePageAndTryAgain": {
+        "message": "Anda belum log masuk ke $1, sila log masuk dan segarkan halaman untuk mencuba lagi"
+    },
+    "getMoveDataEmptyPleaseCheckSourceLegal": {
+        "message": "Data pemindahan kosong, sila periksa sumbernya"
+    },
+    "currMonthCollectNumReachLimit": {
+        "message": "Jumlah produk yang boleh anda kumpulkan dalam bulan ini telah mencapai hadnya. Jika anda mahu mengumpulkan lebih banyak produk, langgan pakej sumber pengumpulan"
+    },
+    "collectConfigNotExist": {
+        "message": "Konfigurasi pengumpulan $1 tidak wujud"
+    },
+    "addCollectionTaskFailedAndPleaseContactCustomerService": {
+        "message": "Gagal menambah tugas pengumpulan, sila hubungi perkhidmatan pelanggan."
+    },
+    "enableCollectPlugins": {
+        "message": "Dayakan plugin pengumpulan"
+    },
+    "productLinkGetCompleted": {
+        "message": "Pautan produk telah berjaya didapati"
+    },
+    "placeAddProductLink": {
+        "message": "Sila tambah pautan produk terlebih dahulu"
+    },
+    "copySuccess": {
+        "message": "Berjaya disalin"
+    },
+    "isClearLinkCache": {
+        "message": "Akan mengosongkan cache data pautan produk, anda pasti?"
+    },
+    "confirm": {
+        "message": "Sahkan"
+    },
+    "productLinkCacheCleared": {
+        "message": "Cache pautan produk telah dikosongkan"
+    },
+    "accountIsAbnormalPleaseTryAgainFrequently": {
+        "message": "Akaun bermasalah, pengumpulan produk terkini gagal. Sila kurangkan kekerapan pengumpulan dan cuba lagi kemudian atau tukar akaun pembeli Pinduoduo yang lain"
+    },
+    "currentBrowserIsNotSignedIn": {
+        "message": "Pelayar semasa belum log masuk,"
+    },
+    "clickHereToLogIn": {
+        "message": "klik di sini untuk log masuk"
+    },
+    "ifAlreadyLoggedInRefreshThePageAndTryAgain": {
+        "message": "Jika anda sudah log masuk, sila segarkan halaman dan cuba lagi"
+    },
+    "failedToGetTheProductPleaseLogInOrSwipeTheVerificationCodeToVerify": {
+        "message": "Gagal mendapatkan produk, sila log masuk atau sapu kod pengesahan untuk mengesahkan"
+    },
+    "currentBrowserAccountRequiresSecurityVerification": {
+        "message": "Akaun pelayar semasa memerlukan pengesahan keselamatan,"
+    },
+    "clickHereToVerify": {
+        "message": "klik di sini untuk mengesahkan"
+    },
+    "collectProgress": {
+        "message": "Kemajuan Pengumpulan"
+    },
+    "notSupportCollectPageData": {
+        "message": "Pengumpulan data halaman tidak disokong"
+    },
+    "viewUsageTutorial": {
+        "message": "Lihat tutorial penggunaan"
+    },
+    "goToSourcePlatformCollectProducts": {
+        "message": "Pergi ke platform sumber yang sepadan untuk mengumpulkan produk secara langsung. Sebelum anda mengumpulkan, anda boleh $1Suaikan peraturan koleksi eksklusif anda$2"
+    },
+    "unableToCollectInventoryTips": {
+        "message": "Disebabkan sekatan platform, sesetengah produk tidak akan dapat mengumpul inventori, adakah anda mahu meneruskan?"
+    },
+    "noFurtherPrompt": {
+        "message": "Tiada lagi gesaan pada masa hadapan"
+    },
+    "continuedCollection": {
+        "message": "Teruskan koleksi"
+    }
+}

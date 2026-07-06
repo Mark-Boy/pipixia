@@ -22,6 +22,62 @@ logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/products", tags=["Products"])
 
 
+# ==================== 导入商品（必须在 /{product_id} 之前定义）====================
+
+@router.get("/import-product")
+async def import_product(
+    url: str = Query(..., description="商品链接"),
+    shop_id: int = Query(...),
+    current_user: User = Depends(get_current_user_async),
+):
+    """
+    导入商品（URL 解析 + 爬虫抓取）
+    
+    流程：
+    1. 解析 URL 获取平台类型和商品 ID
+    2. 调用 Playwright 抓取商品详情（标题、图片、价格、成本）
+    3. 创建商品记录
+    4. 触发翻译工作流
+    """
+    # 1. 解析 URL 获取平台
+    source_platform = "unknown"
+    if "1688.com" in url or "1688" in url:
+        source_platform = "1688"
+    elif "pinduoduo" in url or "duoduo" in url or "pdd" in url:
+        source_platform = "pdd"
+    else:
+        raise HTTPException(status_code=400, detail="不支持的链接类型")
+
+    # 2. 提取商品 ID（支持路径中的数字和查询参数 id=xxx）
+    match = re.search(r"/(\d+)", url)
+    if not match:
+        match = re.search(r"[?&]id=(\d+)", url)
+    if not match:
+        raise HTTPException(status_code=400, detail="无法从 URL 提取商品 ID")
+    source_item_id = match.group(1)
+
+    # 3. 检查店铺归属
+    async with async_session() as db:
+        shop_result = await db.execute(select(Shop).where(Shop.id == shop_id))
+        shop = shop_result.scalar_one_or_none()
+        if not shop or shop.user_id != current_user.id:
+            raise HTTPException(status_code=403, detail="无权在该店铺下导入商品")
+
+    # 4. 调用爬虫抓取商品详情（TODO: 接入 Playwright 爬虫）
+    # 暂时返回占位数据
+    return {
+        "status": "queued",
+        "task_type": "import",
+        "url": url,
+        "shop_id": shop_id,
+        "source_platform": source_platform,
+        "source_item_id": source_item_id,
+        "message": "导入任务已提交，等待抓取",
+    }
+
+
+# ==================== 商品列表 ====================
+
 @router.get("")
 async def get_products(
     shop_id: Optional[int] = Query(None),
@@ -115,6 +171,8 @@ async def get_product(
     return ProductResponse.model_validate(product)
 
 
+# ==================== 创建商品 ====================
+
 @router.post("", response_model=dict, status_code=201)
 async def create_product(
     data: ProductCreate,
@@ -175,55 +233,7 @@ async def create_product(
     }
 
 
-@router.post("/import")
-async def import_product(
-    url: str = Query(..., description="商品链接"),
-    shop_id: int = Query(...),
-    current_user: User = Depends(get_current_user_async),
-):
-    """
-    导入商品（URL 解析 + 爬虫抓取）
-    
-    流程：
-    1. 解析 URL 获取平台类型和商品 ID
-    2. 调用 Playwright 抓取商品详情（标题、图片、价格、成本）
-    3. 创建商品记录
-    4. 触发翻译工作流
-    """
-    # 1. 解析 URL 获取平台
-    source_platform = "unknown"
-    if "1688.com" in url or "1688" in url:
-        source_platform = "1688"
-    elif "pinduoduo.com" in url or "duoduo" in url:
-        source_platform = "pdd"
-    else:
-        raise HTTPException(status_code=400, detail="不支持的链接类型")
-
-    # 2. 提取商品 ID
-    match = re.search(r"/(\d+)", url)
-    if not match:
-        raise HTTPException(status_code=400, detail="无法从 URL 提取商品 ID")
-    source_item_id = match.group(1)
-
-    # 3. 检查店铺归属
-    async with async_session() as db:
-        shop_result = await db.execute(select(Shop).where(Shop.id == shop_id))
-        shop = shop_result.scalar_one_or_none()
-        if not shop or shop.user_id != current_user.id:
-            raise HTTPException(status_code=403, detail="无权在该店铺下导入商品")
-
-    # 4. 调用爬虫抓取商品详情（TODO: 接入 Playwright 爬虫）
-    # 暂时返回占位数据
-    return {
-        "status": "queued",
-        "task_type": "import",
-        "url": url,
-        "shop_id": shop_id,
-        "source_platform": source_platform,
-        "source_item_id": source_item_id,
-        "message": "导入任务已提交，等待抓取",
-    }
-
+# ==================== 翻译 / 上架 / 财务 ====================
 
 @router.post("/{product_id}/translate")
 async def trigger_translate(
@@ -336,6 +346,8 @@ async def check_finance(
         "block_threshold": 10,
     }
 
+
+# ==================== 更新 / 删除 ====================
 
 @router.put("/{product_id}")
 async def update_product(

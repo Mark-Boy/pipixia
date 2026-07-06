@@ -9,7 +9,7 @@ export const productService = {
   getById: (id: number) => api.get(`/api/v1/products/${id}`),
   create: (data: any) => api.post("/api/v1/products", data),
   importByUrl: (url: string, shop_id: number) =>
-    api.get("/api/v1/products/import", { params: { url, shop_id } }),
+    api.get("/api/v1/products/import-product", { params: { url, shop_id } }),
   triggerTranslate: (id: number) =>
     api.post(`/api/v1/products/${id}/translate`),
   triggerList: (id: number) =>

@@ -1,0 +1,173 @@
+{
+    "extensionName": {
+        "message": "EasyBoss ERP"
+    },
+    "extensionDescription": {
+        "message": "အဘိဓာန် ERP အကူအညီတပ်များကို ဝိုင်းဝိုင်းဝိုင်း စုဆောင်းရေး"
+    },
+    "welcome": {
+        "message": "ကြိုဆိုပါတယ်"
+    },
+    "collectThisProduct": {
+        "message": "ဤပစ္စည်းကို စုဆောင်ရန်"
+    },
+    "deactivate": {
+        "message": "ရပ်ဆိုင်ချမ်"
+    },
+    "switchToTopBarMode": {
+        "message": "အပိုဆောင်းမှုအနေအထားသို့ ချောင့်မှုမှာ ပြောင်းပါ"
+    },
+    "switchToSidebarMode": {
+        "message": "အပိုဆောင်းအနေအထားသို့ ချောင့်မှုမှာ ပြောင်းပါ"
+    },
+    "notSupportBatchCollectionTips": {
+        "message": "ဤနိုင်ငံမှ ပွန်ဆာပစ္စည်းကို ပိုပြေးတဲ့အဆင့်တွေကို အသုံးပြုပြီး ဝိုင်းအပိုင့်ကိုရွေးချယ်ပါ"
+    },
+    "getThisPageLink": {
+        "message": "ဤစာမျက်နှာလက်ကျန်ပြင်ဆင်"
+    },
+    "collected": {
+        "message": "စုဆောင်းပြီ"
+    },
+    "download": {
+        "message": "ရယူပါ"
+    },
+    "clear": {
+        "message": "ရှင်းလင်း"
+    },
+    "selectAll": {
+        "message": "အားလုံး ရွေးချယ်ပါ"
+    },
+    "collectSelected": {
+        "message": "ရွေးချယ်ထားသည်"
+    },
+    "collectThisPage": {
+        "message": "ဤစာမျက်နှာကို စုဆောင်ပါ"
+    },
+    "copy": {
+        "message": "ကူးပါ"
+    },
+    "copyLink": {
+        "message": "လင့်ပါချက်"
+    },
+    "notLoggedInToSoftware": {
+        "message": "သင်တစ်ဆင့်တည်းမှ မကြည့်သေးပါအဘိဓာန်ကို အနောက်ဝင်ပါ"
+    },
+    "tips": {
+        "message": "အကြောင်းအရာ"
+    },
+    "logInNow": {
+        "message": "ယခုဝင်ရောက်"
+    },
+    "cancel": {
+        "message": "ပယ်ဖျက်"
+    },
+    "selectLoginPlatform": {
+        "message": "ဝိုင်းအပိုင့်ရွေးပါ"
+    },
+    "loginShop": {
+        "message": "ဆိုင်အိုပါ"
+    },
+    "pleaseSetCollectInfo": {
+        "message": "စုဆောင့်အချက်အလက်ကိုသို့ပြောင်းပါ"
+    },
+    "collectPlugInIsSetToDoNotCollect": {
+        "message": "စုဆောင့် အသုံးပြုအားဖြင့်မျှဝေလွှတ်သောအပိုင့်"
+    },
+    "collectionContentIsEmpty": {
+        "message": "စုဆောင့်အကြောင်းအရာမထားပြီ"
+    },
+    "submitCollectTaskGotoPageView": {
+        "message": "စုဆောင့်သမိုင်းသို့အဆင်ပြခြင်းဖြင့်ယူပါ ERP အထိ 'ပစ္စည်းစုဆောင့်' စာမျက်နှာမှ"
+    },
+    "submitFailed": {
+        "message": "တင်ပြခြင်းမအောင်မြင်[$1]"
+    },
+    "processingDataPleaseWait": {
+        "message": "အဆင်ပြတဲ့အချက်အလက်ဖြစ်ရမ်းများကို လက်ဆောင်ကြမ်းမှာပြောင်းပါ..."
+    },
+    "illegalRequest": {
+        "message": "မသဘောတရေးအောင်"
+    },
+    "illegalRequest0": {
+        "message": "မသဘောတရေးအောင် 0"
+    },
+    "notLoggedInPleaseRefreshThePageAndTryAgain": {
+        "message": "မင်ရှာတဲ့မျိုးတွေအတည့်အကျို $1 မင်ရှာပါသေးတဲ့ မျိုးမှာ မကြည့်ပါ၊ မြှင့်လျက်ပါသေးတဲ့အထိစာမျက်နှာကို ထပ်သွင်ပါ"
+    },
+    "getMoveDataEmptyPleaseCheckSourceLegal": {
+        "message": "လက်လံသည်စနစ်လေ့လာချက်ဖြစ်ပြီ၊ မတရာစောင်းလျက်ပါ!"
+    },
+    "currMonthCollectNumReachLimit": {
+        "message": "ဤလုပ်ငန်းလတ်တွေကို ဤတန်းစာမတရာသည်ရှေးမှာသွင်းပါအဘိဓာန်ဖြင့်လက်ဆောင်တည်ရာစာပေးပါ"
+    },
+    "collectConfigNotExist": {
+        "message": "$1 ကို စုဆောင့်ပါမရှာပါ"
+    },
+    "addCollectionTaskFailedAndPleaseContactCustomerService": {
+        "message": "စုဆောင့်တဲ့အဆင်မရန် လျှောက်နေစရန် သမိုင်းဆရာများကို ဆက်သွယ်ပါ။"
+    },
+    "enableCollectPlugins": {
+        "message": "စုဆောင့် အသုံးပြုအားဖွင့်ရေး"
+    },
+    "productLinkGetCompleted": {
+        "message": "ပစ္စည်းလင့်ချက်ဖြင့်ဝိုင်းကြောင်းဖြစ်ပြီ"
+    },
+    "placeAddProductLink": {
+        "message": "လင့်ရချက်ပစ္စည်းလင့်အသစ်ကို ထည့်သွင်းပါ"
+    },
+    "copySuccess": {
+        "message": "ကူးယူပါခြင်း"
+    },
+    "isClearLinkCache": {
+        "message": "ပစ္စည်းလင့်ငွေနေရာ သိသေချာရပါသလား, အောက်ခြေ သိသေချာရပါသလား?"
+    },
+    "confirm": {
+        "message": "အတည်ပြု"
+    },
+    "productLinkCacheCleared": {
+        "message": "ပစ္စည်းလင့်ငွေ ပြောင်းပြီ"
+    },
+    "accountIsAbnormalPleaseTryAgainFrequently": {
+        "message": "အကောင့်သည် စွမ်းဆော်မှုချန်ပီနေစောင်မှာမကြည့်ရပါအဘိဓာန်ရဲ့ရေးအားဖြင့် စီပြန့်လျှောက်နေပါ သို့မဟုတ် အထိပင်ဖြင့်ပေါ်သွင်းပါ"
+    },
+    "currentBrowserIsNotSignedIn": {
+        "message": "ယခုကားဘာရေးရိပ်အကော်မှင်းထားပါ"
+    },
+    "clickHereToLogIn": {
+        "message": "ဒီမှာလျှောက်ပါ"
+    },
+    "ifAlreadyLoggedInRefreshThePageAndTryAgain": {
+        "message": "မဟုတ်တရေးရိပ်လျှောက်သောသို့မဟုတ်စနစ်အကောင့်ကို ပြောင်းပါနော်"
+    },
+    "failedToGetTheProductPleaseLogInOrSwipeTheVerificationCodeToVerify": {
+        "message": "ပစ္စည်းကို လင့်ချက်ဖြစ်ခဲ့ပြီ၊ ဝင်မည်ဖြင့်နော်မှာ အကောင့် အာ့သွက်ရပါသလား"
+    },
+    "currentBrowserAccountRequiresSecurityVerification": {
+        "message": "ယခုကားဘာရေးရိပ်အကော်သည်လက်နှင့်ကြော်ငြာသို့သွားသည်"
+    },
+    "clickHereToVerify": {
+        "message": "ဒီမှာအတည်ပြုပါ"
+    },
+    "collectProgress": {
+        "message": "စုစုပေါင်းရရှိရမ်း"
+    },
+    "notSupportCollectPageData": {
+        "message": "စာမျက်နှာဒေတာန်များရရှိရန်မသဘောဆာ"
+    },
+    "viewUsageTutorial": {
+        "message": "အသုံးပြုချက် သင်ယူချက်ကို မြင်ပါ"
+    },
+    "goToSourcePlatformCollectProducts": {
+        "message": "ထုတ်လုပ်ငန်းတွေကို ဆက်စပ်တဲ့ အရင်းအမြစ်စနစ်သို့ သွားပါ $1သင့်ကိုယ်ပိုင် စုဝေးရေး စည်းမျက်များကို လိုအပ်ပါ$2"
+    },
+    "unableToCollectInventoryTips": {
+        "message": "ပလက်ဖောင်းကန့်သတ်ချက်များကြောင့် အချို့ကုန်ပစ္စည်းများသည် ကုန်ပစ္စည်းစာရင်းများကို စုဆောင်းနိုင်မည်မဟုတ်ဘဲ ဆက်လက်လုပ်ဆောင်လိုပါသလော။"
+    },
+    "noFurtherPrompt": {
+        "message": "အနာဂတ်မှာ လှုံ့ဆော်မှုတွေ မရှိတော့ပါဘူ"
+    },
+    "continuedCollection": {
+        "message": "စုဆောင်းမှုကို ဆက်လက်လုပ်ဆောင်ပါ"
+    }
+}

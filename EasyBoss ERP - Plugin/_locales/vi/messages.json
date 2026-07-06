@@ -1,0 +1,173 @@
+{
+    "extensionName": {
+        "message": "EasyBoss ERP"
+    },
+    "extensionDescription": {
+        "message": "Hỗ trợ thu thập sản phẩm từ nhiều nền tảng"
+    },
+    "welcome": {
+        "message": "Chào mừng bạn"
+    },
+    "collectThisProduct": {
+        "message": "Thu thập sản phẩm này"
+    },
+    "deactivate": {
+        "message": "Ngưng hoạt động"
+    },
+    "switchToTopBarMode": {
+        "message": "Chuyển sang chế độ thanh trên"
+    },
+    "switchToSidebarMode": {
+        "message": "Chuyển sang chế độ thanh bên"
+    },
+    "notSupportBatchCollectionTips": {
+        "message": "Nền tảng này không hỗ trợ thu thập theo lô bằng cách sử dụng plugin. Vui lòng thu thập tại trang chi tiết sản phẩm."
+    },
+    "getThisPageLink": {
+        "message": "Nhận liên kết trang này"
+    },
+    "collected": {
+        "message": "Đã thu thập"
+    },
+    "download": {
+        "message": "Tải xuống"
+    },
+    "clear": {
+        "message": "Xóa"
+    },
+    "selectAll": {
+        "message": "Chọn tất cả"
+    },
+    "collectSelected": {
+        "message": "Thu thập đã chọn"
+    },
+    "collectThisPage": {
+        "message": "Thu thập trang này"
+    },
+    "copy": {
+        "message": "Sao chép"
+    },
+    "copyLink": {
+        "message": "Sao chép liên kết"
+    },
+    "notLoggedInToSoftware": {
+        "message": "Bạn hiện chưa đăng nhập vào phần mềm, vui lòng đăng nhập trước"
+    },
+    "tips": {
+        "message": "Mẹo"
+    },
+    "logInNow": {
+        "message": "Đăng nhập ngay"
+    },
+    "cancel": {
+        "message": "Hủy"
+    },
+    "selectLoginPlatform": {
+        "message": "Chọn nền tảng đăng nhập"
+    },
+    "loginShop": {
+        "message": "Đăng nhập cửa hàng"
+    },
+    "pleaseSetCollectInfo": {
+        "message": "Vui lòng thiết lập thông tin thu thập trước"
+    },
+    "collectPlugInIsSetToDoNotCollect": {
+        "message": "Plugin thu thập đã được thiết lập để không thu thập"
+    },
+    "collectionContentIsEmpty": {
+        "message": "Nội dung thu thập trống rỗng"
+    },
+    "submitCollectTaskGotoPageView": {
+        "message": "Nhiệm vụ thu thập đã được gửi, vui lòng truy cập trang 'Thu thập sản phẩm' trong ERP để kiểm tra"
+    },
+    "submitFailed": {
+        "message": "Gửi không thành công [$1]"
+    },
+    "processingDataPleaseWait": {
+        "message": "Đang xử lý dữ liệu, vui lòng đợi..."
+    },
+    "illegalRequest": {
+        "message": "Yêu cầu không hợp lệ"
+    },
+    "illegalRequest0": {
+        "message": "Yêu cầu không hợp lệ 0"
+    },
+    "notLoggedInPleaseRefreshThePageAndTryAgain": {
+        "message": "Bạn chưa đăng nhập vào $1, vui lòng đăng nhập và làm mới trang để thử lại"
+    },
+    "getMoveDataEmptyPleaseCheckSourceLegal": {
+        "message": "Không có dữ liệu chuyển đổi, vui lòng kiểm tra nguồn có hợp lệ không!"
+    },
+    "currMonthCollectNumReachLimit": {
+        "message": "Số lượng sản phẩm bạn có thể thu thập trong tháng này đã đạt đến giới hạn. Nếu bạn cần thu thập nhiều sản phẩm hơn, vui lòng đăng ký gói tài nguyên thu thập"
+    },
+    "collectConfigNotExist": {
+        "message": "Cấu hình thu thập $1 không tồn tại"
+    },
+    "addCollectionTaskFailedAndPleaseContactCustomerService": {
+        "message": "Thêm nhiệm vụ thu thập không thành công, vui lòng liên hệ dịch vụ khách hàng."
+    },
+    "enableCollectPlugins": {
+        "message": "Bật plugin thu thập"
+    },
+    "productLinkGetCompleted": {
+        "message": "Liên kết sản phẩm đã được nhận"
+    },
+    "placeAddProductLink": {
+        "message": "Vui lòng thêm liên kết sản phẩm trước"
+    },
+    "copySuccess": {
+        "message": "Sao chép thành công"
+    },
+    "isClearLinkCache": {
+        "message": "Dữ liệu bộ nhớ cache liên kết sản phẩm sẽ bị xóa, bạn có chắc muốn xóa không?"
+    },
+    "confirm": {
+        "message": "Xác nhận"
+    },
+    "productLinkCacheCleared": {
+        "message": "Dữ liệu bộ nhớ cache liên kết sản phẩm đã được xóa"
+    },
+    "accountIsAbnormalPleaseTryAgainFrequently": {
+        "message": "Tài khoản bất thường, việc thu thập sản phẩm hiện tại thất bại. Vui lòng giảm tần suất thu thập và thử lại sau hoặc đổi tài khoản mua hàng Pinduoduo"
+    },
+    "currentBrowserIsNotSignedIn": {
+        "message": "Trình duyệt hiện tại chưa đăng nhập tài khoản,"
+    },
+    "clickHereToLogIn": {
+        "message": "Nhấn vào đây để đăng nhập"
+    },
+    "ifAlreadyLoggedInRefreshThePageAndTryAgain": {
+        "message": "nếu bạn đã đăng nhập, làm mới trang và thử lại"
+    },
+    "failedToGetTheProductPleaseLogInOrSwipeTheVerificationCodeToVerify": {
+        "message": "Lấy sản phẩm thất bại, vui lòng đăng nhập hoặc vuốt mã xác minh để xác minh"
+    },
+    "currentBrowserAccountRequiresSecurityVerification": {
+        "message": "Tài khoản trên trình duyệt hiện tại yêu cầu xác minh bảo mật,"
+    },
+    "clickHereToVerify": {
+        "message": "Nhấn vào đây để xác minh"
+    },
+    "collectProgress": {
+        "message": "Tiến trình thu thập"
+    },
+    "notSupportCollectPageData": {
+        "message": "Không hỗ trợ thu thập dữ liệu trang"
+    },
+    "viewUsageTutorial": {
+        "message": "Xem hướng dẫn sử dụng"
+    },
+    "goToSourcePlatformCollectProducts": {
+        "message": "Đi đến nền tảng nguồn tương ứng có thể thu thập sản phẩm trực tiếp, trước khi bạn thu thập $1Tùy chỉnh quy tắc thu thập độc quyền của bạn$2"
+    },
+    "unableToCollectInventoryTips": {
+        "message": "Do nền tảng hạn chế, một số sản phẩm sẽ không thể thu thập hàng tồn kho, cho dù tiếp tục?"
+    },
+    "noFurtherPrompt": {
+        "message": "Không còn gợi ý"
+    },
+    "continuedCollection": {
+        "message": "Tiếp tục thu thập"
+    }
+}

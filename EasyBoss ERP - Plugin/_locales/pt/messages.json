@@ -1,0 +1,173 @@
+{
+    "extensionName": {
+        "message": "EasyBoss ERP"
+    },
+    "extensionDescription": {
+        "message": "Suporta a recolha de produtos de várias plataformas"
+    },
+    "welcome": {
+        "message": "Bem-vindo"
+    },
+    "collectThisProduct": {
+        "message": "Recolher este produto"
+    },
+    "deactivate": {
+        "message": "Desativar"
+    },
+    "switchToTopBarMode": {
+        "message": "Mudar para o modo de barra superior"
+    },
+    "switchToSidebarMode": {
+        "message": "Mudar para o modo de barra lateral"
+    },
+    "notSupportBatchCollectionTips": {
+        "message": "Esta plataforma não suporta a recolha em lote usando o plug-in. Por favor, recolha na página de detalhes do produto."
+    },
+    "getThisPageLink": {
+        "message": "Obter o link desta página"
+    },
+    "collected": {
+        "message": "Já recolhido"
+    },
+    "download": {
+        "message": "Descarregar"
+    },
+    "clear": {
+        "message": "Limpar"
+    },
+    "selectAll": {
+        "message": "Selecionar tudo"
+    },
+    "collectSelected": {
+        "message": "Recolher selecionados"
+    },
+    "collectThisPage": {
+        "message": "Recolher esta página"
+    },
+    "copy": {
+        "message": "Copiar"
+    },
+    "copyLink": {
+        "message": "Copiar ligação"
+    },
+    "notLoggedInToSoftware": {
+        "message": "Você ainda não está conectado ao software. Por favor, faça o login primeiro."
+    },
+    "tips": {
+        "message": "Dicas"
+    },
+    "logInNow": {
+        "message": "Faça login agora"
+    },
+    "cancel": {
+        "message": "Cancelar"
+    },
+    "selectLoginPlatform": {
+        "message": "Selecione a plataforma de login"
+    },
+    "loginShop": {
+        "message": "Fazer login na loja"
+    },
+    "pleaseSetCollectInfo": {
+        "message": "Por favor, configure as informações de recolha primeiro"
+    },
+    "collectPlugInIsSetToDoNotCollect": {
+        "message": "O plug-in de recolha está configurado para não recolher"
+    },
+    "collectionContentIsEmpty": {
+        "message": "O conteúdo da recolha está vazio"
+    },
+    "submitCollectTaskGotoPageView": {
+        "message": "Tarefa de recolha enviada. Por favor, vá para a página 'Recolha de Produtos' no ERP para verificar."
+    },
+    "submitFailed": {
+        "message": "Falha ao enviar [$1]"
+    },
+    "processingDataPleaseWait": {
+        "message": "Processando dados. Por favor, aguarde..."
+    },
+    "illegalRequest": {
+        "message": "Pedido ilegal"
+    },
+    "illegalRequest0": {
+        "message": "Pedido ilegal 0"
+    },
+    "notLoggedInPleaseRefreshThePageAndTryAgain": {
+        "message": "Você ainda não fez login em $1. Por favor, faça o login e atualize a página para tentar novamente."
+    },
+    "getMoveDataEmptyPleaseCheckSourceLegal": {
+        "message": "Dados de transferência vazios. Por favor, verifique a legalidade da fonte!"
+    },
+    "currMonthCollectNumReachLimit": {
+        "message": "Você atingiu o limite de produtos que pode recolher este mês. Se deseja recolher mais produtos, assine o pacote de recursos de recolha."
+    },
+    "collectConfigNotExist": {
+        "message": "A configuração de recolha $1 não existe"
+    },
+    "addCollectionTaskFailedAndPleaseContactCustomerService": {
+        "message": "Falha ao adicionar a tarefa de recolha. Por favor, entre em contato com o serviço de atendimento ao cliente."
+    },
+    "enableCollectPlugins": {
+        "message": "Ativar plug-ins de recolha"
+    },
+    "productLinkGetCompleted": {
+        "message": "Link do produto obtido com sucesso"
+    },
+    "placeAddProductLink": {
+        "message": "Por favor, adicione primeiro o link do produto"
+    },
+    "copySuccess": {
+        "message": "Cópia bem-sucedida"
+    },
+    "isClearLinkCache": {
+        "message": "Isso limpará o cache de links de produtos. Tem certeza?"
+    },
+    "confirm": {
+        "message": "Confirmar"
+    },
+    "productLinkCacheCleared": {
+        "message": "Cache de links de produtos limpo"
+    },
+    "accountIsAbnormalPleaseTryAgainFrequently": {
+        "message": "A conta está anormal. A recolha de produtos falhou. Por favor, reduza a frequência de recolha e tente novamente ou mude para uma conta de comprador Pinduoduo."
+    },
+    "currentBrowserIsNotSignedIn": {
+        "message": "O navegador atual não está conectado"
+    },
+    "clickHereToLogIn": {
+        "message": "Clique aqui para fazer login"
+    },
+    "ifAlreadyLoggedInRefreshThePageAndTryAgain": {
+        "message": "Se você já fez o login, atualize a página e tente novamente"
+    },
+    "failedToGetTheProductPleaseLogInOrSwipeTheVerificationCodeToVerify": {
+        "message": "Falha ao obter o produto. Faça o login ou deslize o código de verificação para verificar"
+    },
+    "currentBrowserAccountRequiresSecurityVerification": {
+        "message": "A conta atual no navegador requer verificação de segurança"
+    },
+    "clickHereToVerify": {
+        "message": "Clique aqui para verificar"
+    },
+    "collectProgress": {
+        "message": "Progresso da Coleta"
+    },
+    "notSupportCollectPageData": {
+        "message": "Não suporta a coleta de dados da página"
+    },
+    "viewUsageTutorial": {
+        "message": "Ver o tutorial de utilização"
+    },
+    "goToSourcePlatformCollectProducts": {
+        "message": "Vá para a plataforma de origem correspondente para coletar diretamente produtos. Antes de coletar, você pode $1Personalize as suas regras de recolha exclusivas$2"
+    },
+    "unableToCollectInventoryTips": {
+        "message": "Devido às restrições da plataforma, alguns produtos não estarão disponíveis para coleta de estoque. Você deseja continuar?"
+    },
+    "noFurtherPrompt": {
+        "message": "Não mais dicas no futuro"
+    },
+    "continuedCollection": {
+        "message": "Continuar a coleta"
+    }
+}

@@ -1,0 +1,96 @@
+{
+  "_comment": "Product launch trailer — 60-90s. For books, plugins, courses, SaaS launches, digital products. Hook → Origin/problem → Reveal → Features → Proof → CTA with launch offer. Big cinematic energy.",
+  "type": "product-launch",
+  "duration": 75,
+  "aspectRatios": ["16:9", "9:16"],
+  "voice": {
+    "voice_id": "ELEVENLABS_VOICE_ID_OR_BLANK_FOR_ENV_DEFAULT",
+    "style": "commercial-narrator",
+    "stability": 0.5,
+    "similarity_boost": 0.75
+  },
+  "music": {
+    "style": "cinematic",
+    "volume": 0.25
+  },
+  "brand": {
+    "name": "PRODUCT_NAME",
+    "logo": "assets/product-logo.png",
+    "tagline": "PRODUCT_PROMISE_ONE_LINE",
+    "url": "https://PRODUCT.COM",
+    "launchOffer": "Founding members get LAUNCH_DISCOUNT off through LAUNCH_END_DATE",
+    "primaryColor": "#7c3aed",
+    "accentColor": "#f59e0b"
+  },
+  "scenes": [
+    {
+      "id": "hook",
+      "duration": 5,
+      "type": "runway_atmosphere",
+      "prompt": "Cinematic black void with a single point of golden light beginning to pulse and glow at center. Slow camera push toward the light. Building anticipation, dramatic. No text or logos."
+    },
+    {
+      "id": "problem-origin",
+      "duration": 10,
+      "type": "runway_atmosphere",
+      "prompt": "Visual metaphor for the problem PRODUCT solves — could be cluttered desk, frustrated user, broken process, abandoned project. Documentary realism, slight desaturation. No text or logos.",
+      "vo": "Every NICHE_PROFESSIONAL has run into this problem. SPECIFIC_PAIN_POINT."
+    },
+    {
+      "id": "stakes",
+      "duration": 6,
+      "type": "runway_atmosphere",
+      "prompt": "Time-lapse of empty hours passing — clock hands spinning, daylight fading, calendar pages flipping. Sense of wasted time, urgency building. No text or logos.",
+      "vo": "What if you could skip all of that?"
+    },
+    {
+      "id": "reveal",
+      "duration": 6,
+      "type": "logo_reveal",
+      "vo": "Introducing PRODUCT_NAME.",
+      "_note": "ffmpeg scale-up animation, logo small → fills screen, fire/light particles. Same technique as intro-trailer skill."
+    },
+    {
+      "id": "feature-1",
+      "duration": 10,
+      "type": "screenshot_kenburns",
+      "image": "assets/feature-1.png",
+      "motion": "zoom_in",
+      "vo": "FEATURE_1_DESCRIPTION — sharp, specific, benefit-focused."
+    },
+    {
+      "id": "feature-2",
+      "duration": 10,
+      "type": "screenshot_kenburns",
+      "image": "assets/feature-2.png",
+      "motion": "pan_right",
+      "vo": "FEATURE_2_DESCRIPTION — another concrete win."
+    },
+    {
+      "id": "feature-3",
+      "duration": 8,
+      "type": "screenshot_kenburns",
+      "image": "assets/feature-3.png",
+      "motion": "zoom_out",
+      "vo": "FEATURE_3_DESCRIPTION — the third hook."
+    },
+    {
+      "id": "proof",
+      "duration": 8,
+      "type": "testimonial",
+      "quote": "TESTIMONIAL_QUOTE_FROM_EARLY_USER",
+      "name": "BETA_USER_NAME, ROLE",
+      "photo": "assets/beta-user.jpg",
+      "vo": "Beta users say it's already changing how they work."
+    },
+    {
+      "id": "cta",
+      "duration": 12,
+      "type": "cta_slide",
+      "headline": "PRODUCT_NAME — Launching LAUNCH_DATE",
+      "subhead": "LAUNCH_OFFER_HEADLINE\nPRODUCT.COM",
+      "vo": "Founding members get LAUNCH_DISCOUNT off. Visit PRODUCT dot com to claim your spot.",
+      "ctaUrl": "PRODUCT.COM"
+    }
+  ]
+}

@@ -1,0 +1,1 @@
+(()=>{var i,t,e,n,s=s||{};i=jQuery,(n=function(){this.platformConfig={sources:["zhe800"],linkTypeRuleList:[{type:"detail",indexOfList:["zhe800.com/products"]},{type:"list",indexOfList:[]}],listLinkRule:{},itemListPanel:"",forbiddenPlatList:["pdd"]},this.init()}).prototype={init:function(){t=this,(e=new i.PlatBase).platformConfig=t.platformConfig,e.init()}},s.PlatZhe800=new n})();

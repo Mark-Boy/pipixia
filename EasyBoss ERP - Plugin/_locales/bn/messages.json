@@ -1,0 +1,173 @@
+{
+    "extensionName": {
+        "message": "ইজি বস ইআরপি"
+    },
+    "extensionDescription": {
+        "message": "বহুপ্ল্যাটফর্ম পণ্য সংগ্রহে সহায়ক"
+    },
+    "welcome": {
+        "message": "স্বাগতম"
+    },
+    "collectThisProduct": {
+        "message": "এই পণ্য সংগ্রহ করুন"
+    },
+    "deactivate": {
+        "message": "নিষ্ক্রিয় করুন"
+    },
+    "switchToTopBarMode": {
+        "message": "টপ বার মোডে পাল্টান"
+    },
+    "switchToSidebarMode": {
+        "message": "সাইডবার মোডে পাল্টান"
+    },
+    "notSupportBatchCollectionTips": {
+        "message": "এই প্ল্যাটফর্ম সহ সমূহ পণ্যের ব্যাচ সংগ্রহ সমর্থন করে না, দয়া করে পণ্যের বিস্তারিত পৃষ্ঠায় যান"
+    },
+    "getThisPageLink": {
+        "message": "এই পৃষ্ঠার লিঙ্ক পেতে"
+    },
+    "collected": {
+        "message": "সংগ্রহ করা হয়েছে"
+    },
+    "download": {
+        "message": "ডাউনলোড করুন"
+    },
+    "clear": {
+        "message": "সাফ করুন"
+    },
+    "selectAll": {
+        "message": "সমস্ত নির্বাচন করুন"
+    },
+    "collectSelected": {
+        "message": "নির্বাচিত সংগ্রহ করুন"
+    },
+    "collectThisPage": {
+        "message": "এই পৃষ্ঠা সংগ্রহ করুন"
+    },
+    "copy": {
+        "message": "কপি করুন"
+    },
+    "copyLink": {
+        "message": "লিঙ্ক কপি করুন"
+    },
+    "notLoggedInToSoftware": {
+        "message": "আপনি এখনও সফটওয়্যারে লগ ইন করেননি, দয়া করে প্রথমে লগ ইন করুন"
+    },
+    "tips": {
+        "message": "পরামর্শ"
+    },
+    "logInNow": {
+        "message": "এখন লগ ইন করুন"
+    },
+    "cancel": {
+        "message": "বাতিল করুন"
+    },
+    "selectLoginPlatform": {
+        "message": "লগ ইন প্ল্যাটফর্ম চয়ন করুন"
+    },
+    "loginShop": {
+        "message": "দোকানে লগ ইন করুন"
+    },
+    "pleaseSetCollectInfo": {
+        "message": "দয়া করে সংগ্রহ তথ্য সেট করুন"
+    },
+    "collectPlugInIsSetToDoNotCollect": {
+        "message": "সংগ্রহ প্লাগইনটি সংগ্রহ করতে সেট করা হয়নি"
+    },
+    "collectionContentIsEmpty": {
+        "message": "সংগ্রহের বিষয় খালি"
+    },
+    "submitCollectTaskGotoPageView": {
+        "message": "সংগ্রহ কাজ সাবমিট করা হয়েছে, দয়া করে ইআরপি“ পণ্য সংগ্রহ” পৃষ্ঠায় দেখুন"
+    },
+    "submitFailed": {
+        "message": "সাবমিট ব্যর্থ হয়েছে [$1]"
+    },
+    "processingDataPleaseWait": {
+        "message": "ডেটা প্রসেসিং চলছে, দয়া করে অপেক্ষা করুন..."
+    },
+    "illegalRequest": {
+        "message": "অবৈধ অনুরোধ"
+    },
+    "illegalRequest0": {
+        "message": "অবৈধ অনুরোধ0"
+    },
+    "notLoggedInPleaseRefreshThePageAndTryAgain": {
+        "message": "আপনি এখনও লগ ইন করেননি $1, দয়া করে লগ ইন করার পর পৃষ্ঠাটি রিফ্রেশ করে আবার চেষ্টা করুন"
+    },
+    "getMoveDataEmptyPleaseCheckSourceLegal": {
+        "message": "মুভ ডেটা পাওয়া খালি, দয়া করে উৎস বৈধ কি না তা চেক করুন!"
+    },
+    "currMonthCollectNumReachLimit": {
+        "message": "আপনার সার্থক মাসে সংগ্রহের মৌখিক সংখ্যা সীমা পৌঁছে গেছে, যদি আপনি আরও পণ্য সংগ্রহ করতে চান তাহলে সংগ্রহ সাধারণ প্যাকেজ সাবস্ক্রাইব করুন"
+    },
+    "collectConfigNotExist": {
+        "message": "$1 সংগ্রহ কনফিগারেশন অস্তিত্ব নেই"
+    },
+    "addCollectionTaskFailedAndPleaseContactCustomerService": {
+        "message": "সংগ্রহ কাজ যোগ করা ব্যর্থ হয়েছে এবং দয়া করে গ্রাহক সেবার সাথে যোগাযোগ করুন।"
+    },
+    "enableCollectPlugins": {
+        "message": "সংগ্রহ প্লাগইন চালু করুন"
+    },
+    "productLinkGetCompleted": {
+        "message": "পণ্য লিঙ্ক প্রাপ্ত সম্পন্ন"
+    },
+    "placeAddProductLink": {
+        "message": "দয়া করে প্রথমে পণ্য লিঙ্ক যোগ করুন"
+    },
+    "copySuccess": {
+        "message": "সফলভাবে কপি করা হয়েছে"
+    },
+    "isClearLinkCache": {
+        "message": "ক্যাশে লিঙ্ক ডেটা মুছে ফেলা হবে, আপনি কি নিশ্চিত?"
+    },
+    "confirm": {
+        "message": "নিশ্চিত করুন"
+    },
+    "productLinkCacheCleared": {
+        "message": "পণ্য লিঙ্ক ক্যাশে মোছা হয়েছে"
+    },
+    "accountIsAbnormalPleaseTryAgainFrequently": {
+        "message": "অ্যাকাউন্ট অস্বাভাবিক আছে, বর্তমানে পণ্য সংগ্রহ ব্যর্থ হয়েছে, দয়া করে সংগ্রহ মৌখিকতা একটু কমান এবং পরবর্তীতে বিপণি পড়ুন এবং পিনগ্ডু কে অবৈধ হলে পুনরায় চেষ্টা করুন"
+    },
+    "currentBrowserIsNotSignedIn": {
+        "message": "বর্তমান ব্রাউজারটি সাইন ইন করা হয়নি,"
+    },
+    "clickHereToLogIn": {
+        "message": "লগ ইন করতে এখানে ক্লিক করুন"
+    },
+    "ifAlreadyLoggedInRefreshThePageAndTryAgain": {
+        "message": "যদি ইতিমধ্যে লগ ইন করা হয়ে থাকে, তবে পৃষ্ঠাটি রিফ্রেশ করে আবার চেষ্টা করুন"
+    },
+    "failedToGetTheProductPleaseLogInOrSwipeTheVerificationCodeToVerify": {
+        "message": "পণ্য পেতে ব্যর্থ হয়েছে, দয়া করে লগ ইন করুন বা যাচাই কোড স্যুয়াইপ করুন"
+    },
+    "currentBrowserAccountRequiresSecurityVerification": {
+        "message": "বর্তমান ব্রাউজার অ্যাকাউন্ট নিরাপত্তা যাচাই করতে প্রয়োজন,"
+    },
+    "clickHereToVerify": {
+        "message": "যাচাই করতে এখানে ক্লিক করুন"
+    },
+    "collectProgress": {
+        "message": "সংগ্রহ প্রগতি"
+    },
+    "notSupportCollectPageData": {
+        "message": "পৃষ্ঠা উপাদান সংগ্রহ সমর্থন করে না"
+    },
+    "viewUsageTutorial": {
+        "message": "ব্যবহারের শিক্ষা প্রদর্শন করুন"
+    },
+    "goToSourcePlatformCollectProducts": {
+        "message": "সংশ্লিষ্ট উৎস প্ল্যাটফর্মে আপনি সরাসরি পণ্য সংগ্রহ করতে পারেন । আপনি সংগ্রহ করার পূর্বে আপনি $1আপনি আপনার বিশেষ সংগ্রহের নিয়ম$2 ক্ষে"
+    },
+    "unableToCollectInventoryTips": {
+        "message": "প্ল্যাটফর্মের সীমাবদ্ধতার কারণে, কিছু পণ্য তালিকা সংগ্রহ করতে সক্ষম হবে না, তুমি কি চালিয়ে যেতে চাও?"
+    },
+    "noFurtherPrompt": {
+        "message": "ভবিষ্যতে আর কোনও প্রম্পট নেই"
+    },
+    "continuedCollection": {
+        "message": "সংগ্রহ চালিয়ে যান"
+    }
+}

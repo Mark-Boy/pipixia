@@ -1,0 +1,173 @@
+{
+  "_comment": "Starter shot list for the intro-trailer skill. Replace ALLCAPS placeholders with project-specific values. Delete/duplicate shots as needed. Schema notes: 'duration' is composite display time. 'runwayDuration' (optional) is the API submit duration when they differ (e.g. 1.5s cartoon flash submitted at 5s gen4_turbo minimum). 'mode' values: image_to_video, text_to_video, ffmpeg_composite (skipped by generate.py, built by build_logo_scaleup.sh), ffmpeg_collage (skipped, built by build_collage.py).",
+  "project": "PROJECT NAME — Intro Trailer",
+  "aspectRatio": "1920:1080",
+  "fps": 24,
+  "shots": [
+    {
+      "id": "01",
+      "act": "I. The Hush",
+      "duration": 4,
+      "mode": "text_to_video",
+      "model": "veo3.1_fast",
+      "ratio": "1280:720",
+      "promptText": "Pitch-black empty arena stage at night. A single glowing orange ember drifts slowly upward through pure black void. Faint volumetric haze in the air. Cinematic 35mm anamorphic, shallow depth of field, very dark, almost imperceptible motion. No people, no text, no logos."
+    },
+    {
+      "id": "02",
+      "act": "II. Heaven Cracks",
+      "duration": 8,
+      "mode": "text_to_video",
+      "model": "veo3.1",
+      "ratio": "1280:720",
+      "promptText": "Massive obsidian-black storm clouds split open from the center to reveal golden god-rays piercing downward. A backlit angel silhouette with enormous outstretched wings descends slowly through the opening. Volumetric light shafts, slow-moving glowing dust particles, biblical atmosphere. Camera slowly tilts upward from horizon. Cinematic, photo-real, epic, no text or logos."
+    },
+    {
+      "id": "03",
+      "act": "III. Hell Rises",
+      "duration": 8,
+      "mode": "text_to_video",
+      "model": "veo3.1",
+      "ratio": "1280:720",
+      "promptText": "From the bottom of frame the earth cracks open with glowing molten orange and red fissures. Black smoke columns rise rapidly. Massive underground forge erupts upward, lava cascading, embers and sparks flying everywhere, intense heat haze distortion. Towering shadowy silhouette of a horned warrior rises from the inferno. Camera slowly pushes in. Photo-real, cinematic, dark fantasy, no text or logos."
+    },
+    {
+      "id": "04",
+      "act": "IV. Collision",
+      "duration": 5,
+      "mode": "text_to_video",
+      "model": "gen4.5",
+      "ratio": "1280:720",
+      "promptText": "Two opposing winged silhouettes — one radiant golden, one wreathed in fire and smoke — collide head-on in mid-air over a fiery battlefield. A massive lightning bolt strikes between them, blowing out the entire frame to brilliant white. End on pure white flash. Cinematic, photo-real, no text or logos."
+    },
+    {
+      "id": "04b",
+      "act": "IV-b. Lightning & Fire Build",
+      "duration": 8,
+      "mode": "text_to_video",
+      "model": "veo3.1",
+      "ratio": "1280:720",
+      "promptText": "Massive lightning bolts crash down from a black thunder sky from the top of frame. Simultaneously, walls of red and gold fire and flames rise up from the bottom of the frame to meet the lightning, building together in chaos. Thick black smoke columns, sparks and embers flying everywhere. No figures, no text, no logos. Cinematic, photo-real, dark dramatic, building energy."
+    },
+    {
+      "id": "05",
+      "act": "V. Logo Scale-Up (small → fills screen)",
+      "duration": 8,
+      "mode": "ffmpeg_composite",
+      "model": "scale_up",
+      "ratio": "1920:1080",
+      "seedImage": "logo/brand-2160.png",
+      "promptText": "ffmpeg-composited: brand logo PNG starts at 5% scale dead center, grows continuously to 100% screen-filling over 8 seconds. Background is the tail of clip 04b (lightning + fire) extended/looped. Logo gains warmer glow as it scales up. Uses TRANSPARENT logo PNG — not the on-black version."
+    },
+    {
+      "id": "05b",
+      "act": "V-b. Logo Explosion (on fire, push forward)",
+      "duration": 5,
+      "mode": "image_to_video",
+      "model": "gen4_turbo",
+      "ratio": "1280:720",
+      "seedImage": "logo/brand-onblack-2160.png",
+      "promptText": "The brand logo at full size center frame explodes outward with flames and lightning bolts in all directions. The logo itself is engulfed in red and gold fire while remaining clearly visible. Camera pushes forward toward the logo as it bursts. No dreamy clouds anywhere — only sharp fire, lightning, and smoke. The logo shape stays exactly as shown. Cinematic, photo-real, explosive hero moment."
+    },
+    {
+      "id": "06",
+      "act": "VI. Cast Reveal — MEMBER_1_NAME",
+      "duration": 5,
+      "mode": "image_to_video",
+      "model": "gen4_turbo",
+      "ratio": "1280:720",
+      "seedImage": "members/MEMBER_1_FILENAME.jpg",
+      "promptText": "Slow cinematic push-in on the man in the frame. Subtle dramatic backlight, drifting smoke around him, gentle stage-light flicker. He stands still and intense. Keep his face and identity exactly as shown — do not change his features. Concert film look, shallow depth of field.",
+      "lowerThird": { "name": "MEMBER_1_NAME", "role": "MEMBER_1_ROLE" }
+    },
+    {
+      "id": "06c",
+      "act": "VI-c. Cartoon MEMBER_1_NAME (ANGEL)",
+      "duration": 1.5,
+      "runwayDuration": 5,
+      "mode": "image_to_video",
+      "model": "gen4_turbo",
+      "ratio": "1280:720",
+      "seedImage": "cartoons/06c.png",
+      "promptText": "Slow zoom forward into the cartoon character, with slight motion of wings/halo in the background, embers drifting. Keep the cartoon style and likeness exactly as shown.",
+      "cartoonRole": "ANGEL"
+    },
+    {
+      "id": "07",
+      "act": "VI. Cast Reveal — MEMBER_2_NAME",
+      "duration": 5,
+      "mode": "image_to_video",
+      "model": "gen4_turbo",
+      "ratio": "1280:720",
+      "seedImage": "members/MEMBER_2_FILENAME.jpg",
+      "promptText": "Slow cinematic push-in on the man in the frame. Embers drifting past, warm red and orange stage light from below, faint smoke. Keep his face and identity exactly as shown — do not change his features. Concert film look, shallow depth of field.",
+      "lowerThird": { "name": "MEMBER_2_NAME", "role": "MEMBER_2_ROLE" }
+    },
+    {
+      "id": "07c",
+      "act": "VI-c. Cartoon MEMBER_2_NAME (DEVIL)",
+      "duration": 1.5,
+      "runwayDuration": 5,
+      "mode": "image_to_video",
+      "model": "gen4_turbo",
+      "ratio": "1280:720",
+      "seedImage": "cartoons/07c.png",
+      "promptText": "Slow zoom forward into the cartoon character, with slight motion of horns/flames in the background, embers drifting. Keep the cartoon style and likeness exactly as shown.",
+      "cartoonRole": "DEVIL"
+    },
+    {
+      "id": "12",
+      "act": "VII. Photo Collage (slow Ken Burns, real photos)",
+      "duration": 22.5,
+      "mode": "ffmpeg_collage",
+      "model": "ffmpeg",
+      "ratio": "1920:1080",
+      "promptText": "Pre-rendered by build_collage.py — 10-12 real concert/crowd photos with subtle pan/zoom and crossfades."
+    },
+    {
+      "id": "12b",
+      "act": "VII-b. Event/Charity Beat",
+      "duration": 10,
+      "mode": "image_to_video",
+      "model": "gen4_turbo",
+      "ratio": "1280:720",
+      "seedImage": "band/event-crowd.webp",
+      "promptText": "Crowd at SIGNATURE_EVENT_NAME surging with hands raised, fans cheering and jumping. Pyrotechnic flashes erupt above the crowd, stage lights strobe in the back. Camera floats forward over the crowd capturing the energy. High energy, photo-real, concert film grain. Keep crowd composition recognizable."
+    },
+    {
+      "id": "13",
+      "act": "VIII. Cast Assembled",
+      "duration": 10,
+      "mode": "image_to_video",
+      "model": "gen4_turbo",
+      "ratio": "1280:720",
+      "seedImage": "band/full-band.jpg",
+      "promptText": "The full band stands assembled on a smoke-filled stage. Fire trails roll across the floor behind them, sparks falling from above. Camera pulls back slowly, revealing the scale of the stage. Keep each member's identity exactly as shown — do not change their faces. Cinematic, epic, photo-real."
+    },
+    {
+      "id": "14",
+      "act": "IX. Final Stamp",
+      "duration": 5,
+      "mode": "image_to_video",
+      "model": "gen4_turbo",
+      "ratio": "1280:720",
+      "seedImage": "logo/brand-onblack-2160.png",
+      "promptText": "The brand logo glows at peak intensity in molten gold and deep red. Lightning bolts crackle and arc around the edges of the logo. Roaring fire surges below the logo in red, gold, and orange flames. Bright sparks and embers fly off the logo letters in all directions. Heaven-light beams shoot up from behind. The logo shape stays exactly as shown. Cinematic, photo-real, epic final hero moment."
+    },
+    {
+      "id": "15",
+      "act": "IX. Final Stamp (hold + tagline)",
+      "duration": 5,
+      "mode": "image_to_video",
+      "model": "gen4_turbo",
+      "ratio": "1280:720",
+      "seedImage": "logo/brand-onblack-2160.png",
+      "promptText": "The brand logo holds at full glow at center in molten gold and deep red. Active fire continues to roar below it, lightning still crackles around its edges, sparks and embers continue flying outward. The logo shape stays exactly as shown. High energy held to the very end. Cinematic, photo-real.",
+      "endTagCard": {
+        "line1": "TAGLINE_LINE_1 (e.g. KICK ASS ROCK AND ROLL 2026)",
+        "line2": "TAGLINE_LINE_2 (optional, e.g. Central Illinois)",
+        "url": "https://EXAMPLE.COM"
+      }
+    }
+  ]
+}

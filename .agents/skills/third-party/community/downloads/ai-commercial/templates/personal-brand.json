@@ -1,0 +1,72 @@
+{
+  "_comment": "Personal brand intro — 45-60s. Who I am → What I do → Proof → How to work with me. For hire pages, LinkedIn, podcast intros, About sections. Use ambient/cinematic music, calm narrative voice. Often the subject (Kevin or client) provides their own VO recording — if so, set voice.voice_id to null and use vo_audio fields pointing to real recordings.",
+  "type": "personal-brand",
+  "duration": 50,
+  "aspectRatios": ["16:9", "9:16"],
+  "voice": {
+    "voice_id": "ELEVENLABS_VOICE_ID_OR_BLANK_FOR_ENV_DEFAULT",
+    "style": "calm-narrator",
+    "stability": 0.6,
+    "similarity_boost": 0.7
+  },
+  "music": {
+    "style": "ambient",
+    "volume": 0.2
+  },
+  "brand": {
+    "name": "PERSON_NAME",
+    "logo": "assets/wordmark.png",
+    "tagline": "WHAT_I_DO_IN_FIVE_WORDS",
+    "url": "https://PERSON.COM",
+    "primaryColor": "#0f172a",
+    "accentColor": "#3b82f6"
+  },
+  "scenes": [
+    {
+      "id": "hook",
+      "duration": 5,
+      "type": "runway_atmosphere",
+      "prompt": "Cinematic dawn light through office windows, soft golden hour, slow camera drift across a clean workspace — keyboard, plant, coffee mug. Calm, intentional, no people. No text or logos."
+    },
+    {
+      "id": "who-i-am",
+      "duration": 10,
+      "type": "screenshot_kenburns",
+      "image": "assets/portrait.jpg",
+      "motion": "drift",
+      "vo": "I'm PERSON_NAME. For SEVERAL_YEARS years, I've helped TARGET_AUDIENCE solve PROBLEM_AREA."
+    },
+    {
+      "id": "what-i-do",
+      "duration": 10,
+      "type": "runway_i2v",
+      "seedImage": "assets/working-shot.jpg",
+      "prompt": "Slow camera push-in on the person working at their desk. Natural lighting, focused expression, subtle motion of hands. Documentary realism, calm intensity.",
+      "vo": "I do MY_CRAFT_DESCRIPTION — and I do it with FEW_KEY_VALUES."
+    },
+    {
+      "id": "proof",
+      "duration": 10,
+      "type": "screenshot_kenburns",
+      "image": "assets/client-logos-or-stats.png",
+      "motion": "zoom_out",
+      "vo": "PROOF_STATEMENT — clients, results, credibility marker."
+    },
+    {
+      "id": "philosophy",
+      "duration": 8,
+      "type": "runway_atmosphere",
+      "prompt": "Abstract cinematic visual matching brand mood — could be city skyline at blue hour, sailboat on calm water, mountain ridge at dawn — whatever metaphor fits the brand. No text or logos.",
+      "vo": "I believe CORE_BELIEF_OR_PHILOSOPHY."
+    },
+    {
+      "id": "cta",
+      "duration": 7,
+      "type": "cta_slide",
+      "headline": "Let's work together",
+      "subhead": "PERSON.COM/hire",
+      "vo": "Visit PERSON dot com slash hire to start a conversation.",
+      "ctaUrl": "PERSON.COM/hire"
+    }
+  ]
+}

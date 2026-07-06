@@ -1,17 +1,20 @@
-# 违禁词/品牌词库
-prohibited_words:
-  - 赌博
-  - 色情
-  - 毒品
-  - 武器
-  - 仿冒
-
-brand_keywords:
-  - Nike
-  - Adidas
-  - Apple
-  - Gucci
-  - Louis Vuitton
-  - Chanel
-  - Samsung
-  - Sony
+{
+  "prohibited_words": [
+    "赌博",
+    "色情",
+    "毒品",
+    "武器",
+    "仿冒"
+  ],
+  "brand_keywords": [
+    "Nike",
+    "Adidas",
+    "Apple",
+    "Gucci",
+    "Louis Vuitton",
+    "Chanel",
+    "Samsung",
+    "Sony",
+    "test_brand"
+  ]
+}
