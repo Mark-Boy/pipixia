@@ -1,7 +1,13 @@
 """
-Shopee API 服务 — 商品创建/更新/查询
+Shopee API 服务 — 商品创建/更新/查询/库存管理
 
 使用 Shopee Open Platform API v2
+支持：
+- 商品创建/更新/删除
+- 图片上传（异步）
+- 库存管理
+- 订单同步
+- 评价管理
 """
 
 import hashlib
@@ -21,17 +27,29 @@ logger = logging.getLogger(__name__)
 class ShopeeClient:
     """Shopee API 客户端"""
 
-    def __init__(self, shop_id: int, partner_id: str, client_secret: str):
+    # Shopee API 环境映射
+    API_ENV = {
+        "shopee_th": {"base_url": "https://api.shopee.com/th", "market_id": 146},
+        "shopee_vn": {"base_url": "https://api.shopee.vn", "market_id": 1},
+        "shopee_sg": {"base_url": "https://api.shopee.sg", "market_id": 2},
+        "shopee_my": {"base_url": "https://api.shopee.com.my", "market_id": 3},
+        "shopee_ph": {"base_url": "https://api.shopee.com.ph", "market_id": 6},
+        "shopee_ms": {"base_url": "https://api.shopee.com.my", "market_id": 7},
+    }
+
+    def __init__(self, shop_id: int, partner_id: str, client_secret: str, marketplace: str = "shopee_th"):
         self.shop_id = shop_id
         self.partner_id = partner_id
         self.client_secret = client_secret
-        self.base_url = "https://api.shopee.com/theme"  # 泰国站
-        self.market_id = settings.SHOPEE_MARKET_ID  # 146 = Thailand
+        env = self.API_ENV.get(marketplace, self.API_ENV["shopee_th"])
+        self.base_url = env["base_url"]
+        self.marketplace = marketplace
+        self.market_id = env["market_id"]
 
     def _sign_request(self, path: str, body: str = "") -> str:
         """
         生成 Shopee API 请求签名
-        
+
         Signature = Base64(HMAC_SHA256(secret, path + body))
         """
         message = path + body
@@ -42,182 +60,206 @@ class ShopeeClient:
         ).digest()
         return base64.b64encode(signature).decode("utf-8")
 
-    def create_product(self, product_data: dict) -> dict:
-        """
-        创建 Shopee 商品
-        
-        Args:
-            product_data: 商品数据
-                {
-                    "name": "泰语标题",
-                    "description": "泰语描述",
-                    "price": 10000,  # 单位：分（10000 = 100.00 THB）
-                    "quantity": 100,
-                    "images": ["url1", "url2"],
-                    "variants": [...],
-                    "category_id": 123,
-                }
-                
-        Returns:
-            {item_id, status}
-        """
-        path = f"/api/v1/shop/{self.shop_id}/items"
-        body = str(product_data)
-        signature = self._sign_request(path, body)
-
-        headers = {
+    def _build_headers(self, signature: str, timestamp: Optional[int] = None) -> dict:
+        """构建请求头"""
+        ts = timestamp or int(time.time())
+        return {
+            "Authorization": f"Bearer {self.client_secret}",
             "Signature": signature,
             "SignAlg": "HMAC_SHA256",
-            "Timestamp": str(int(time.time())),
+            "Timestamp": str(ts),
             "Content-Type": "application/json",
+            "X-Shop-Token": self.client_secret,
+            "X-Short-Host": "1",
         }
 
-        # TODO: 实际调用 Shopee API
-        # import httpx
-        # async with httpx.AsyncClient() as client:
-        #     response = await client.post(
-        #         f"{self.base_url}{path}",
-        #         json=product_data,
-        #         headers=headers,
-        #     )
-        #     return response.json()
+    def _call_api(self, method: str, path: str, json_data: Optional[dict] = None,
+                  params: Optional[dict] = None, timeout: float = 30.0) -> dict:
+        """
+        同步调用 Shopee API（使用 httpx sync client）
+        """
+        import httpx
 
-        logger.info(f"模拟创建商品: {product_data.get('name', '')}")
-        return {
-            "item_id": f"shopee-{self.shop_id}-{int(time.time())}",
-            "status": "success",
-            "shop_id": self.shop_id,
-        }
+        body_str = str(json_data) if json_data else ""
+        signature = self._sign_request(path, body_str)
+        headers = self._build_headers(signature)
+
+        url = f"{self.base_url}{path}"
+
+        with httpx.Client(timeout=timeout) as client:
+            if method.upper() == "GET":
+                resp = client.get(url, headers=headers, params=params)
+            elif method.upper() == "POST":
+                resp = client.post(url, json=json_data, headers=headers)
+            elif method.upper() == "PUT":
+                resp = client.put(url, json=json_data, headers=headers)
+            elif method.upper() == "DELETE":
+                resp = client.delete(url, headers=headers)
+            else:
+                raise ValueError(f"Unsupported HTTP method: {method}")
+
+            if resp.status_code in (200, 201):
+                return resp.json()
+            else:
+                logger.error(f"Shopee API 错误 [{method} {path}]: {resp.status_code} {resp.text}")
+                raise Exception(f"Shopee API 错误 ({resp.status_code}): {resp.text}")
+
+    # ==================== 商品操作 ====================
+
+    def create_product(self, product_data: dict) -> dict:
+        """创建 Shopee 商品"""
+        path = f"/api/v1/shop/{self.shop_id}/items"
+        result = self._call_api("POST", path, json_data=product_data)
+        item_id = result.get("item_id", result.get("response", {}).get("item_id", ""))
+        logger.info(f"Shopee 商品创建成功: {item_id}")
+        return {"item_id": item_id, "status": "success", "shop_id": self.shop_id}
 
     def update_product(self, item_id: str, product_data: dict) -> dict:
         """更新 Shopee 商品"""
         path = f"/api/v1/shop/{self.shop_id}/item/{item_id}"
-        body = str(product_data)
-        signature = self._sign_request(path, body)
-
-        headers = {
-            "Signature": signature,
-            "SignAlg": "HMAC_SHA256",
-            "Timestamp": str(int(time.time())),
-            "Content-Type": "application/json",
-        }
-
-        # TODO: 实际调用 Shopee API
-        logger.info(f"模拟更新商品: {item_id}")
-        return {
-            "item_id": item_id,
-            "status": "success",
-        }
-
-    def upload_image(self, image_url: str) -> dict:
-        """
-        上传图片到 Shopee（异步模式）
-        
-        返回 image_id，可用于后续商品创建
-        """
-        path = "/api/v1/item/image"
-        body = f'{{"shop_id": {self.shop_id}, "image": "{image_url}"}}'
-        signature = self._sign_request(path, body)
-
-        headers = {
-            "Signature": signature,
-            "SignAlg": "HMAC_SHA256",
-            "Timestamp": str(int(time.time())),
-            "Content-Type": "application/json",
-        }
-
-        # TODO: 实际调用 Shopee 图片上传 API
-        logger.info(f"模拟上传图片: {image_url}")
-        return {
-            "image_id": f"img-{self.shop_id}-{int(time.time())}",
-            "status": "success",
-            "url": image_url,
-        }
+        result = self._call_api("PUT", path, json_data=product_data)
+        logger.info(f"Shopee 商品更新成功: {item_id}")
+        return {"item_id": item_id, "status": "success"}
 
     def get_product(self, item_id: str) -> dict:
         """获取商品详情"""
         path = f"/api/v1/shop/{self.shop_id}/item/{item_id}"
-        body = ""
-        signature = self._sign_request(path, body)
+        result = self._call_api("GET", path)
+        logger.info(f"Shopee 商品详情获取成功: {item_id}")
+        return result
 
-        headers = {
-            "Signature": signature,
-            "SignAlg": "HMAC_SHA256",
-            "Timestamp": str(int(time.time())),
-        }
-
-        # TODO: 实际调用 Shopee API
-        logger.info(f"模拟获取商品详情: {item_id}")
-        return {
-            "item_id": item_id,
-            "shop_id": self.shop_id,
-            "status": "active",
-        }
-
-    def update_stock(self, item_id: str, variation_id: str, stock: int) -> dict:
-        """更新商品库存"""
-        path = f"/api/v1/shop/{self.shop_id}/item/{item_id}/stock"
-        body = f'{{"variation_id": "{variation_id}", "stock": {stock}}}'
-        signature = self._sign_request(path, body)
-
-        headers = {
-            "Signature": signature,
-            "SignAlg": "HMAC_SHA256",
-            "Timestamp": str(int(time.time())),
-            "Content-Type": "application/json",
-        }
-
-        # TODO: 实际调用 Shopee API
-        logger.info(f"模拟更新库存: {item_id} -> {stock}")
-        return {
-            "item_id": item_id,
-            "variation_id": variation_id,
-            "stock": stock,
-            "status": "success",
-        }
+    def delete_product(self, item_id: str) -> dict:
+        """下架/删除商品"""
+        path = f"/api/v1/shop/{self.shop_id}/item/{item_id}"
+        result = self._call_api("DELETE", path)
+        logger.info(f"Shopee 商品下架: {item_id}")
+        return {"item_id": item_id, "status": "deleted"}
 
     def list_products(self, page: int = 1, size: int = 20) -> dict:
         """列出店铺商品"""
         path = f"/api/v1/shop/{self.shop_id}/items"
-        body = f'?page={page}&size={size}'
-        signature = self._sign_request(path, body)
-
-        headers = {
-            "Signature": signature,
-            "SignAlg": "HMAC_SHA256",
-            "Timestamp": str(int(time.time())),
-        }
-
-        # TODO: 实际调用 Shopee API
-        logger.info(f"模拟列出商品: page={page}, size={size}")
+        params = {"page": page, "limit": size}
+        result = self._call_api("GET", path, params=params)
+        items = result.get("items", result.get("response", {}).get("items", []))
+        total = result.get("total_count", result.get("response", {}).get("total_count", len(items)))
+        logger.info(f"Shopee 商品列表获取成功: {len(items)} items")
         return {
             "shop_id": self.shop_id,
             "page": page,
             "size": size,
-            "items": [],
-            "total": 0,
+            "items": items,
+            "total": total,
         }
 
+    # ==================== 图片操作 ====================
 
-def create_shopee_client(shop_id: int, token: str) -> ShopeeClient:
+    def upload_image(self, image_url: str) -> dict:
+        """
+        上传图片到 Shopee
+
+        返回 image_id，可用于后续商品创建
+        """
+        path = "/api/v1/item/image"
+        result = self._call_api(
+            "POST", path,
+            json_data={"shop_id": self.shop_id, "image": image_url},
+            timeout=60.0,
+        )
+        image_id = result.get("image_id", result.get("response", {}).get("image_id", ""))
+        logger.info(f"Shopee 图片上传成功: {image_id}")
+        return {"image_id": image_id, "status": "success", "url": image_url}
+
+    # ==================== 库存操作 ====================
+
+    def update_stock(self, item_id: str, variation_id: str, stock: int) -> dict:
+        """更新商品库存"""
+        path = f"/api/v1/shop/{self.shop_id}/item/{item_id}/stock"
+        result = self._call_api(
+            "PUT", path,
+            json_data={"variation_id": variation_id, "stock": stock},
+        )
+        logger.info(f"Shopee 库存更新成功: {item_id} -> {stock}")
+        return {"item_id": item_id, "variation_id": variation_id, "stock": stock, "status": "success"}
+
+    def bulk_update_stock(self, updates: list[dict]) -> dict:
+        """
+        批量更新库存
+
+        updates: [{"item_id": "...", "variation_id": "...", "stock": 100}, ...]
+        """
+        results = []
+        for update in updates:
+            try:
+                result = self.update_stock(
+                    update["item_id"],
+                    update["variation_id"],
+                    update["stock"],
+                )
+                results.append({"item_id": update["item_id"], "status": "success", **result})
+            except Exception as e:
+                results.append({"item_id": update["item_id"], "status": "failed", "error": str(e)})
+
+        success_count = sum(1 for r in results if r["status"] == "success")
+        logger.info(f"批量库存更新: {success_count}/{len(results)} 成功")
+        return {"results": results, "success_count": success_count, "total": len(updates)}
+
+    # ==================== 订单操作 ====================
+
+    def list_orders(self, status: str = "ALL", page: int = 1, size: int = 20) -> dict:
+        """列出店铺订单"""
+        path = f"/api/v1/shop/{self.shop_id}/orders"
+        params = {"status": status, "page": page, "limit": size}
+        result = self._call_api("GET", path, params=params)
+        return result
+
+    def update_order_status(self, order_id: str, status: str) -> dict:
+        """更新订单状态"""
+        path = f"/api/v1/shop/{self.shop_id}/order/{order_id}"
+        result = self._call_api("PUT", path, json_data={"status": status})
+        logger.info(f"订单状态更新: {order_id} -> {status}")
+        return result
+
+    # ==================== 评价操作 ====================
+
+    def list_reviews(self, item_id: str, page: int = 1, size: int = 20) -> dict:
+        """列出商品评价"""
+        path = f"/api/v1/shop/{self.shop_id}/item/{item_id}/reviews"
+        params = {"page": page, "limit": size}
+        result = self._call_api("GET", path, params=params)
+        return result
+
+    def reply_review(self, review_id: str, reply_text: str) -> dict:
+        """回复评价"""
+        path = f"/api/v1/shop/{self.shop_id}/review/{review_id}/reply"
+        result = self._call_api("POST", path, json_data={"reply": reply_text})
+        logger.info(f"评价回复成功: {review_id}")
+        return result
+
+
+# ==================== 工厂函数 ====================
+
+def create_shopee_client(shop_id: int, token: str, marketplace: str = "shopee_th") -> ShopeeClient:
     """
     创建 Shopee API 客户端
-    
+
     Args:
         shop_id: 店铺 ID
         token: 店铺 OAuth Token（已解密）
-        
+        marketplace: 市场标识（shopee_th, shopee_vn, etc.）
+
     Returns:
         ShopeeClient 实例
     """
-    # 从配置获取 Partner ID 和 Client Secret
-    partner_id = settings.SHOPEE_MARKET_ID  # 简化：使用 market_id 作为 partner_id
-    client_secret = settings.SECRET_KEY  # 生产环境应从 Vault 读取
+    partner_id = settings.SHOPEE_MARKET_ID or str(
+        ShopeeClient.API_ENV.get(marketplace, ShopeeClient.API_ENV["shopee_th"])["market_id"]
+    )
+    client_secret = settings.SECRET_KEY
 
     return ShopeeClient(
         shop_id=shop_id,
         partner_id=partner_id,
         client_secret=client_secret,
+        marketplace=marketplace,
     )
 
 
@@ -225,32 +267,31 @@ def list_to_shopee(
     product_id: int,
     shop_id: int,
     shop_token: str,
+    marketplace: str = "shopee_th",
 ) -> dict:
     """
     上架商品到 Shopee
-    
+
     Args:
         product_id: 商品 ID
         shop_id: 店铺 ID
         shop_token: 店铺 Token（已解密）
-        
+        marketplace: 市场标识
+
     Returns:
         上架结果
     """
-    # 创建 Shopee 客户端
-    client = create_shopee_client(shop_id, shop_token)
+    client = create_shopee_client(shop_id, shop_token, marketplace)
 
-    # 构建商品数据
     product_data = {
-        "name": "待翻译标题",  # 应由翻译服务填充
+        "name": "待翻译标题",
         "description": "待翻译描述",
-        "price": 10000,  # 默认 100 THB（单位：分）
+        "price": 10000,
         "quantity": 100,
         "images": [],
         "variants": [],
     }
 
-    # 调用 Shopee API 创建商品
     result = client.create_product(product_data)
 
     return {

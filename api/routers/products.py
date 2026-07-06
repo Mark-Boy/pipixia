@@ -16,63 +16,178 @@ from api.models.translate import Translate
 from api.models.risk_log import RiskLog
 from api.models.user import User
 from api.services.auth import get_current_user_async
+from api.services.storage import upload_image_from_url
+from api.crawlers.alibaba_1688 import Alibaba1688Crawler
+from api.crawlers.pinduoduo import PinduoduoCrawler
 import logging
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/products", tags=["Products"])
+
+# 爬虫实例池（复用浏览器连接）
+_crawler_pool: dict[str, object] = {}
+
+
+def _get_crawler(platform: str):
+    """获取或创建爬虫实例（单例模式）"""
+    if platform not in _crawler_pool:
+        if platform == "1688":
+            _crawler_pool[platform] = Alibaba1688Crawler()
+        elif platform == "pdd":
+            _crawler_pool[platform] = PinduoduoCrawler()
+        else:
+            raise ValueError(f"不支持的平台: {platform}")
+    return _crawler_pool[platform]
 
 
 # ==================== 导入商品（必须在 /{product_id} 之前定义）====================
 
 @router.get("/import-product")
 async def import_product(
-    url: str = Query(..., description="商品链接"),
-    shop_id: int = Query(...),
+    url: str = Query(..., description="商品链接（1688/拼多多）"),
+    shop_id: int = Query(..., description="目标店铺 ID"),
     current_user: User = Depends(get_current_user_async),
 ):
     """
-    导入商品（URL 解析 + 爬虫抓取）
-    
+    导入商品（URL 解析 + Playwright 爬虫抓取）
+
     流程：
     1. 解析 URL 获取平台类型和商品 ID
-    2. 调用 Playwright 抓取商品详情（标题、图片、价格、成本）
-    3. 创建商品记录
-    4. 触发翻译工作流
+    2. 调用对应平台的 Playwright 爬虫抓取商品详情
+    3. 上传商品图片到对象存储
+    4. 创建商品记录（含利润率自动计算）
+    5. 触发翻译工作流（可选）
     """
-    # 1. 解析 URL 获取平台
+    # 1. 检测平台并获取爬虫
     source_platform = "unknown"
-    if "1688.com" in url or "1688" in url:
+    crawler = None
+
+    if "1688" in url:
         source_platform = "1688"
-    elif "pinduoduo" in url or "duoduo" in url or "pdd" in url:
+        crawler = _get_crawler("1688")
+    elif any(kw in url for kw in ["pinduoduo", "yangkeduo", "pdd_goods"]):
         source_platform = "pdd"
+        crawler = _get_crawler("pdd")
     else:
-        raise HTTPException(status_code=400, detail="不支持的链接类型")
+        # 尝试通过 URL 内容自动判断
+        if any(domain in url for domain in ["1688.com", "detail.1688.com"]):
+            source_platform = "1688"
+            crawler = _get_crawler("1688")
+        elif any(domain in url for domain in ["yangkeduo.com", "mobile.yangkeduo.com"]):
+            source_platform = "pdd"
+            crawler = _get_crawler("pdd")
 
-    # 2. 提取商品 ID（支持路径中的数字和查询参数 id=xxx）
-    match = re.search(r"/(\d+)", url)
-    if not match:
-        match = re.search(r"[?&]id=(\d+)", url)
-    if not match:
-        raise HTTPException(status_code=400, detail="无法从 URL 提取商品 ID")
-    source_item_id = match.group(1)
+    if not crawler:
+        raise HTTPException(
+            status_code=400,
+            detail="不支持的链接类型。请提供 1688 或拼多多商品链接。",
+        )
 
-    # 3. 检查店铺归属
+    # 2. 检查店铺归属
     async with async_session() as db:
         shop_result = await db.execute(select(Shop).where(Shop.id == shop_id))
         shop = shop_result.scalar_one_or_none()
         if not shop or shop.user_id != current_user.id:
             raise HTTPException(status_code=403, detail="无权在该店铺下导入商品")
 
-    # 4. 调用爬虫抓取商品详情（TODO: 接入 Playwright 爬虫）
-    # 暂时返回占位数据
+    # 3. 调用爬虫抓取商品详情
+    try:
+        product_info = await crawler.fetch_product(url)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=f"URL 解析失败: {str(e)}")
+    except Exception as e:
+        logger.error(f"爬虫抓取失败: {e}")
+        raise HTTPException(
+            status_code=502,
+            detail=f"商品抓取失败: {str(e)}。请检查链接是否有效。",
+        )
+
+    if not product_info.title_zh:
+        raise HTTPException(
+            status_code=422,
+            detail="无法获取商品信息。请确认链接是否正确。",
+        )
+
+    # 4. 上传商品图片到对象存储
+    image_oss_keys = []
+    if product_info.images_urls:
+        for img_url in product_info.images_urls:
+            try:
+                oss_key = upload_image_from_url(img_url)
+                if oss_key:
+                    image_oss_keys.append(oss_key)
+            except Exception as e:
+                logger.warning(f"图片上传失败 {img_url}: {e}")
+                # 图片上传失败不影响商品创建
+
+    # 5. 在数据库中创建或更新商品记录
+    async with async_session() as db:
+        # 去重检查
+        existing = await db.execute(
+            select(Product).where(
+                Product.shop_id == shop_id,
+                Product.source_platform == source_platform,
+                Product.source_item_id == product_info.source_item_id,
+            )
+        )
+        if existing.scalar_one_or_none():
+            return {
+                "status": "exists",
+                "product_id": existing.scalar_one_or_none().id,
+                "message": "商品已存在，跳过导入",
+            }
+
+        # 汇率转换（1 CNY = 5 THB）
+        exchange_rate = 5.0
+        price_thb = round(product_info.price_cny * exchange_rate, 2) if product_info.price_cny else None
+        cost_cny = product_info.cost_cny or product_info.price_cny
+        cost_thb = cost_cny * exchange_rate if cost_cny else None
+
+        # 利润率计算
+        profit_margin = None
+        if price_thb and cost_thb and price_thb > 0:
+            profit_margin = round(((price_thb - cost_thb) / price_thb) * 100, 2)
+
+        product = Product(
+            shop_id=shop_id,
+            source_platform=source_platform,
+            source_item_id=product_info.source_item_id,
+            title_zh=product_info.title_zh[:512],
+            description_zh=product_info.description_zh[:4096] if product_info.description_zh else None,
+            price_cny=product_info.price_cny,
+            price_thb=price_thb,
+            cost_cny=cost_cny,
+            profit_margin=profit_margin,
+            images_oss_keys=image_oss_keys,
+            status="pending",
+            risk_status="pending",
+        )
+        db.add(product)
+        await db.commit()
+        await db.refresh(product)
+
+    # 6. 触发翻译工作流（异步）
+    task_id = None
+    try:
+        from worker.tasks import translate_product
+        task = translate_product.delay(product.id)
+        task_id = task.id
+    except Exception as e:
+        logger.warning(f"翻译任务提交失败: {e}")
+
     return {
-        "status": "queued",
-        "task_type": "import",
-        "url": url,
-        "shop_id": shop_id,
+        "status": "success",
+        "product_id": product.id,
         "source_platform": source_platform,
-        "source_item_id": source_item_id,
-        "message": "导入任务已提交，等待抓取",
+        "source_item_id": product_info.source_item_id,
+        "title_zh": product_info.title_zh,
+        "price_cny": product_info.price_cny,
+        "price_thb": price_thb,
+        "cost_cny": cost_cny,
+        "profit_margin": profit_margin,
+        "images_uploaded": len(image_oss_keys),
+        "translate_task_id": task_id,
+        "message": "商品导入成功",
     }
 
 

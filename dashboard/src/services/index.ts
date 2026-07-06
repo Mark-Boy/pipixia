@@ -4,10 +4,10 @@ import { api } from "@/services/api";
 
 // ==================== 商品服务 ====================
 export const productService = {
-  getList: (params?: Record<string, any>) =>
+  getList: (params?: Record<string, unknown>) =>
     api.get("/api/v1/products", { params }),
   getById: (id: number) => api.get(`/api/v1/products/${id}`),
-  create: (data: any) => api.post("/api/v1/products", data),
+  create: (data: Record<string, unknown>) => api.post("/api/v1/products", data),
   importByUrl: (url: string, shop_id: number) =>
     api.get("/api/v1/products/import-product", { params: { url, shop_id } }),
   triggerTranslate: (id: number) =>
@@ -16,7 +16,7 @@ export const productService = {
     api.post(`/api/v1/products/${id}/list`),
   checkFinance: (id: number) =>
     api.post(`/api/v1/products/${id}/finance/check`),
-  update: (id: number, data: any) =>
+  update: (id: number, data: Record<string, unknown>) =>
     api.put(`/api/v1/products/${id}`, data),
   delete: (id: number) =>
     api.delete(`/api/v1/products/${id}`),
@@ -24,7 +24,7 @@ export const productService = {
 
 // ==================== 审核服务 ====================
 export const auditService = {
-  getQueue: (params?: Record<string, any>) =>
+  getQueue: (params?: Record<string, unknown>) =>
     api.get("/api/v1/audit/queue", { params }),
   approve: (id: number) =>
     api.post(`/api/v1/audit/${id}/approve`),
@@ -40,11 +40,11 @@ export const auditService = {
 
 // ==================== 店铺服务 ====================
 export const shopService = {
-  getList: (params?: Record<string, any>) =>
+  getList: (params?: Record<string, unknown>) =>
     api.get("/api/v1/shops", { params }),
   getById: (id: number) => api.get(`/api/v1/shops/${id}`),
-  create: (data: any) => api.post("/api/v1/shops", data),
-  update: (id: number, data: any) =>
+  create: (data: Record<string, unknown>) => api.post("/api/v1/shops", data),
+  update: (id: number, data: Record<string, unknown>) =>
     api.put(`/api/v1/shops/${id}`, data),
   delete: (id: number) => api.delete(`/api/v1/shops/${id}`),
   getToken: (id: number) =>
@@ -53,10 +53,10 @@ export const shopService = {
 
 // ==================== 上架服务 ====================
 export const listingService = {
-  getList: (params?: Record<string, any>) =>
+  getList: (params?: Record<string, unknown>) =>
     api.get("/api/v1/listings", { params }),
   getById: (id: number) => api.get(`/api/v1/listings/${id}`),
-  create: (data: any) => api.post("/api/v1/listings", data),
+  create: (data: Record<string, unknown>) => api.post("/api/v1/listings", data),
   retry: (id: number) =>
     api.post(`/api/v1/listings/${id}/retry`),
 };
@@ -71,7 +71,7 @@ export const translateService = {
     api.post("/api/v1/translate/batch", null, {
       params: { product_ids },
     }),
-  getHistory: (params?: Record<string, any>) =>
+  getHistory: (params?: Record<string, unknown>) =>
     api.get("/api/v1/translate/history", { params }),
   sync: (product_id: number) =>
     api.post(`/api/v1/translate/sync/${product_id}`),
@@ -112,7 +112,7 @@ export const reportService = {
     api.get("/api/v1/reports/finance", {
       params: { start_date, end_date },
     }),
-  getProfitCalibration: (params?: Record<string, any>) =>
+  getProfitCalibration: (params?: Record<string, unknown>) =>
     api.get("/api/v1/reports/profit-calibration", { params }),
   getSummary: () => api.get("/api/v1/reports/summary"),
 };
@@ -120,7 +120,7 @@ export const reportService = {
 // ==================== 设置服务 ====================
 export const settingService = {
   get: () => api.get("/api/v1/settings"),
-  update: (data: any) => api.put("/api/v1/settings", data),
+  update: (data: Record<string, unknown>) => api.put("/api/v1/settings", data),
   getRiskWords: () => api.get("/api/v1/settings/risk-words"),
   addRiskWord: (word: string, word_type = "brand") =>
     api.post("/api/v1/settings/risk-words/add", null, {

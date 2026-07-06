@@ -251,3 +251,43 @@ def get_storage_stats() -> dict:
         "bucket": settings.MINIO_BUCKET,
         "endpoint": settings.MINIO_ENDPOINT,
     }
+
+
+def upload_image_from_url(image_url: str, product_id: Optional[int] = None) -> Optional[str]:
+    """
+    从 URL 下载图片并上传到对象存储
+
+    Args:
+        image_url: 图片 URL
+        product_id: 商品 ID
+
+    Returns:
+        上传后的对象 URL，失败返回 None
+    """
+    import httpx
+    from urllib.parse import urlparse
+
+    try:
+        # 下载图片
+        resp = httpx.get(image_url, timeout=15.0)
+        resp.raise_for_status()
+        file_data = resp.content
+
+        # 确定文件扩展名
+        ext = "jpg"
+        content_type = resp.headers.get("content-type", "")
+        if "png" in content_type:
+            ext = "png"
+        elif "webp" in content_type:
+            ext = "webp"
+        elif "gif" in content_type:
+            ext = "gif"
+
+        # 生成 object key
+        prefix = f"products/{product_id or 'generic'}" if product_id else "products/generic"
+        object_key = f"{prefix}/img_{hash(image_url) % 10000:04d}.{ext}"
+
+        return storage.upload_file(file_data, object_key, content_type)
+    except Exception as e:
+        logger.warning(f"图片下载上传失败 {image_url}: {e}")
+        return None
