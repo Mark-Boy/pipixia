@@ -31,7 +31,7 @@ export function AuditPage() {
     setError(null);
     try {
       const res = await auditService.getQueue({ status: "pending" });
-      const items = res?.items || [];
+      const items = (res as any)?.items || [];
       setAudits(items);
 
       // Also fetch approved/rejected counts
@@ -44,7 +44,8 @@ export function AuditPage() {
         ? approvedRes.value?.items?.length || 0
         : 0;
       const rejected = rejectedRes.status === "fulfilled"
-        ? rejectedRes.value?.items?.length || 0;
+        ? rejectedRes.value?.items?.length || 0
+        : 0;
 
       setStats({ pending: items.length, approved, rejected });
     } catch (err: any) {
