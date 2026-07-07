@@ -2,6 +2,7 @@
 LLM 翻译服务 — 支持 DashScope（通义千问）和本地模型
 
 使用 LangChain + DashScope 实现中→泰电商翻译。
+集成 Redis 缓存（自动回退到内存）。
 """
 
 import json
@@ -11,6 +12,11 @@ from typing import Optional
 from pathlib import Path
 
 from api.config import get_settings
+from api.services.cache import (
+    cache_get,
+    cache_set,
+    get_translation_stats,
+)
 
 settings = get_settings()
 logger = logging.getLogger(__name__)
@@ -52,7 +58,7 @@ _load_cache()
 
 def translate_text(text: str, src_lang: str = "zh", tgt_lang: str = "th") -> str:
     """
-    翻译文本（带缓存）
+    翻译文本（带 Redis/内存缓存）
     
     Args:
         text: 源文本
@@ -65,19 +71,26 @@ def translate_text(text: str, src_lang: str = "zh", tgt_lang: str = "th") -> str
     if not text:
         return ""
 
-    # 检查缓存
+    # 检查 Redis 缓存
+    cached = cache_get(f"translation:{src_lang}->{tgt_lang}:{hashlib.md5(text.encode()).hexdigest()}")
+    if cached:
+        logger.debug(f"翻译缓存命中 (Redis): {text[:50]}...")
+        return cached
+
+    # 检查内存缓存
     text_hash = _text_hash(text)
     cache_key = f"{src_lang}->{tgt_lang}:{text_hash}"
     if cache_key in _translation_cache:
-        logger.debug(f"翻译缓存命中: {text[:50]}...")
+        logger.debug(f"翻译缓存命中 (内存): {text[:50]}...")
         return _translation_cache[cache_key]
 
     # 调用 LLM 翻译
     result = _call_llm_translate(text, src_lang, tgt_lang)
 
     # 缓存结果
-    if result:
+    if result and not result.startswith("[待翻译]"):
         _translation_cache[cache_key] = result
+        cache_set(cache_key, result, ttl=86400 * 30)
         _save_cache()
 
     return result

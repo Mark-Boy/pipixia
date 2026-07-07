@@ -6,47 +6,51 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Separator } from "@/components/ui/separator";
-import { mockAudits } from "@/lib/mock-data";
-import { CheckCircle, XCircle, Edit, Eye, MessageSquare, Loader2, RefreshCw } from "lucide-react";
-import { auditService } from "@/services";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { CheckCircle, XCircle, Loader2, RefreshCw } from "lucide-react";
+import { auditService, productService } from "@/services";
 
 export function AuditPage() {
   const [mode, setMode] = useState<"manual" | "auto">("manual");
   const [audits, setAudits] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [selectedId, setSelectedId] = useState<string | null>(null);
   const [comment, setComment] = useState("");
   const [refreshing, setRefreshing] = useState(false);
+  const [stats, setStats] = useState({ pending: 0, approved: 0, rejected: 0 });
 
   const fetchAudits = async (showLoading = true) => {
     if (showLoading) setLoading(true);
     setError(null);
     try {
-      const token = localStorage.getItem("access_token");
-      const res = await auditService.getQueue({
-        status: "pending",
-        credentials_str: `Bearer ${token}`,
-      });
-      // 后端返回的是 Product 列表，转换为 AuditItem 格式
-      const items = (res || []).map((p: any) => ({
-        id: String(p.id),
-        productId: String(p.id),
-        titleZh: p.title_zh || p.titleZh,
-        titleTh: p.title_th || p.titleTh || "(待翻译)",
-        descriptionTh: p.description_th || p.descriptionTh || "",
-        profitMargin: p.profit_margin || p.profitMargin || 0,
-        confidenceScore: 0.9,
-        riskFlag: p.risk_status === "block",
-        riskReason: p.risk_detail || "风控拦截",
-        status: "pending" as const,
-        createdAt: p.created_at,
-      }));
-      setAudits(items.length > 0 ? items : mockAudits);
+      const res = await auditService.getQueue({ status: "pending" });
+      const items = res?.items || [];
+      setAudits(items);
+
+      // Also fetch approved/rejected counts
+      const [approvedRes, rejectedRes] = await Promise.allSettled([
+        auditService.getQueue({ status: "audited" }),
+        auditService.getQueue({ status: "rejected" }),
+      ]);
+
+      const approved = approvedRes.status === "fulfilled"
+        ? approvedRes.value?.items?.length || 0
+        : 0;
+      const rejected = rejectedRes.status === "fulfilled"
+        ? rejectedRes.value?.items?.length || 0;
+
+      setStats({ pending: items.length, approved, rejected });
     } catch (err: any) {
       console.error("Failed to fetch audits:", err);
-      setAudits(mockAudits);
-      setError("无法加载审核队列，已使用模拟数据");
+      setError("无法加载审核队列");
+      setAudits([]);
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -62,45 +66,40 @@ export function AuditPage() {
     fetchAudits(false);
   };
 
-  const handleApprove = async (id: string) => {
+  const handleApprove = async (id: number) => {
     try {
-      const token = localStorage.getItem("access_token");
-      await auditService.approve(id, `Bearer ${token}`);
+      await auditService.approve(id);
       setAudits((prev) => prev.filter((a) => a.id !== id));
+      setStats((s) => ({ ...s, pending: s.pending - 1, approved: s.approved + 1 }));
       setComment("");
     } catch (err: any) {
       alert("审核通过失败: " + (err.message || "未知错误"));
     }
   };
 
-  const handleReject = async (id: string) => {
+  const handleReject = async (id: number) => {
     if (!comment.trim()) {
       alert("请输入拒绝原因");
       return;
     }
     try {
-      const token = localStorage.getItem("access_token");
-      await auditService.reject(id, comment, `Bearer ${token}`);
+      await auditService.reject(id, comment);
       setAudits((prev) => prev.filter((a) => a.id !== id));
+      setStats((s) => ({ ...s, pending: s.pending - 1, rejected: s.rejected + 1 }));
       setComment("");
     } catch (err: any) {
       alert("审核拒绝失败: " + (err.message || "未知错误"));
     }
   };
 
-  const handleList = async (id: string) => {
+  const handleList = async (id: number) => {
     try {
-      const token = localStorage.getItem("access_token");
-      await auditService.triggerList(Number(id), `Bearer ${token}`);
+      await auditService.triggerList(id);
       setAudits((prev) => prev.filter((a) => a.id !== id));
     } catch (err: any) {
       alert("上架失败: " + (err.message || "未知错误"));
     }
   };
-
-  const pendingCount = audits.filter((a) => a.status === "pending").length;
-  const totalApproved = 128;
-  const totalRejected = 3;
 
   return (
     <div className="space-y-6">
@@ -112,8 +111,17 @@ export function AuditPage() {
           </p>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" size="sm" onClick={handleRefresh} disabled={refreshing}>
-            {refreshing ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleRefresh}
+            disabled={refreshing}
+          >
+            {refreshing ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <RefreshCw className="h-4 w-4" />
+            )}
             刷新
           </Button>
           <Button
@@ -134,23 +142,33 @@ export function AuditPage() {
       </div>
 
       {/* Stats */}
-      <div className="grid gap-4 md:grid-cols-3">
+      <div className="grid gap-4 md:grid-cols-4">
         <Card>
           <CardContent className="pt-6">
             <p className="text-sm text-muted-foreground">待审核</p>
-            <p className="text-2xl font-bold text-amber-600">{pendingCount}</p>
+            <p className="text-2xl font-bold text-amber-600">{stats.pending}</p>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="pt-6">
             <p className="text-sm text-muted-foreground">已通过</p>
-            <p className="text-2xl font-bold text-green-600">{totalApproved}</p>
+            <p className="text-2xl font-bold text-green-600">{stats.approved}</p>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="pt-6">
             <p className="text-sm text-muted-foreground">已拒绝</p>
-            <p className="text-2xl font-bold text-red-600">{totalRejected}</p>
+            <p className="text-2xl font-bold text-red-600">{stats.rejected}</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="pt-6">
+            <p className="text-sm text-muted-foreground">审核通过率</p>
+            <p className="text-2xl font-bold">
+              {stats.pending + stats.approved + stats.rejected > 0
+                ? Math.round((stats.approved / (stats.approved + stats.rejected)) * 100)
+                : 0}%
+            </p>
           </CardContent>
         </Card>
       </div>
@@ -191,112 +209,99 @@ export function AuditPage() {
           <span className="ml-3 text-muted-foreground">加载中...</span>
         </div>
       ) : (
-        <div className="space-y-4">
-          {audits.map((audit) => (
-            <Card key={audit.id} className={`overflow-hidden ${selectedId === audit.id ? "ring-2 ring-primary" : ""}`}>
-              <CardHeader className="pb-3">
-                <div className="flex items-start justify-between">
-                  <div>
-                    <CardTitle className="text-base">{audit.titleZh}</CardTitle>
-                    <p className="text-sm text-muted-foreground mt-1">
-                      利润: {audit.profitMargin}% | 置信度:{" "}
-                      {(audit.confidenceScore * 100).toFixed(0)}%
-                      {audit.riskFlag && (
-                        <Badge variant="destructive" className="ml-2">
-                          {audit.riskReason}
-                        </Badge>
-                      )}
-                    </p>
-                  </div>
-                  <div className="flex gap-1">
-                    <Button variant="ghost" size="icon">
-                      <Eye className="h-4 w-4" />
-                    </Button>
-                    <Button variant="ghost" size="icon">
-                      <Edit className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </div>
-              </CardHeader>
-              <Separator />
-              <CardContent className="pt-4">
-                <div className="grid gap-4 md:grid-cols-2">
-                  <div>
-                    <p className="text-sm font-medium mb-2">中文原文</p>
-                    <p className="text-sm text-muted-foreground">
-                      {audit.titleZh}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium mb-2">泰语翻译</p>
-                    <p className="text-sm">{audit.titleTh}</p>
-                  </div>
-                </div>
-                {audit.descriptionTh && (
-                  <div className="mt-4">
-                    <p className="text-sm font-medium mb-2">描述翻译</p>
-                    <p className="text-sm text-muted-foreground">
-                      {audit.descriptionTh}
-                    </p>
-                  </div>
-                )}
-                {audit.riskFlag && (
-                  <div className="mt-3 flex items-center gap-2 text-sm text-red-600">
-                    <XCircle className="h-4 w-4" />
-                    {audit.riskReason}
-                  </div>
-                )}
-                <div className="mt-4 flex gap-2">
-                  <Button
-                    size="sm"
-                    className="bg-green-600 hover:bg-green-700"
-                    onClick={() => handleApprove(audit.id)}
-                  >
-                    <CheckCircle className="mr-2 h-4 w-4" />
-                    通过
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                    onClick={() => handleReject(audit.id)}
-                  >
-                    <XCircle className="mr-2 h-4 w-4" />
-                    拒绝
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => handleList(audit.id)}
-                  >
-                    <Eye className="mr-2 h-4 w-4" />
-                    上架
-                  </Button>
-                </div>
-                <div className="mt-3">
-                  <Textarea
-                    placeholder="添加审核备注..."
-                    value={comment}
-                    onChange={(e) => setComment(e.target.value)}
-                    className="min-h-[60px]"
-                  />
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-
-          {audits.length === 0 && (
-            <Card>
-              <CardContent className="flex flex-col items-center justify-center py-12 text-center">
+        <Card>
+          <CardHeader>
+            <CardTitle>审核队列 ({audits.length} 条)</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {audits.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-12 text-center">
                 <CheckCircle className="h-12 w-12 text-green-500 mb-4" />
                 <p className="text-lg font-medium">暂无待审核商品</p>
                 <p className="text-sm text-muted-foreground">
                   所有商品已完成审核，或暂无新商品需要审核
                 </p>
-              </CardContent>
-            </Card>
-          )}
-        </div>
+              </div>
+            ) : (
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>商品标题</TableHead>
+                    <TableHead>泰语标题</TableHead>
+                    <TableHead>利润率</TableHead>
+                    <TableHead>风控</TableHead>
+                    <TableHead>操作</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {audits.map((item) => (
+                    <TableRow key={item.id || item.product_id}>
+                      <TableCell className="font-medium max-w-[200px] truncate">
+                        {item.title_zh || item.titleZh || "-"}
+                      </TableCell>
+                      <TableCell className="max-w-[200px] truncate">
+                        {item.title_th || item.titleTh || "(待翻译)"}
+                      </TableCell>
+                      <TableCell>
+                        <span
+                          className={
+                            (item.profit_margin || item.profitMargin || 0) >= 15
+                              ? "text-green-600"
+                              : "text-red-600"
+                          }
+                        >
+                          {item.profit_margin || item.profitMargin || 0}%
+                        </span>
+                      </TableCell>
+                      <TableCell>
+                        {item.risk_flag || item.risk_status === "block" ? (
+                          <Badge variant="destructive" className="text-xs">
+                            {item.risk_reason || item.risk_detail || "风控拦截"}
+                          </Badge>
+                        ) : (
+                          <Badge variant="outline" className="text-xs bg-green-50 text-green-700 border-green-200">
+                            通过
+                          </Badge>
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex gap-1">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="bg-green-50 text-green-700 hover:bg-green-100 border-green-200"
+                            onClick={() => handleApprove(item.id || item.product_id)}
+                          >
+                            <CheckCircle className="h-3 w-3 mr-1" />
+                            通过
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="text-red-600 hover:bg-red-50"
+                            onClick={() => handleReject(item.id || item.product_id)}
+                          >
+                            <XCircle className="h-3 w-3 mr-1" />
+                            拒绝
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => handleList(item.id || item.product_id)}
+                          >
+                            <Badge variant="outline" className="text-xs">
+                              上架
+                            </Badge>
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            )}
+          </CardContent>
+        </Card>
       )}
     </div>
   );

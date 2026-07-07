@@ -2,7 +2,7 @@
 上架记录模型
 """
 
-from sqlalchemy import Column, Integer, String, JSON, DateTime, ForeignKey, Float
+from sqlalchemy import Column, Integer, String, JSON, DateTime, ForeignKey, Float, text
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from api.database import Base
@@ -18,11 +18,11 @@ class Listing(Base):
     shopee_status = Column(String(20), nullable=True)
     listing_price_thb = Column(Float, nullable=True)
     stock = Column(Integer, nullable=True)
-    variation_data = Column(JSON, default=dict)
-    audit_status = Column(String(20), default="pending")
+    variation_data = Column(JSON, server_default=text("'{}'::json"))
+    audit_status = Column(String(20), server_default='pending')
     audit_comment = Column(String(500), nullable=True)
-    listing_mode = Column(String(20), default="manual")  # manual / auto
-    retry_count = Column(Integer, default=0)
+    listing_mode = Column(String(20), server_default='manual')  # manual / auto
+    retry_count = Column(Integer, server_default='0')
     last_error = Column(String(500), nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())

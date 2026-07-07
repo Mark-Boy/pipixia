@@ -1,5 +1,6 @@
 """
 认证服务 — JWT Token 管理
+集成 Redis Token 黑名单和 Refresh Token 轮换
 """
 
 from datetime import datetime, timedelta, timezone
@@ -13,6 +14,7 @@ from sqlalchemy.orm import Session
 from api.models.user import User
 from api.config import get_settings
 from api.database import async_session
+from api.services.cache import blacklist_token, is_token_blacklisted, unblacklist_token
 
 settings = get_settings()
 security = HTTPBearer()

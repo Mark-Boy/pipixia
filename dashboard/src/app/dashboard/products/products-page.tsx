@@ -22,9 +22,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import {
-  mockProducts,
-} from "@/lib/mock-data";
-import {
   Search,
   Plus,
   Filter,
@@ -64,9 +61,8 @@ export function ProductsPage() {
       setProducts(res.products || []);
     } catch (err: any) {
       console.error("Failed to fetch products:", err);
-      // Fallback to mock data
-      setProducts(mockProducts);
-      setError("无法连接后端 API，已使用模拟数据");
+      setError("无法连接后端 API");
+      setProducts([]);
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -240,7 +236,16 @@ export function ProductsPage() {
             <CardTitle>商品列表</CardTitle>
           </CardHeader>
           <CardContent>
-            <Table>
+            {filteredProducts.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-12 text-center">
+                <Package className="h-12 w-12 text-muted-foreground mb-4" />
+                <p className="text-lg font-medium">暂无商品</p>
+                <p className="text-sm text-muted-foreground">
+                  请先导入商品或创建商品记录
+                </p>
+              </div>
+            ) : (
+              <Table>
               <TableHeader>
                 <TableRow>
                   <TableHead className="w-12">
@@ -318,6 +323,7 @@ export function ProductsPage() {
                 ))}
               </TableBody>
             </Table>
+            )}
           </CardContent>
         </Card>
       )}

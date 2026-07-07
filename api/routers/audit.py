@@ -91,7 +91,7 @@ async def approve_product(
 @router.post("/{product_id}/reject")
 async def reject_product(
     product_id: int,
-    data: AuditRequest = None,
+    data: Optional[AuditRequest] = None,
     current_user: User = Depends(get_current_user_async),
 ):
     """审核拒绝"""

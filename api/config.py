@@ -16,7 +16,7 @@ class Settings(BaseSettings):
     REFRESH_TOKEN_EXPIRE_DAYS: int = 7
 
     # 数据库
-    DATABASE_URL: str = "sqlite+aiosqlite:///./pipixia.db"
+    DATABASE_URL: str = "postgresql+asyncpg://pipixia:pipixia_secret@localhost:5432/pipixia"
 
     # Redis
     REDIS_URL: str = "redis://localhost:6379/0"

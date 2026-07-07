@@ -59,6 +59,20 @@ def translate_product(self, product_id: int) -> dict:
 
 
 @celery_app.task(
+    name="worker.tasks.batch_translate_task",
+    bind=True,
+    max_retries=2,
+)
+def batch_translate_task(self, product_ids: list[int]) -> dict:
+    """
+    批量翻译（别名，供 router 调用）
+    
+    注意: 这是 batch_translate 的别名，保持向后兼容
+    """
+    return batch_translate(*product_ids)
+
+
+@celery_app.task(
     name="worker.tasks.batch_translate",
     bind=True,
     max_retries=2,
@@ -216,8 +230,11 @@ def update_exchange_rate() -> dict:
         logger.info("💱 更新汇率...")
         
         # TODO: 调用真实汇率 API（如 exchangerate.host）
-        # 目前使用硬编码汇率
-        exchange_rate = 5.0  # 1 CNY = 5 THB
+        try:
+            from api.services.exchange import fetch_exchange_rate
+            exchange_rate = fetch_exchange_rate()
+        except Exception:
+            exchange_rate = 5.0  # 回退汇率
 
         logger.info(f"✅ 汇率更新: 1 CNY = {exchange_rate} THB")
         return {
@@ -263,14 +280,64 @@ def profit_circuit_breaker() -> dict:
     try:
         logger.info("⚡ 利润熔断检查...")
         
+        import asyncio
+        from api.database import engine, async_session
+        from api.models.product import Product
+        from api.models.risk_log import RiskLog
+        from sqlalchemy import select, update
+        from api.services.exchange import fetch_exchange_rate
+
         threshold = 10  # 利润率阈值 %
-        removed_count = 0
 
-        # TODO: 查询所有 active 商品，检查利润率
-        # if profit_margin < threshold:
-        #     product.status = "blocked"
-        #     removed_count += 1
+        async def _run():
+            async with async_session() as db:
+                # 查询所有 audited 状态的商品
+                result = await db.execute(
+                    select(Product).where(
+                        Product.status == "audited",
+                        Product.profit_margin < threshold,
+                    )
+                )
+                low_profit_products = result.scalars().all()
 
+                removed_count = 0
+                for product in low_profit_products:
+                    # 重新计算利润率（使用实时汇率）
+                    try:
+                        exchange_rate = fetch_exchange_rate()
+                    except Exception:
+                        exchange_rate = 5.0
+
+                    cost_thb = (product.cost_cny or 0) * exchange_rate
+                    revenue_thb = product.price_thb or 0
+                    if revenue_thb > 0:
+                        actual_margin = round(((revenue_thb - cost_thb) / revenue_thb) * 100, 2)
+                    else:
+                        actual_margin = 0
+
+                    if actual_margin < threshold:
+                        # 更新状态为 blocked
+                        await db.execute(
+                            update(Product)
+                            .where(Product.id == product.id)
+                            .values(status="blocked", risk_status="block")
+                        )
+                        
+                        # 记录风控日志
+                        risk_log = RiskLog(
+                            product_id=product.id,
+                            risk_type="profit",
+                            risk_detail=f"利润率 {actual_margin}% 低于阈值 {threshold}%",
+                            action_taken="自动拦截，标记利润不足",
+                        )
+                        db.add(risk_log)
+                        removed_count += 1
+                        logger.info(f"  ⚡ 熔断: 商品 #{product.id} 利润率 {actual_margin}% < {threshold}%")
+
+                await db.commit()
+                return removed_count
+
+        removed_count = asyncio.run(_run())
         logger.info(f"✅ 熔断检查完成，下架 {removed_count} 个商品")
         return {
             "status": "completed",

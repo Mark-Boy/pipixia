@@ -17,6 +17,7 @@ from api.models.risk_log import RiskLog
 from api.models.user import User
 from api.services.auth import get_current_user_async
 from api.services.storage import upload_image_from_url
+from api.services.exchange import convert_cny_to_thb
 from api.crawlers.alibaba_1688 import Alibaba1688Crawler
 from api.crawlers.pinduoduo import PinduoduoCrawler
 import logging
@@ -137,9 +138,12 @@ async def import_product(
                 "message": "商品已存在，跳过导入",
             }
 
-        # 汇率转换（1 CNY = 5 THB）
-        exchange_rate = 5.0
-        price_thb = round(product_info.price_cny * exchange_rate, 2) if product_info.price_cny else None
+        # 汇率转换（使用实时汇率）
+        try:
+            from api.services.exchange import convert_cny_to_thb
+            price_thb = convert_cny_to_thb(product_info.price_cny) if product_info.price_cny else None
+        except Exception:
+            price_thb = round(product_info.price_cny * 5.0, 2) if product_info.price_cny else None
         cost_cny = product_info.cost_cny or product_info.price_cny
         cost_thb = cost_cny * exchange_rate if cost_cny else None
 
@@ -312,9 +316,12 @@ async def create_product(
         if existing.scalar_one_or_none():
             raise HTTPException(status_code=409, detail="商品已存在")
 
-        # 汇率转换（1 CNY = 5 THB）
-        exchange_rate = 5.0
-        price_thb = round(data.price_cny * exchange_rate, 2)
+        # 汇率转换（使用实时汇率）
+        try:
+            from api.services.exchange import convert_cny_to_thb
+            price_thb = convert_cny_to_thb(data.price_cny)
+        except Exception:
+            price_thb = round(data.price_cny * 5.0, 2)
         cost_thb = data.cost_cny * exchange_rate
 
         # 利润率计算
@@ -426,8 +433,12 @@ async def check_finance(
         if not product:
             raise HTTPException(status_code=404, detail="商品不存在")
 
-        # 详细利润计算
-        exchange_rate = 5.0
+        # 详细利润计算（使用实时汇率）
+        try:
+            from api.services.exchange import fetch_exchange_rate
+            exchange_rate = fetch_exchange_rate()
+        except Exception:
+            exchange_rate = 5.0
         revenue_thb = product.price_thb or 0
         cost_cny = product.cost_cny or 0
         cost_thb = cost_cny * exchange_rate

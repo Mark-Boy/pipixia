@@ -2,7 +2,7 @@
 翻译记录模型
 """
 
-from sqlalchemy import Column, Integer, String, Float, DateTime, ForeignKey
+from sqlalchemy import Column, Integer, String, Float, DateTime, ForeignKey, text
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from api.database import Base
@@ -19,7 +19,7 @@ class Translate(Base):
     target_text = Column(String(5000), nullable=True)
     source_image_url = Column(String(500), nullable=True)
     target_image_url = Column(String(500), nullable=True)
-    status = Column(String(20), default="pending")  # pending / success / failed
+    status = Column(String(20), server_default='pending')  # pending / success / failed
     confidence_score = Column(Float, nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())

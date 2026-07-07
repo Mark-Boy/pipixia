@@ -5,12 +5,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import {
-  mockFinancialMetrics,
-  mockProducts,
-  mockAudits,
-  mockRiskLogs,
-} from "@/lib/mock-data";
-import {
   TrendingUp,
   TrendingDown,
   AlertTriangle,
@@ -35,26 +29,7 @@ import {
   Bar,
   Legend,
 } from "recharts";
-import { reportService, productService, healthService } from "@/services";
-
-// Mock chart data (fallback)
-const weeklyData = [
-  { day: "周一", imported: 45, listed: 38, failed: 7 },
-  { day: "周二", imported: 52, listed: 44, failed: 8 },
-  { day: "周三", imported: 38, listed: 35, failed: 3 },
-  { day: "周四", imported: 67, listed: 55, failed: 12 },
-  { day: "周五", imported: 58, listed: 50, failed: 8 },
-  { day: "周六", imported: 23, listed: 20, failed: 3 },
-  { day: "周日", imported: 15, listed: 12, failed: 3 },
-];
-
-const profitData = [
-  { name: "手机配件", margin: 28.5, volume: 156 },
-  { name: "数码周边", margin: 22.1, volume: 98 },
-  { name: "家居用品", margin: 18.7, volume: 67 },
-  { name: "服装配饰", margin: 15.2, volume: 45 },
-  { name: "运动户外", margin: 24.8, volume: 32 },
-];
+import { reportService, productService, settingService } from "@/services";
 
 export function OverviewPage() {
   const [loading, setLoading] = useState(true);
@@ -62,16 +37,18 @@ export function OverviewPage() {
   const [summary, setSummary] = useState<any>(null);
   const [dailyReport, setDailyReport] = useState<any>(null);
   const [products, setProducts] = useState<any[]>([]);
+  const [exchangeRate, setExchangeRate] = useState<number>(5.0);
   const [refreshing, setRefreshing] = useState(false);
 
   const fetchData = async (showLoading = true) => {
     if (showLoading) setLoading(true);
     setError(null);
     try {
-      const [summaryRes, dailyRes, productsRes] = await Promise.allSettled([
+      const [summaryRes, dailyRes, productsRes, exchangeRes] = await Promise.allSettled([
         reportService.getSummary(),
         reportService.getDaily(),
         productService.getList({ page: 1, size: 10 }),
+        settingService.getExchangeRate(),
       ]);
 
       if (summaryRes.status === "fulfilled") {
@@ -82,6 +59,9 @@ export function OverviewPage() {
       }
       if (productsRes.status === "fulfilled") {
         setProducts(productsRes.value.products || []);
+      }
+      if (exchangeRes.status === "fulfilled") {
+        setExchangeRate(exchangeRes.value.rate || 5.0);
       }
     } catch (err: any) {
       setError(err.message || "加载数据失败");
@@ -110,6 +90,27 @@ export function OverviewPage() {
     (p: any) => p.status === "listed" || p.status === "active"
   ).length;
 
+  // Build weekly trend from products data (last 7 days)
+  const weeklyData = (() => {
+    const days = ["周一", "周二", "周三", "周四", "周五", "周六", "周日"];
+    const now = new Date();
+    return days.map((day, i) => {
+      const date = new Date(now);
+      date.setDate(date.getDate() - ((now.getDay() + 7 - (i + 1)) % 7));
+      const dateStr = date.toISOString().split("T")[0];
+      const dayProducts = products.filter((p: any) => {
+        const created = p.created_at?.split("T")[0];
+        return created === dateStr;
+      });
+      return {
+        day,
+        imported: dayProducts.length,
+        listed: dayProducts.filter((p: any) => p.status === "listed" || p.status === "active").length,
+        failed: dayProducts.filter((p: any) => p.status === "blocked" || p.status === "rejected").length,
+      };
+    });
+  })();
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-[60vh]">
@@ -129,27 +130,29 @@ export function OverviewPage() {
             实时监控商品上架、审核、财务与风控数据
           </p>
         </div>
-        <button
-          onClick={handleRefresh}
-          disabled={refreshing}
-          className="flex items-center gap-2 px-3 py-2 text-sm rounded-md border hover:bg-muted transition-colors"
-        >
-          {refreshing ? (
-            <Loader2 className="h-4 w-4 animate-spin" />
-          ) : (
-            <RefreshCw className="h-4 w-4" />
-          )}
-          刷新
-        </button>
+        <div className="flex items-center gap-3">
+          <Badge variant="outline" className="text-xs">
+            汇率: 1 CNY = {exchangeRate} THB
+          </Badge>
+          <button
+            onClick={handleRefresh}
+            disabled={refreshing}
+            className="flex items-center gap-2 px-3 py-2 text-sm rounded-md border hover:bg-muted transition-colors"
+          >
+            {refreshing ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <RefreshCw className="h-4 w-4" />
+            )}
+            刷新
+          </button>
+        </div>
       </div>
 
       {error && (
         <Card className="border-destructive">
           <CardContent className="pt-4">
             <p className="text-sm text-destructive">⚠️ {error}</p>
-            <p className="text-xs text-muted-foreground mt-1">
-              已回退到模拟数据，请检查后端服务是否正常运行
-            </p>
           </CardContent>
         </Card>
       )}
@@ -164,8 +167,7 @@ export function OverviewPage() {
           <CardContent>
             <div className="text-2xl font-bold">{listedCount}</div>
             <p className="text-xs text-muted-foreground">
-              <span className="text-green-600 font-medium">↑ 12%</span>{" "}
-              较昨日
+              总计 {products.length} 个商品
             </p>
           </CardContent>
         </Card>
@@ -190,10 +192,13 @@ export function OverviewPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {mockFinancialMetrics.totalSales.toLocaleString()} ฿
+              {dailyReport?.statistics?.total_products
+                ? (dailyReport.statistics.total_products * 150).toLocaleString()
+                : "0"}{" "}
+              ฿
             </div>
             <p className="text-xs text-muted-foreground">
-              <TrendingUp className="inline h-3 w-3 text-green-600" /> 本月累计
+              <TrendingUp className="inline h-3 w-3 text-green-600" /> 估算值
             </p>
           </CardContent>
         </Card>
@@ -205,11 +210,16 @@ export function OverviewPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {mockFinancialMetrics.avgProfitMargin}%
+              {products.length > 0
+                ? (products.reduce((sum, p) => sum + (p.profit_margin || 0), 0) / products.length).toFixed(1)
+                : "0"}
+              %
             </div>
             <Progress
-              value={mockFinancialMetrics.avgProfitMargin}
-              className="mt-2"
+              value={products.length > 0
+                ? products.reduce((sum, p) => sum + (p.profit_margin || 0), 0) / products.length
+                : 0}
+              className="mt-2 h-2"
             />
           </CardContent>
         </Card>
@@ -222,7 +232,7 @@ export function OverviewPage() {
           <CardContent>
             <div className="text-2xl font-bold">{blockedProducts}</div>
             <p className="text-xs text-muted-foreground">
-              今日拦截数
+              当前拦截数
             </p>
           </CardContent>
         </Card>
@@ -273,23 +283,32 @@ export function OverviewPage() {
 
         <Card>
           <CardHeader>
-            <CardTitle>类目利润排行</CardTitle>
+            <CardTitle>商品利润率分布</CardTitle>
           </CardHeader>
           <CardContent>
-            <ResponsiveContainer width="100%" height={250}>
-              <BarChart data={profitData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="name" />
-                <YAxis />
-                <Tooltip />
-                <Bar
-                  dataKey="margin"
-                  fill="#8884d8"
-                  name="利润率 %"
-                  radius={[4, 4, 0, 0]}
-                />
-              </BarChart>
-            </ResponsiveContainer>
+            {products.length === 0 ? (
+              <div className="flex items-center justify-center h-[200px] text-muted-foreground text-sm">
+                暂无商品数据
+              </div>
+            ) : (
+              <ResponsiveContainer width="100%" height={250}>
+                <BarChart data={products.slice(0, 10).map((p: any) => ({
+                  name: (p.title_zh || p.titleZh || "").slice(0, 8) + "...",
+                  margin: p.profit_margin || 0,
+                }))}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="name" fontSize={10} />
+                  <YAxis fontSize={10} />
+                  <Tooltip />
+                  <Bar
+                    dataKey="margin"
+                    fill="#8884d8"
+                    name="利润率 %"
+                    radius={[4, 4, 0, 0]}
+                  />
+                </BarChart>
+              </ResponsiveContainer>
+            )}
           </CardContent>
         </Card>
       </div>
@@ -305,19 +324,7 @@ export function OverviewPage() {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
-            <div className="flex items-center justify-between rounded-lg border-l-4 border-amber-500 bg-amber-50 p-3 dark:bg-amber-950/20">
-              <div>
-                <p className="text-sm font-medium">汇率波动告警</p>
-                <p className="text-xs text-muted-foreground">
-                  CNY→THB 波动 2.3%，已暂停自动上架
-                </p>
-              </div>
-              <Badge variant="secondary" className="bg-amber-100 text-amber-800">
-                P0
-              </Badge>
-            </div>
-
-            <div className="flex items-center justify-between rounded-lg border-l-4 border-blue-500 bg-blue-50 p-3 dark:bg-blue-950/20">
+            <div className="flex items-center justify-between rounded-lg border-l-4 border-blue-500 bg-blue-50 p-3">
               <div>
                 <p className="text-sm font-medium">待审核商品</p>
                 <p className="text-xs text-muted-foreground">
@@ -327,14 +334,24 @@ export function OverviewPage() {
               <Badge variant="outline">{pendingAudits}</Badge>
             </div>
 
-            <div className="flex items-center justify-between rounded-lg border-l-4 border-red-500 bg-red-50 p-3 dark:bg-red-950/20">
+            <div className="flex items-center justify-between rounded-lg border-l-4 border-red-500 bg-red-50 p-3">
               <div>
                 <p className="text-sm font-medium">风控拦截</p>
                 <p className="text-xs text-muted-foreground">
-                  今日 {mockRiskLogs.length} 条拦截记录
+                  当前 {blockedProducts} 个商品被拦截
                 </p>
               </div>
-              <Badge variant="destructive">{mockRiskLogs.length}</Badge>
+              <Badge variant="destructive">{blockedProducts}</Badge>
+            </div>
+
+            <div className="flex items-center justify-between rounded-lg border-l-4 border-amber-500 bg-amber-50 p-3">
+              <div>
+                <p className="text-sm font-medium">汇率信息</p>
+                <p className="text-xs text-muted-foreground">
+                  当前 1 CNY = {exchangeRate} THB
+                </p>
+              </div>
+              <Badge variant="secondary">{exchangeRate.toFixed(2)}</Badge>
             </div>
           </CardContent>
         </Card>
@@ -345,48 +362,56 @@ export function OverviewPage() {
             <CardTitle className="flex items-center justify-between">
               最近商品
               <Badge variant="outline" className="text-xs">
-                共 {products.length || mockProducts.length} 条
+                共 {products.length} 条
               </Badge>
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
-              {(products.length > 0 ? products : mockProducts).slice(0, 4).map((product: any) => (
-                <div
-                  key={product.id}
-                  className="flex items-center justify-between rounded-lg border p-3"
-                >
-                  <div className="flex-1">
-                    <p className="text-sm font-medium">
-                      {product.title_zh || product.titleZh}
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      {product.source_platform || product.sourcePlatform === "1688" ? "1688" : "拼多多"} ·{" "}
-                      利润率 {product.profit_margin || product.profitMargin}%
-                    </p>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    {(product.status === "listed" || product.status === "active") && (
-                      <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
-                        <CheckCircle className="mr-1 h-3 w-3" />
-                        已上架
-                      </Badge>
-                    )}
-                    {(product.status === "auditing" || product.status === "pending") && (
-                      <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
-                        <Clock className="mr-1 h-3 w-3" />
-                        审核中
-                      </Badge>
-                    )}
-                    {(product.status === "blocked" || product.risk_status === "block") && (
-                      <Badge variant="outline" className="bg-red-50 text-red-700 border-red-200">
-                        <XCircle className="mr-1 h-3 w-3" />
-                        拦截
-                      </Badge>
-                    )}
-                  </div>
+              {products.length === 0 ? (
+                <div className="flex flex-col items-center justify-center py-8 text-center text-muted-foreground text-sm">
+                  <Package className="h-8 w-8 mb-2 opacity-50" />
+                  <p>暂无商品数据</p>
+                  <p className="text-xs">请先导入商品</p>
                 </div>
-              ))}
+              ) : (
+                products.slice(0, 5).map((product: any) => (
+                  <div
+                    key={product.id}
+                    className="flex items-center justify-between rounded-lg border p-3"
+                  >
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium truncate">
+                        {product.title_zh || product.titleZh}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        {(product.source_platform || product.sourcePlatform || "") === "1688" ? "1688" : "拼多多"} ·{" "}
+                        利润率 {(product.profit_margin || product.profitMargin || 0).toFixed(1)}%
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-2 ml-2 shrink-0">
+                      {(product.status === "listed" || product.status === "active") && (
+                        <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200 text-xs">
+                          <CheckCircle className="mr-1 h-3 w-3" />
+                          已上架
+                        </Badge>
+                      )}
+                      {(product.status === "auditing" || product.status === "pending") && (
+                        <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200 text-xs">
+                          <Clock className="mr-1 h-3 w-3" />
+                          审核中
+                        </Badge>
+                      )}
+                      {(product.status === "blocked" || product.risk_status === "block") && (
+                        <Badge variant="outline" className="bg-red-50 text-red-700 border-red-200 text-xs">
+                          <XCircle className="mr-1 h-3 w-3" />
+                          拦截
+                        </Badge>
+                      )}
+                    </div>
+                  </div>
+                ))
+              )}
             </div>
           </CardContent>
         </Card>

@@ -48,8 +48,8 @@ async def batch_translate(
     current_user: User = Depends(get_current_user_async),
 ):
     """批量翻译"""
-    from worker.tasks import batch_translate_task
-    task = batch_translate_task.delay(product_ids)
+    from worker.tasks import batch_translate
+    task = batch_translate.delay(product_ids)
 
     return {
         "status": "queued",

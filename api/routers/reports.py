@@ -26,7 +26,10 @@ async def get_daily_report(
     async with async_session() as db:
         # 统计今日数据
         from datetime import datetime, timedelta
-        today = datetime.strptime(date, "%Y-%m-%d").date() if date else datetime.now().date()
+        if date:
+            today = datetime.strptime(date, "%Y-%m-%d").date()
+        else:
+            today = datetime.now().date()
         today_start = datetime.combine(today, datetime.min.time())
         tomorrow_start = today_start + timedelta(days=1)
 
@@ -65,7 +68,12 @@ async def get_daily_report(
         success_listings = success_listings.scalar() or 0
 
         # 汇率
-        exchange_rate = 5.0  # 实际应查询实时汇率
+        # 使用实时汇率
+        try:
+            from api.services.exchange import fetch_exchange_rate
+            exchange_rate = fetch_exchange_rate()
+        except Exception:
+            exchange_rate = 5.0
 
     return {
         "report_date": today.isoformat(),
@@ -94,11 +102,16 @@ async def get_finance_report(
         end = datetime.strptime(end_date, "%Y-%m-%d") if end_date else datetime.now()
         start = datetime.strptime(start_date, "%Y-%m-%d")
 
-        # 汇总财务数据
+        # 汇总财务数据（使用实时汇率）
+        try:
+            from api.services.exchange import fetch_exchange_rate
+            rate = fetch_exchange_rate()
+        except Exception:
+            rate = 5.0
         result = await db.execute(
             select(
                 func.sum(Product.price_thb).label("total_revenue"),
-                func.sum(Product.cost_cny * 5).label("total_cost"),  # CNY * 5 = THB
+                func.sum(Product.cost_cny * rate).label("total_cost"),  # 使用实时汇率
                 func.count(Product.id).label("product_count"),
             ).where(
                 Product.created_at >= start,
@@ -123,7 +136,7 @@ async def get_finance_report(
             "total_cost_thb": round(total_cost, 2),
             "gross_profit_thb": round(profit, 2),
             "profit_margin": round((profit / total_revenue * 100) if total_revenue > 0 else 0, 2),
-            "exchange_rate": 5.0,
+            "exchange_rate": rate,
         },
     }
 
@@ -193,8 +206,16 @@ async def get_summary(
         )
         recent_listings = recent_listings_result.scalar() or 0
 
+        # 实时汇率
+        try:
+            from api.services.exchange import get_exchange_rate
+            exchange = get_exchange_rate()
+        except Exception:
+            exchange = {"rate": 5.0, "currency_pair": "CNY/THB", "cached": False}
+
     return {
         "total_products": total_products,
         "pending_review": pending,
         "recent_listings_7d": recent_listings,
+        "exchange_rate": exchange,
     }

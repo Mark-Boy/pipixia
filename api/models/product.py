@@ -2,7 +2,7 @@
 商品模型
 """
 
-from sqlalchemy import Column, Integer, String, Float, JSON, DateTime, ForeignKey
+from sqlalchemy import Column, Integer, String, Float, JSON, DateTime, ForeignKey, text
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from api.database import Base
@@ -20,13 +20,13 @@ class Product(Base):
     description_zh = Column(String(5000), nullable=True)
     description_th = Column(String(5000), nullable=True)
     category_id = Column(Integer, nullable=True)
-    images_oss_keys = Column(JSON, default=list)
+    images_oss_keys = Column(JSON, server_default=text("'[]'::json"))
     price_cny = Column(Float, nullable=False)
     price_thb = Column(Float, nullable=False)
     cost_cny = Column(Float, nullable=False)
     profit_margin = Column(Float, nullable=True)  # 利润率 %
-    risk_status = Column(String(20), default="pending")  # pending / pass / block
-    status = Column(String(20), default="pending")  # pending / auditing / listed / blocked
+    risk_status = Column(String(20), server_default='pending')  # pending / pass / block
+    status = Column(String(20), server_default='pending')  # pending / auditing / listed / blocked
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
 

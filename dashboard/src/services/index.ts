@@ -126,6 +126,14 @@ export const settingService = {
     api.post("/api/v1/settings/risk-words/add", null, {
       params: { word, word_type },
     }),
+  getExchangeRate: (force_refresh = false) =>
+    api.get("/api/v1/settings/exchange-rate", {
+      params: { force_refresh },
+    }),
+  getCircuitBreakerStatus: () =>
+    api.get("/api/v1/settings/circuit-breaker/status"),
+  getRiskLogs: (params?: Record<string, unknown>) =>
+    api.get("/api/v1/settings/risk-logs", { params }),
 };
 
 // ==================== 认证服务 ====================

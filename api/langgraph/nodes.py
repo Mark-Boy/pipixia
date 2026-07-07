@@ -370,7 +370,12 @@ async def node_calculate_finance(state: WorkflowState) -> WorkflowState:
                 state["profit_margin"] = 0
                 return state
 
-            exchange_rate = 5.0  # 实际应查询实时汇率
+            # 使用实时汇率
+            try:
+                from api.services.exchange import fetch_exchange_rate
+                exchange_rate = fetch_exchange_rate()
+            except Exception:
+                exchange_rate = 5.0
             revenue_thb = product.price_thb
             cost_thb = product.cost_cny * exchange_rate
 
