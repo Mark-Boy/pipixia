@@ -35,3 +35,4 @@ class Product(Base):
     listings = relationship("Listing", back_populates="product", cascade="all, delete-orphan")
     translates = relationship("Translate", back_populates="product", cascade="all, delete-orphan")
     risk_logs = relationship("RiskLog", back_populates="product", cascade="all, delete-orphan")
+    variations = relationship("ProductVariation", back_populates="product", cascade="all, delete-orphan")

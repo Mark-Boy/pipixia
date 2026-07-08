@@ -72,3 +72,21 @@ app.include_router(translate.router, prefix="/api/v1", tags=["Translate"])
 
 # Webhook 路由（公开）
 app.include_router(webhooks.router, prefix="/webhook", tags=["Webhooks"])
+
+# Shopee 路由
+from .routers import shopee
+app.include_router(shopee.router, prefix="/api/v1", tags=["Shopee"])
+
+# 启动调度器
+from api.services.scheduler import start_scheduler
+import asyncio
+
+async def init_scheduler():
+    try:
+        start_scheduler()
+    except Exception as e:
+        logger.warning(f"调度器初始化延迟: {e}")
+
+@app.on_event("startup")
+async def startup_event():
+    asyncio.create_task(init_scheduler())

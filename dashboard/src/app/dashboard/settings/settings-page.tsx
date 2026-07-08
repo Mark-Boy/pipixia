@@ -10,6 +10,7 @@ import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Save, Loader2, RefreshCw } from "lucide-react";
 import { settingService } from "@/services";
+import { Badge } from "@/components/ui/badge";
 
 export function SettingsPage() {
   const [loading, setLoading] = useState(false);

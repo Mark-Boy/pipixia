@@ -26,4 +26,5 @@ class Shop(Base):
     owner = relationship("User", back_populates="shops")
     products = relationship("Product", back_populates="shop", cascade="all, delete-orphan")
     listings = relationship("Listing", back_populates="shop", cascade="all, delete-orphan")
+    variations = relationship("ProductVariation", back_populates="product", cascade="all, delete-orphan")
     profit_calibrations = relationship("ProfitCalibration", back_populates="shop", cascade="all, delete-orphan")
