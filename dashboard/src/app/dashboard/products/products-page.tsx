@@ -46,6 +46,7 @@ import {
   Link as LinkIcon,
   Sparkles,
   AlertTriangle,
+  ShoppingBag,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -53,10 +54,12 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useRouter } from "next/navigation";
 import { productService, shopService } from "@/services";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export function ProductsPage() {
+  const router = useRouter();
   const [search, setSearch] = useState("");
   const [platform, setPlatform] = useState("all");
   const [status, setStatus] = useState("all");
@@ -193,6 +196,10 @@ export function ProductsPage() {
               <DropdownMenuItem onClick={() => setImportDialogOpen(true)}>
                 <LinkIcon className="mr-2 h-4 w-4" />
                 粘贴 1688/拼多多 链接
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => router.push("/dashboard/products/pinduoduo-crawler")}>
+                <ShoppingBag className="mr-2 h-4 w-4 text-red-500" />
+                拼多多商品采集器
               </DropdownMenuItem>
               <DropdownMenuItem>📁 CSV 批量导入</DropdownMenuItem>
               <DropdownMenuItem>🔗 Shopee 热销品采集</DropdownMenuItem>
