@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Save, Loader2, RefreshCw, AlertTriangle } from "lucide-react";
+import { Save, Loader2, RefreshCw, AlertTriangle, Globe } from "lucide-react";
 import { settingService } from "@/services";
 import { toast } from "sonner";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -24,6 +24,19 @@ export function SettingsPage() {
   });
   const [newWord, setNewWord] = useState("");
   const [wordType, setWordType] = useState<"brand" | "prohibited">("brand");
+  const [exchangeRate, setExchangeRate] = useState<number>(5.0);
+  const [rateSource, setRateSource] = useState<string>("缓存");
+  const [refreshingRate, setRefreshingRate] = useState(false);
+
+  const fetchExchangeRate = async () => {
+    try {
+      const data = await settingService.getExchangeRate();
+      setExchangeRate((data as any)?.rate || 5.0);
+      setRateSource((data as any)?.cached ? "已缓存" : "实时");
+    } catch (err: any) {
+      console.error("Failed to fetch exchange rate:", err);
+    }
+  };
 
   const fetchRiskWords = async () => {
     setLoading(true);
@@ -39,6 +52,7 @@ export function SettingsPage() {
 
   useEffect(() => {
     fetchRiskWords();
+    fetchExchangeRate();
   }, []);
 
   if (loading) {
@@ -126,13 +140,43 @@ export function SettingsPage() {
             <CardHeader>
               <CardTitle>汇率管理</CardTitle>
               <CardDescription>
-                CNY → THB 汇率每日自动更新
+                CNY → THB 汇率每日自动更新，缓存 TTL 1 小时
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid gap-2">
                 <Label>当前汇率 (CNY→THB)</Label>
-                <Input type="number" defaultValue="4.95" />
+                <div className="flex items-center gap-2">
+                  <Input
+                    type="number"
+                    value={exchangeRate.toFixed(4)}
+                    readOnly
+                    className="font-mono"
+                  />
+                  <Badge variant="outline" className="shrink-0">
+                    {rateSource}
+                  </Badge>
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={async () => {
+                      setRefreshingRate(true);
+                      try {
+                        await settingService.getExchangeRate(true);
+                        fetchExchangeRate();
+                        toast.success("汇率已刷新");
+                      } catch (err: any) {
+                        toast.error("刷新汇率失败");
+                      } finally {
+                        setRefreshingRate(false);
+                      }
+                    }}
+                    disabled={refreshingRate}
+                    title="强制刷新汇率"
+                  >
+                    {refreshingRate ? <Loader2 className="h-4 w-4 animate-spin" /> : <Globe className="h-4 w-4" />}
+                  </Button>
+                </div>
               </div>
               <div className="grid gap-2">
                 <Label>波动告警阈值 (%)</Label>
