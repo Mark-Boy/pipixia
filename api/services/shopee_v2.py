@@ -61,6 +61,7 @@ class ShopeeV2Client:
         "shopee_vn": {"sandbox_url": "https://partner.test-stable.shopee.com/api/v2", "live_url": "https://partner.shopeemobile.com/api/v2", "market_id": 1, "currency": "VND"},
         "shopee_sg": {"sandbox_url": "https://partner.test-stable.shopee.com/api/v2", "live_url": "https://partner.shopeemobile.com/api/v2", "market_id": 2, "currency": "SGD"},
         "shopee_my": {"sandbox_url": "https://partner.test-stable.shopee.com/api/v2", "live_url": "https://partner.shopeemobile.com/api/v2", "market_id": 3, "currency": "MYR"},
+        "shopee_id": {"sandbox_url": "https://partner.test-stable.shopee.com/api/v2", "live_url": "https://partner.shopeemobile.com/api/v2", "market_id": 12420, "currency": "IDR"},
         "shopee_ph": {"sandbox_url": "https://partner.test-stable.shopee.com/api/v2", "live_url": "https://partner.shopeemobile.com/api/v2", "market_id": 6, "currency": "PHP"},
     }
 

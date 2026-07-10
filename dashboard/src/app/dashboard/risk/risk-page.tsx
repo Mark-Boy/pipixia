@@ -18,8 +18,10 @@ import {
   RefreshCw,
   Loader2,
   Download,
+  AlertTriangle,
 } from "lucide-react";
 import { settingService } from "@/services";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export function RiskPage() {
   const [loading, setLoading] = useState(true);
@@ -45,15 +47,17 @@ export function RiskPage() {
       ]);
 
       if (logsRes.status === "fulfilled") {
-        setLogs(logsRes.value.logs || []);
-        setTotal(logsRes.value.total || 0);
+        setLogs((logsRes.value as any)?.logs || []);
+        setTotal((logsRes.value as any)?.total || 0);
       }
       if (circuitRes.status === "fulfilled") {
-        setCircuitStatus(circuitRes.value);
+        setCircuitStatus(circuitRes.value as any);
       }
     } catch (err: any) {
-      console.error("Failed to fetch risk data:", err);
-      setError("无法加载风控数据");
+      const msg = err?.message || "未知错误";
+      if (!(msg.includes("Network") || msg.includes("timeout"))) {
+        setError("无法加载风控数据");
+      }
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -118,8 +122,15 @@ export function RiskPage() {
 
       {error && (
         <Card className="border-destructive">
-          <CardContent className="pt-4">
-            <p className="text-sm text-destructive">⚠️ {error}</p>
+          <CardContent className="pt-4 space-y-3">
+            <div className="flex items-center gap-2 text-sm text-destructive">
+              <AlertTriangle className="h-4 w-4" />
+              <span>{error}</span>
+            </div>
+            <Button variant="outline" size="sm" onClick={handleRefresh} disabled={refreshing}>
+              {refreshing ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+              重试
+            </Button>
           </CardContent>
         </Card>
       )}

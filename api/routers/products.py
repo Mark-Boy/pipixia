@@ -140,9 +140,11 @@ async def import_product(
 
         # 汇率转换（使用实时汇率）
         try:
-            from api.services.exchange import convert_cny_to_thb
+            from api.services.exchange import convert_cny_to_thb, fetch_exchange_rate
+            exchange_rate = fetch_exchange_rate()
             price_thb = convert_cny_to_thb(product_info.price_cny) if product_info.price_cny else None
         except Exception:
+            exchange_rate = 5.0
             price_thb = round(product_info.price_cny * 5.0, 2) if product_info.price_cny else None
         cost_cny = product_info.cost_cny or product_info.price_cny
         cost_thb = cost_cny * exchange_rate if cost_cny else None
@@ -318,9 +320,11 @@ async def create_product(
 
         # 汇率转换（使用实时汇率）
         try:
-            from api.services.exchange import convert_cny_to_thb
+            from api.services.exchange import convert_cny_to_thb, fetch_exchange_rate
+            exchange_rate = fetch_exchange_rate()
             price_thb = convert_cny_to_thb(data.price_cny)
         except Exception:
+            exchange_rate = 5.0
             price_thb = round(data.price_cny * 5.0, 2)
         cost_thb = data.cost_cny * exchange_rate
 

@@ -8,13 +8,16 @@ import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Save, Loader2, RefreshCw } from "lucide-react";
+import { Save, Loader2, RefreshCw, AlertTriangle } from "lucide-react";
 import { settingService } from "@/services";
+import { toast } from "sonner";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 
 export function SettingsPage() {
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [riskWords, setRiskWords] = useState<{ brand_keywords: string[]; prohibited_words: string[] }>({
     brand_keywords: [],
     prohibited_words: [],
@@ -26,7 +29,7 @@ export function SettingsPage() {
     setLoading(true);
     try {
       const data = await settingService.getRiskWords();
-      setRiskWords(data);
+      setRiskWords(data as any);
     } catch (err: any) {
       console.error("Failed to fetch risk words:", err);
     } finally {
@@ -38,6 +41,21 @@ export function SettingsPage() {
     fetchRiskWords();
   }, []);
 
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <Skeleton className="h-8 w-40" />
+        <Skeleton className="h-4 w-64" />
+        <Skeleton className="h-10 w-96" />
+        <div className="grid gap-4">
+          {Array.from({ length: 3 }).map((_, i) => (
+            <Skeleton key={i} className="h-[250px] w-full" />
+          ))}
+        </div>
+      </div>
+    );
+  }
+
   const handleAddWord = async () => {
     if (!newWord.trim()) return;
     setSaving(true);
@@ -45,8 +63,8 @@ export function SettingsPage() {
       await settingService.addRiskWord(newWord.trim(), wordType);
       setNewWord("");
       fetchRiskWords();
-    } catch (err: any) {
-      alert("添加失败: " + (err.message || "未知错误"));
+    } catch (err: unknown) {
+      toast.error("添加失败");
     } finally {
       setSaving(false);
     }

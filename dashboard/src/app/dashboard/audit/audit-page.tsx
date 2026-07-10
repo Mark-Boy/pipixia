@@ -16,6 +16,8 @@ import {
 } from "@/components/ui/table";
 import { CheckCircle, XCircle, Loader2, RefreshCw } from "lucide-react";
 import { auditService, productService } from "@/services";
+import { Skeleton } from "@/components/ui/skeleton";
+import { toast } from "sonner";
 
 export function AuditPage() {
   const [mode, setMode] = useState<"manual" | "auto">("manual");
@@ -41,16 +43,18 @@ export function AuditPage() {
       ]);
 
       const approved = approvedRes.status === "fulfilled"
-        ? approvedRes.value?.items?.length || 0
+        ? ((approvedRes.value as any)?.items?.length ?? 0)
         : 0;
       const rejected = rejectedRes.status === "fulfilled"
-        ? rejectedRes.value?.items?.length || 0
+        ? ((rejectedRes.value as any)?.items?.length ?? 0)
         : 0;
 
       setStats({ pending: items.length, approved, rejected });
     } catch (err: any) {
-      console.error("Failed to fetch audits:", err);
-      setError("无法加载审核队列");
+      const msg = err?.message || "未知错误";
+      if (!(msg.includes("Network") || msg.includes("timeout"))) {
+        setError("无法加载审核队列");
+      }
       setAudits([]);
     } finally {
       setLoading(false);
@@ -74,7 +78,7 @@ export function AuditPage() {
       setStats((s) => ({ ...s, pending: s.pending - 1, approved: s.approved + 1 }));
       setComment("");
     } catch (err: any) {
-      alert("审核通过失败: " + (err.message || "未知错误"));
+      toast.error("审核通过失败");
     }
   };
 
@@ -89,7 +93,7 @@ export function AuditPage() {
       setStats((s) => ({ ...s, pending: s.pending - 1, rejected: s.rejected + 1 }));
       setComment("");
     } catch (err: any) {
-      alert("审核拒绝失败: " + (err.message || "未知错误"));
+      toast.error("审核拒绝失败");
     }
   };
 
@@ -98,7 +102,7 @@ export function AuditPage() {
       await auditService.triggerList(id);
       setAudits((prev) => prev.filter((a) => a.id !== id));
     } catch (err: any) {
-      alert("上架失败: " + (err.message || "未知错误"));
+      toast.error("上架失败");
     }
   };
 
@@ -197,8 +201,12 @@ export function AuditPage() {
 
       {error && (
         <Card className="border-destructive">
-          <CardContent className="pt-4">
+          <CardContent className="pt-4 space-y-3">
             <p className="text-sm text-destructive">⚠️ {error}</p>
+            <Button variant="outline" size="sm" onClick={handleRefresh} disabled={refreshing}>
+              {refreshing ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+              重试
+            </Button>
           </CardContent>
         </Card>
       )}

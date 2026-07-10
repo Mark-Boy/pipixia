@@ -30,9 +30,15 @@ api.interceptors.response.use(
     } else if (status === 403) {
       toast.error("权限不足: " + message);
     } else if (status >= 500) {
-      toast.error("服务器错误: " + message);
+      toast.error("服务器错误，请稍后重试");
+    } else if (status === 404) {
+      toast.error("请求的资源不存在");
+    } else if (error.code === "ECONNABORTED" || error.message?.includes("timeout")) {
+      toast.error("请求超时，请检查网络连接");
+    } else if (error.code === "ERR_NETWORK") {
+      toast.error("无法连接后端服务，请确认 API 地址正确");
     } else {
-      toast.error(message);
+      toast.error(message || "请求失败");
     }
 
     return Promise.reject(error);

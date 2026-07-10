@@ -1,6 +1,7 @@
 export * from "./api";
 
 import { api } from "@/services/api";
+import axios from "axios";
 
 // ==================== 商品服务 ====================
 export const productService = {
@@ -49,6 +50,7 @@ export const shopService = {
   delete: (id: number) => api.delete(`/api/v1/shops/${id}`),
   getToken: (id: number) =>
     api.get(`/api/v1/shops/${id}/token`),
+  getPlatforms: () => api.get("/api/v1/shops/platforms"),
 };
 
 // ==================== 上架服务 ====================

@@ -5,6 +5,15 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
+import { toast } from "sonner";
 import {
   Table,
   TableBody,
@@ -31,6 +40,12 @@ import {
   Trash2,
   Loader2,
   RefreshCw,
+  Package,
+  ExternalLink,
+  Store as StoreIcon,
+  Link as LinkIcon,
+  Sparkles,
+  AlertTriangle,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -38,7 +53,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { productService } from "@/services";
+import { productService, shopService } from "@/services";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export function ProductsPage() {
   const [search, setSearch] = useState("");
@@ -48,6 +64,10 @@ export function ProductsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState(false);
+  const [shops, setShops] = useState<Record<string, unknown>[]>([]);
+  const [shopsLoading, setShopsLoading] = useState(false);
+  const [importDialogOpen, setImportDialogOpen] = useState(false);
+  const [importLoading, setImportLoading] = useState(false);
 
   const fetchProducts = async (showLoading = true) => {
     if (showLoading) setLoading(true);
@@ -58,10 +78,12 @@ export function ProductsPage() {
       if (status !== "all") params.status = status;
       
       const res = await productService.getList(params);
-      setProducts(res.products || []);
+      setProducts((res as any)?.products || []);
     } catch (err: any) {
-      console.error("Failed to fetch products:", err);
-      setError("无法连接后端 API");
+      const msg = err?.message || "未知错误";
+      if (!(msg.includes("Network") || msg.includes("timeout"))) {
+        setError("无法连接后端 API，请确认服务已启动");
+      }
       setProducts([]);
     } finally {
       setLoading(false);
@@ -77,6 +99,51 @@ export function ProductsPage() {
     setRefreshing(true);
     fetchProducts(false);
   };
+
+  const fetchShops = async () => {
+    setShopsLoading(true);
+    try {
+      const res = await shopService.getList({ page: 1, size: 50 });
+      setShops((res as any)?.shops || (res as any)?.items || []);
+    } catch (err: any) {
+      console.error("Failed to fetch shops:", err);
+    } finally {
+      setShopsLoading(false);
+    }
+  };
+
+  const [importForm, setImportForm] = useState({
+    url: "",
+    shopId: "",
+  });
+
+  const handleImportByUrl = async () => {
+    if (!importForm.url.trim()) {
+      toast.error("请输入商品链接");
+      return;
+    }
+    if (!importForm.shopId) {
+      toast.error("请选择目标店铺");
+      return;
+    }
+    setImportLoading(true);
+    try {
+      const res = await productService.importByUrl(importForm.url, parseInt(importForm.shopId));
+      toast.success("商品导入成功");
+      setImportDialogOpen(false);
+      setImportForm({ url: "", shopId: "" });
+      fetchProducts(false);
+    } catch (err: any) {
+      toast.error(err.response?.data?.detail || err.message || "导入失败，请检查网络连接");
+    } finally {
+      setImportLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchProducts();
+    fetchShops();
+  }, []);
 
   const filteredProducts = products.filter((p) => {
     const titleZh = p.title_zh || p.titleZh || "";
@@ -123,19 +190,105 @@ export function ProductsPage() {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent>
-              <DropdownMenuItem>📋 粘贴 1688 链接</DropdownMenuItem>
-              <DropdownMenuItem>📋 粘贴 拼多多 链接</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setImportDialogOpen(true)}>
+                <LinkIcon className="mr-2 h-4 w-4" />
+                粘贴 1688/拼多多 链接
+              </DropdownMenuItem>
               <DropdownMenuItem>📁 CSV 批量导入</DropdownMenuItem>
               <DropdownMenuItem>🔗 Shopee 热销品采集</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
+
+          {/* Import Dialog */}
+          <Dialog open={importDialogOpen} onOpenChange={setImportDialogOpen}>
+            <DialogContent className="sm:max-w-md">
+              <DialogHeader>
+                <DialogTitle className="flex items-center gap-2">
+                  <Sparkles className="h-5 w-5 text-primary" />
+                  导入商品
+                </DialogTitle>
+                <DialogDescription>
+                  粘贴商品链接并选择目标店铺，系统将自动抓取商品信息
+                </DialogDescription>
+              </DialogHeader>
+              <div className="space-y-4 py-4">
+                {/* Shop Selection */}
+                <div className="space-y-2">
+                  <Label htmlFor="shopId">选择店铺</Label>
+                  {shopsLoading ? (
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      加载中...
+                    </div>
+                  ) : shops.length === 0 ? (
+                    <div className="text-sm text-muted-foreground p-3 border rounded-md bg-muted/50">
+                      <StoreIcon className="h-4 w-4 inline-block mr-2" />
+                      暂无可用店铺
+                    </div>
+                  ) : (
+                    <Select value={importForm.shopId} onValueChange={(v) => setImportForm({ ...importForm, shopId: v })}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="选择目标店铺" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {shops.map((shop: any) => (
+                          <SelectItem key={shop.id} value={String(shop.id)}>
+                            {shop.shop_name || shop.name || `店铺 #${shop.id}`}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  )}
+                </div>
+                {/* URL Input */}
+                <div className="space-y-2">
+                  <Label htmlFor="productUrl">商品链接</Label>
+                  <Input
+                    id="productUrl"
+                    placeholder="粘贴 1688 或拼多多商品链接"
+                    value={importForm.url}
+                    onChange={(e) => setImportForm({ ...importForm, url: e.target.value })}
+                    disabled={importLoading || shops.length === 0}
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    支持 1688、拼多多商品详情页链接
+                  </p>
+                </div>
+                {/* Submit */}
+                <Button
+                  onClick={handleImportByUrl}
+                  disabled={importLoading || !importForm.url.trim() || !importForm.shopId || shops.length === 0}
+                  className="w-full"
+                >
+                  {importLoading ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      正在导入...
+                    </>
+                  ) : (
+                    <>
+                      <ExternalLink className="mr-2 h-4 w-4" />
+                      开始导入
+                    </>
+                  )}
+                </Button>
+              </div>
+            </DialogContent>
+          </Dialog>
         </div>
       </div>
 
       {error && (
         <Card className="border-destructive">
-          <CardContent className="pt-4">
-            <p className="text-sm text-destructive">⚠️ {error}</p>
+          <CardContent className="pt-4 space-y-3">
+            <div className="flex items-center gap-2 text-sm text-destructive">
+              <AlertTriangle className="h-4 w-4" />
+              <span>{error}</span>
+            </div>
+            <Button variant="outline" size="sm" onClick={handleRefresh} disabled={refreshing}>
+              {refreshing ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+              重试
+            </Button>
           </CardContent>
         </Card>
       )}

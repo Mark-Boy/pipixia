@@ -18,6 +18,24 @@ from api.models.user import User
 router = APIRouter(prefix="/shops", tags=["Shops"])
 
 
+@router.get("/platforms")
+async def get_supported_platforms():
+    """获取支持的 Shopee 平台列表"""
+    from api.services.shopee_v2 import ShopeeV2Client
+    
+    platforms = []
+    for key, cfg in ShopeeV2Client.MARKET_CONFIG.items():
+        platforms.append({
+            "id": key,
+            "name": cfg["currency"],
+            "market_id": cfg["market_id"],
+            "sandbox_url": cfg["sandbox_url"],
+            "live_url": cfg["live_url"],
+        })
+    
+    return {"platforms": platforms}
+
+
 @router.get("", response_model=dict)
 async def get_shops(
     page: int = Query(1, ge=1),

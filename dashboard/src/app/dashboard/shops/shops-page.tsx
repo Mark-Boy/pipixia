@@ -23,8 +23,11 @@ import {
   Trash2,
   Eye,
   EyeOff,
+  AlertTriangle,
 } from "lucide-react";
 import { shopService } from "@/services";
+import { Skeleton } from "@/components/ui/skeleton";
+import { toast } from "sonner";
 
 interface Shop {
   id: number;
@@ -39,6 +42,7 @@ interface Shop {
 
 export function ShopsPage() {
   const [shops, setShops] = useState<Shop[]>([]);
+  const [platforms, setPlatforms] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -60,18 +64,38 @@ export function ShopsPage() {
         page: 1,
         size: 50,
       });
-      setShops(res || []);
+      setShops(Array.isArray(res) ? res : ((res as any)?.shops || (res as any)?.items || []));
     } catch (err: any) {
-      console.error("Failed to fetch shops:", err);
-      setError("无法加载店铺列表");
+      const msg = err?.message || "未知错误";
+      if (!(msg.includes("Network") || msg.includes("timeout"))) {
+        setError("无法加载店铺列表");
+      }
       setShops([]);
     } finally {
       setLoading(false);
     }
   };
 
+  const fetchPlatforms = async () => {
+    try {
+      const res = await shopService.getPlatforms();
+      setPlatforms((res as any)?.platforms || []);
+    } catch (err: any) {
+      console.error("Failed to fetch platforms:", err);
+      setPlatforms([
+        { id: "shopee_th", name: "THB", market_id: 146 },
+        { id: "shopee_vn", name: "VND", market_id: 1 },
+        { id: "shopee_sg", name: "SGD", market_id: 2 },
+        { id: "shopee_my", name: "MYR", market_id: 3 },
+        { id: "shopee_id", name: "IDR", market_id: 12420 },
+        { id: "shopee_ph", name: "PHP", market_id: 6 },
+      ]);
+    }
+  };
+
   useEffect(() => {
     fetchShops();
+    fetchPlatforms();
   }, []);
 
   const handleCreate = async () => {
@@ -80,12 +104,12 @@ export function ShopsPage() {
       await shopService.create({
         ...formData,
         config: JSON.parse(formData.config || "{}"),
-      }, `Bearer ${token}`);
+      });
       setDialogOpen(false);
       setFormData({ shop_name: "", platform: "shopee_th", shop_token: "", config: "{}" });
       fetchShops();
     } catch (err: any) {
-      alert("创建店铺失败: " + (err.message || "未知错误"));
+      toast.error("创建店铺失败");
     }
   };
 
@@ -93,10 +117,10 @@ export function ShopsPage() {
     if (!confirm("确定要删除这个店铺吗？")) return;
     try {
       const token = localStorage.getItem("access_token");
-      await shopService.delete(id, `Bearer ${token}`);
+      await shopService.delete(id);
       fetchShops();
     } catch (err: any) {
-      alert("删除失败: " + (err.message || "未知错误"));
+      toast.error("删除失败");
     }
   };
 
@@ -147,9 +171,11 @@ export function ShopsPage() {
                     value={formData.platform}
                     onChange={(e) => setFormData({ ...formData, platform: e.target.value })}
                   >
-                    <option value="shopee_th">Shopee Thailand</option>
-                    <option value="shopee_vn">Shopee Vietnam</option>
-                    <option value="shopee_ph">Shopee Philippines</option>
+                    {platforms.map((p: any) => (
+                      <option key={p.id} value={p.id}>
+                        {p.name} - {p.id.replace("shopee_", "").toUpperCase()}
+                      </option>
+                    ))}
                   </select>
                 </div>
                 <div className="space-y-2">
@@ -183,11 +209,18 @@ export function ShopsPage() {
 
       {error && (
         <Card className="border-destructive">
-          <CardContent className="pt-4">
-            <p className="text-sm text-destructive">⚠️ {error}</p>
-            <p className="text-xs text-muted-foreground mt-1">
+          <CardContent className="pt-4 space-y-3">
+            <div className="flex items-center gap-2 text-sm text-destructive">
+              <AlertTriangle className="h-4 w-4" />
+              <span>{error}</span>
+            </div>
+            <p className="text-xs text-muted-foreground">
               请确保后端 API 服务正在运行（http://localhost:8000）
             </p>
+            <Button variant="outline" size="sm" onClick={fetchShops}>
+              <RefreshCw className="mr-2 h-4 w-4" />
+              重试
+            </Button>
           </CardContent>
         </Card>
       )}

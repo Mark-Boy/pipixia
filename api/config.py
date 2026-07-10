@@ -36,8 +36,12 @@ class Settings(BaseSettings):
     # Shopee
     SHOPEE_APP_KEY: str = "your_app_key_here"
     SHOPEE_SECRET: str = "your_secret_here"
-    SHOPEE_MARKET_ID: int = 146
+    SHOPEE_MARKET_ID: int = 146  # Default: Thailand
     SHOPEE_SIGNATURE_ENABLED: bool = False
+    SHOPEE_SUPPORTED_MARKETS: list[str] = [  # All supported Shopee markets
+        "shopee_th", "shopee_vn", "shopee_sg",
+        "shopee_my", "shopee_id", "shopee_ph",
+    ]
 
     # Telegram
     TELEGRAM_BOT_TOKEN: str = ""

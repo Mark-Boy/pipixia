@@ -12,8 +12,10 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { RefreshCw, CheckCircle, XCircle, Clock, Loader2 } from "lucide-react";
+import { RefreshCw, CheckCircle, XCircle, Clock, Loader2, AlertTriangle } from "lucide-react";
 import { listingService } from "@/services";
+import { Skeleton } from "@/components/ui/skeleton";
+import { toast } from "sonner";
 
 export function ListingsPage() {
   const [listings, setListings] = useState<any[]>([]);
@@ -32,8 +34,10 @@ export function ListingsPage() {
       });
       setListings(Array.isArray(res) ? res : []);
     } catch (err: any) {
-      console.error("Failed to fetch listings:", err);
-      setError("无法加载上架记录");
+      const msg = err?.message || "未知错误";
+      if (!(msg.includes("Network") || msg.includes("timeout"))) {
+        setError("无法加载上架记录");
+      }
       setListings([]);
     } finally {
       setLoading(false);
@@ -49,7 +53,7 @@ export function ListingsPage() {
       await listingService.retry(Number(id));
       fetchListings();
     } catch (err: any) {
-      alert("重试失败: " + (err.message || "未知错误"));
+      toast.error("重试失败");
     }
   };
 
@@ -70,16 +74,35 @@ export function ListingsPage() {
 
       {error && (
         <Card className="border-destructive">
-          <CardContent className="pt-4">
-            <p className="text-sm text-destructive">⚠️ {error}</p>
+          <CardContent className="pt-4 space-y-3">
+            <div className="flex items-center gap-2 text-sm text-destructive">
+              <AlertTriangle className="h-4 w-4" />
+              <span>{error}</span>
+            </div>
+            <Button variant="outline" size="sm" onClick={fetchListings}>
+              <RefreshCw className="mr-2 h-4 w-4" />
+              重试
+            </Button>
           </CardContent>
         </Card>
       )}
 
       {loading ? (
-        <div className="flex items-center justify-center py-12">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
-          <span className="ml-3 text-muted-foreground">加载中...</span>
+        <div className="space-y-4">
+          <Skeleton className="h-9 w-48" />
+          <Card>
+            <CardHeader><Skeleton className="h-5 w-32" /></CardHeader>
+            <CardContent className="space-y-3">
+              {Array.from({ length: 5 }).map((_, i) => (
+                <div key={i} className="flex gap-4">
+                  <Skeleton className="h-10 flex-1" />
+                  <Skeleton className="h-10 w-20" />
+                  <Skeleton className="h-10 w-16" />
+                  <Skeleton className="h-10 w-16" />
+                </div>
+              ))}
+            </CardContent>
+          </Card>
         </div>
       ) : (
         <Card>

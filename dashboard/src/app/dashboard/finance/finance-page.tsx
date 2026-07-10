@@ -18,7 +18,8 @@ import {
   Legend,
 } from "recharts";
 import { reportService, settingService } from "@/services";
-import { Loader2, RefreshCw, TrendingUp, TrendingDown } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Loader2, RefreshCw, TrendingUp, TrendingDown, AlertTriangle } from "lucide-react";
 
 export function FinancePage() {
   const [financeData, setFinanceData] = useState<any>(null);
@@ -39,17 +40,19 @@ export function FinancePage() {
       ]);
 
       if (financeRes.status === "fulfilled") {
-        setFinanceData(financeRes.value);
+        setFinanceData(financeRes.value as any);
       }
       if (circuitRes.status === "fulfilled") {
-        setCircuitStatus(circuitRes.value);
+        setCircuitStatus(circuitRes.value as any);
       }
       if (exchangeRes.status === "fulfilled") {
-        setExchangeRate(exchangeRes.value.rate || 5.0);
+        setExchangeRate(((exchangeRes.value as any)?.rate as number) || 5.0);
       }
     } catch (err: any) {
-      console.error("Failed to fetch finance data:", err);
-      setError("无法加载财务数据");
+      const msg = err?.message || "未知错误";
+      if (!(msg.includes("Network") || msg.includes("timeout"))) {
+        setError("无法加载财务数据");
+      }
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -119,8 +122,15 @@ export function FinancePage() {
 
       {error && (
         <Card className="border-destructive">
-          <CardContent className="pt-4">
-            <p className="text-sm text-destructive">⚠️ {error}</p>
+          <CardContent className="pt-4 space-y-3">
+            <div className="flex items-center gap-2 text-sm text-destructive">
+              <AlertTriangle className="h-4 w-4" />
+              <span>{error}</span>
+            </div>
+            <Button variant="outline" size="sm" onClick={handleRefresh} disabled={refreshing}>
+              {refreshing ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+              重试
+            </Button>
           </CardContent>
         </Card>
       )}

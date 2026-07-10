@@ -30,6 +30,7 @@ import {
   Legend,
 } from "recharts";
 import { reportService, productService, settingService } from "@/services";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export function OverviewPage() {
   const [loading, setLoading] = useState(true);
@@ -52,16 +53,16 @@ export function OverviewPage() {
       ]);
 
       if (summaryRes.status === "fulfilled") {
-        setSummary(summaryRes.value);
+        setSummary(summaryRes.value as any);
       }
       if (dailyRes.status === "fulfilled") {
-        setDailyReport(dailyRes.value);
+        setDailyReport(dailyRes.value as any);
       }
       if (productsRes.status === "fulfilled") {
-        setProducts(productsRes.value.products || []);
+        setProducts(((productsRes.value as any)?.products) as any || []);
       }
       if (exchangeRes.status === "fulfilled") {
-        setExchangeRate(exchangeRes.value.rate || 5.0);
+        setExchangeRate(((exchangeRes.value as any)?.rate as number) || 5.0);
       }
     } catch (err: any) {
       setError(err.message || "加载数据失败");
@@ -113,9 +114,33 @@ export function OverviewPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-[60vh]">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-        <span className="ml-3 text-muted-foreground">加载中...</span>
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <div className="space-y-2">
+            <Skeleton className="h-8 w-40" />
+            <Skeleton className="h-4 w-64" />
+          </div>
+          <Skeleton className="h-9 w-20" />
+        </div>
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
+          {Array.from({ length: 5 }).map((_, i) => (
+            <Card key={i}>
+              <CardContent className="pt-6 space-y-2">
+                <Skeleton className="h-4 w-20" />
+                <Skeleton className="h-7 w-16" />
+                <Skeleton className="h-3 w-24" />
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+        <div className="grid gap-4 md:grid-cols-2">
+          <Card><CardContent className="pt-6"><Skeleton className="h-[250px] w-full" /></CardContent></Card>
+          <Card><CardContent className="pt-6"><Skeleton className="h-[250px] w-full" /></CardContent></Card>
+        </div>
+        <div className="grid gap-4 md:grid-cols-2">
+          <Card><CardContent className="pt-6"><Skeleton className="h-[200px] w-full" /></CardContent></Card>
+          <Card><CardContent className="pt-6"><Skeleton className="h-[200px] w-full" /></CardContent></Card>
+        </div>
       </div>
     );
   }

@@ -21,7 +21,7 @@ from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from api.database import async_session, get_db_async
+from api.database import async_session, get_db
 from api.models.shop import Shop
 from api.models.product import Product
 from api.models.listing import Listing

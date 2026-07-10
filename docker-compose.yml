@@ -44,7 +44,7 @@ services:
     container_name: pipixia-minio
     restart: unless-stopped
     ports:
-      - "9010:9000"
+      - "9000:9000"
       - "9011:9001"
     environment:
       MINIO_ROOT_USER: minioadmin
@@ -85,7 +85,7 @@ services:
     container_name: pipixia-api
     restart: unless-stopped
     ports:
-      - "9080:8000"
+      - "8081:8000"
     env_file:
       - .env
     environment:
@@ -134,8 +134,33 @@ services:
         condition: service_healthy
     volumes:
       - ./worker:/app
+      - ./api:/app/api
       - ./config:/app/config
     command: celery -A celery_app worker --loglevel=info --concurrency=4
+    networks:
+      - pipixia-net
+
+  # ===================== Celery Beat (定时任务调度器) =====================
+  beat:
+    build:
+      context: ./worker
+      dockerfile: Dockerfile
+    container_name: pipixia-beat
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: postgresql+asyncpg://pipixia:pipixia_secret@postgres:5432/pipixia
+      REDIS_URL: redis://redis:6379/0
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./worker:/app
+      - ./api:/app/api
+    command: celery -A celery_app beat --loglevel=info
     networks:
       - pipixia-net
 
@@ -147,7 +172,7 @@ services:
     container_name: pipixia-dashboard
     restart: unless-stopped
     ports:
-      - "9000:9000"
+      - "3000:9000"
     env_file:
       - ./dashboard/.env.local
     depends_on:

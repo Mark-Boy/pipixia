@@ -21,8 +21,9 @@ celery_app.config_from_object({
     "task_always_eager": True,  # 开发模式：直接执行任务
     "task_store_eager_result": True,  # 保存任务结果
     "task_routes": {
-        "worker.tasks.*": {"queue": "tasks"},
+        "tasks.*": {"queue": "tasks"},
     },
+    "include": ["tasks"],  # 容器内 worker/ 目录即 /app，直接导入 tasks 模块
     "beat_schedule": {
         "daily-profit-report": {
             "task": "worker.tasks.generate_daily_report",
@@ -47,6 +48,10 @@ celery_app.config_from_object({
     },
 })
 
-# 自动发现所有 tasks 模块
-# 注意：容器内使用空列表，因为 worker 目录即 /app 根目录
-celery_app.autodiscover_tasks([])
+# 确保 tasks 模块被导入（容器内 /app/ 下有 tasks.py）
+import sys
+sys.path.insert(0, ".")
+try:
+    import tasks  # noqa: F401
+except ImportError:
+    pass
