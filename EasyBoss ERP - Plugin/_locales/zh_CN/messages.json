@@ -1,9 +1,9 @@
 {
     "extensionName": {
-        "message": "EasyBoss ERP"
+        "message": "pipixia采集"
     },
     "extensionDescription": {
-        "message": "支持采集多平台产品"
+        "message": "pipixia跨境电商商品采集助手"
     },
     "welcome": {
         "message": "欢迎使用"

@@ -27,7 +27,7 @@ import {
   Link as LinkIcon,
 } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { productService, shopService } from "@/services";
+import { productService, shopService, pddProxyService } from "@/services";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface PddProduct {
@@ -111,35 +111,19 @@ export default function PinduoduoCrawlerPage() {
     }
     setSearchLoading(true);
     try {
-      const keyword = encodeURIComponent(searchQuery);
-      const response = await fetch(
-        `https://mobile.yangkeduo.com/proxy/apis/v5/search/search?keyword=${keyword}&page=1&page_size=20`,
-        {
-          headers: {
-            "User-Agent": "Mozilla/5.0 (Linux; Android 14) AppleWebKit/537.36",
-            "Referer": "https://mobile.yangkeduo.com/",
-          },
-        }
-      );
-      if (!response.ok) throw new Error(`HTTP ${response.status}: 搜索请求失败`);
+      const res = await pddProxyService.search(searchQuery, 1, 20);
+      const data = res as any;
 
-      const text = await response.text();
-      // 拼多多的搜索API返回的是嵌入在HTML中的JSON数据
-      // 尝试从 text 中解析 searchSSRData
+      // 解析搜索结果 — 支持多种数据格式
       let items: any[] = [];
-
-      try {
-        // 尝试直接解析 JSON（可能是纯 JSON 响应）
-        const data = JSON.parse(text);
-        items = data.searchSSRData?.goods || data.result?.items || data.goods || [];
-      } catch {
-        // 如果是 HTML 页面，提取 __INITIAL_STATE__ 或 searchSSRData
-        const match = text.match(/searchSSRData[^;]*/);
-        if (match) {
-          const jsonStr = match[0].replace(/;\s*$/, "").trim();
-          const parsed = JSON.parse(jsonStr);
-          items = parsed.searchSSRData?.goods || parsed.goods || [];
-        }
+      if (data.searchSSRData?.goods) {
+        items = data.searchSSRData.goods;
+      } else if (data.result?.items) {
+        items = data.result.items;
+      } else if (data.goods) {
+        items = data.goods;
+      } else if (Array.isArray(data)) {
+        items = data;
       }
 
       if (!items || items.length === 0) {
@@ -171,7 +155,8 @@ export default function PinduoduoCrawlerPage() {
 
       setSearchResults(results);
     } catch (err: any) {
-      toast.error(err.message || "搜索失败，请稍后重试");
+      const msg = err?.response?.data?.detail || err?.message || "搜索失败，请稍后重试";
+      toast.error(msg);
       setSearchResults([]);
     } finally {
       setSearchLoading(false);
@@ -220,28 +205,8 @@ export default function PinduoduoCrawlerPage() {
     setCollectResult(null);
 
     try {
-      const detailUrl = `https://mobile.yangkeduo.com/proxy/apis/v5/item/info?item_id=${currentBrowsingGoodsId}`;
-      const response = await fetch(detailUrl, {
-        headers: {
-          "User-Agent": "Mozilla/5.0 (Linux; Android 14) AppleWebKit/537.36",
-          "Referer": "https://mobile.yangkeduo.com/",
-        },
-      });
-
-      if (!response.ok) throw new Error("获取商品详情失败");
-
-      const text = await response.text();
-      let data: any;
-      try {
-        data = JSON.parse(text);
-      } catch {
-        const m = text.match(/window\.__INITIAL_STATE__\s*=\s*({.*?});\s*document/);
-        if (m) {
-          data = JSON.parse(m[1]);
-        } else {
-          throw new Error("无法解析商品详情");
-        }
-      }
+      const res = await pddProxyService.itemDetail(currentBrowsingGoodsId);
+      const data = res as any;
 
       const item = data.item || data.goods_info || data.goods || {};
       const groupPrice = item.group?.price || 0;
@@ -304,28 +269,8 @@ export default function PinduoduoCrawlerPage() {
         }
       }
 
-      const detailUrl = `https://mobile.yangkeduo.com/proxy/apis/v5/item/info?item_id=${goodsId}`;
-      const response = await fetch(detailUrl, {
-        headers: {
-          "User-Agent": "Mozilla/5.0 (Linux; Android 14) AppleWebKit/537.36",
-          "Referer": "https://mobile.yangkeduo.com/",
-        },
-      });
-
-      if (!response.ok) throw new Error("获取商品详情失败");
-
-      const text = await response.text();
-      let data: any;
-      try {
-        data = JSON.parse(text);
-      } catch {
-        const m = text.match(/window\.__INITIAL_STATE__\s*=\s*({.*?});\s*document/);
-        if (m) {
-          data = JSON.parse(m[1]);
-        } else {
-          throw new Error("无法解析商品详情");
-        }
-      }
+      const res = await pddProxyService.itemDetail(goodsId);
+      const data = res as any;
 
       const item = data.item || data.goods_info || data.goods || {};
       const groupPrice = item.group?.price || 0;
@@ -378,29 +323,8 @@ export default function PinduoduoCrawlerPage() {
       const product = searchResults.find(p => p.item_id === itemId);
       if (!product) continue;
       try {
-        // 使用商品详情页 API
-        const detailUrl = `https://mobile.yangkeduo.com/proxy/apis/v5/item/info?item_id=${itemId}`;
-        const response = await fetch(detailUrl, {
-          headers: {
-            "User-Agent": "Mozilla/5.0 (Linux; Android 14) AppleWebKit/537.36",
-            "Referer": "https://mobile.yangkeduo.com/",
-          },
-        });
-        if (!response.ok) throw new Error("采集失败");
-
-        const text = await response.text();
-        let data: any;
-        try {
-          data = JSON.parse(text);
-        } catch {
-          // 尝试从 HTML 中提取 JSON
-          const match = text.match(/window\.__INITIAL_STATE__\s*=\s*({.*?});\s*document/);
-          if (match) {
-            data = JSON.parse(match[1]);
-          } else {
-            throw new Error("无法解析商品详情");
-          }
-        }
+        const res = await pddProxyService.itemDetail(itemId);
+        const data = res as any;
 
         const item = data.item || data.goods_info || data.goods || {};
         const groupPrice = item.group?.price || 0;
@@ -730,6 +654,62 @@ export default function PinduoduoCrawlerPage() {
                   </div>
                 </div>
               ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* 批量采集箱 - 类似扩展的底部工具栏 */}
+      {selectedProducts.size > 0 && (
+        <Card className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 w-full max-w-4xl border-primary shadow-lg animate-slide-up">
+          <CardContent className="p-4">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+              <div className="flex items-center gap-3">
+                <Package className="h-5 w-5 text-primary" />
+                <div>
+                  <p className="font-medium">已选中 <span className="text-primary">{selectedProducts.size}</span> 个商品</p>
+                  <p className="text-xs text-muted-foreground">批量采集到指定店铺</p>
+                </div>
+              </div>
+              <div className="flex flex-wrap items-center gap-2">
+                <Select value={selectedShopId} onValueChange={setSelectedShopId}>
+                  <SelectTrigger className="h-9 w-auto min-w-[180px]">
+                    <SelectValue placeholder="选择目标店铺" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {shops.map((shop: any) => (
+                      <SelectItem key={shop.id} value={String(shop.id)}>
+                        {shop.shop_name || shop.name || `店铺 #${shop.id}`}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setSelectedProducts(new Set())}
+                >
+                  <X className="mr-1 h-3 w-3" />
+                  清空选择
+                </Button>
+                <Button
+                  onClick={handleCrawlSelected}
+                  disabled={!selectedShopId || crawling}
+                  className="bg-primary hover:bg-primary/90"
+                >
+                  {crawling ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      批量采集中...
+                    </>
+                  ) : (
+                    <>
+                      <Download className="mr-2 h-4 w-4" />
+                      批量采集 ({selectedProducts.size})
+                    </>
+                  )}
+                </Button>
+              </div>
             </div>
           </CardContent>
         </Card>

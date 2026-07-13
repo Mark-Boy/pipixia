@@ -10,6 +10,7 @@ from api.models.listing import Listing
 from api.models.translate import Translate
 from api.models.risk_log import RiskLog
 from api.models.profit_calibration import ProfitCalibration
+from api.models.pdd_account import PddAccount
 
 __all__ = [
     "User",
@@ -20,4 +21,5 @@ __all__ = [
     "Translate",
     "RiskLog",
     "ProfitCalibration",
+    "PddAccount",
 ]

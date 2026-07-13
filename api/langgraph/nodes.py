@@ -84,146 +84,34 @@ async def node_extract_images(state: WorkflowState) -> WorkflowState:
         return state
 
 
-async def _ocr_with_paddle(image_path: str) -> dict:
-    """
-    使用 PaddleOCR 提取图片中的文字
-
-    针对电商图片特点优化：
-    - 只提取中文和泰语区域
-    - 过滤低置信度的结果
-    - 合并相邻文本块
-    """
-    from paddleocr import PaddleOCR
-
-    # 懒加载 OCR 引擎（避免每次请求都初始化）
-    if not hasattr(_ocr_with_paddle, "_ocr_engine"):
-        _ocr_with_paddle._ocr_engine = PaddleOCR(
-            use_angle_cls=True,
-            lang="ch",  # 中文为主
-            show_log=False,
-            use_gpu=False,  # 避免 GPU 内存问题
-        )
-
-    ocr = _ocr_with_paddle._ocr_engine
-    result = ocr.ocr(image_path, cls=True)
-
-    if not result or not result[0]:
-        return {"text": "", "confidence": 0}
-
-    # 提取所有文本块
-    texts = []
-    total_confidence = 0
-    count = 0
-
-    for line in result[0]:
-        word_text = line[1][0]
-        confidence = line[1][1]
-
-        if confidence < 0.5 or len(word_text.strip()) < 1:
-            continue
-
-        texts.append(word_text.strip())
-        total_confidence += confidence
-        count += 1
-
-    full_text = "".join(texts)
-    avg_confidence = round(total_confidence / count, 4) if count > 0 else 0
-
-    return {
-        "text": full_text,
-        "confidence": avg_confidence,
-        "blocks": [
-            {"text": t, "confidence": round(c, 4)}
-            for t, c in zip(texts, [total_confidence / max(count, 1)] * len(texts))
-        ],
-    }
-
-
 async def extract_image_text(image_url: str) -> dict:
     """
-    调用 PaddleOCR 提取图片中的文字
+    调用 PaddleOCR 提取图片中的文字（薄封装 —— 真正实现在 image_translate 服务）。
 
-    支持：
-    1. 本地 URL（file:// 或 http://）
-    2. OSS URL（MinIO/S3）
-    3. 远程 URL（http/https）
+    支持本地 / OSS / 远程 URL，未安装 PaddleOCR 时返回空文本不抛异常。
+    保留对外接口签名不变（旧 caller 期望 {"text", "confidence", "blocks"}）。
 
     Returns:
-        {"text": "提取的文字", "confidence": 0.95, "blocks": [...]}
+        {"text": "拼接文本", "confidence": 平均置信度, "blocks": [...]}
     """
-    import os
-    import tempfile
-    from urllib.parse import urlparse
-
-    # 下载图片到临时文件
-    image_path = await _download_image(image_url)
-    if not image_path:
-        return {"text": "", "confidence": 0}
-
     try:
-        return await _ocr_with_paddle(image_path)
-    except ImportError:
-        logger.warning("PaddleOCR 未安装，跳过图片文字提取")
-        return {"text": "", "confidence": 0}
+        from api.services.image_translate import extract_image_text_blocks
+
+        blocks = extract_image_text_blocks(image_url)
+        if not blocks:
+            return {"text": "", "confidence": 0, "blocks": []}
+
+        texts = [b["text"] for b in blocks]
+        confs = [b["confidence"] for b in blocks]
+        avg_conf = round(sum(confs) / len(confs), 4) if confs else 0
+        return {
+            "text": " ".join(texts),
+            "confidence": avg_conf,
+            "blocks": blocks,
+        }
     except Exception as e:
         logger.error(f"OCR 提取失败: {e}")
-        return {"text": "", "confidence": 0}
-    finally:
-        if os.path.exists(image_path):
-            os.remove(image_path)
-
-
-async def _download_image(url: str) -> str:
-    """下载图片到临时文件，返回本地路径"""
-    import os
-    import tempfile
-    from urllib.parse import urlparse
-
-    parsed = urlparse(url)
-
-    # 本地文件
-    if parsed.scheme == "file":
-        return parsed.path
-
-    # 远程 URL，使用 httpx 下载
-    if parsed.scheme in ("http", "https"):
-        import httpx
-
-        async with httpx.AsyncClient(timeout=15.0) as client:
-            resp = await client.get(url)
-            resp.raise_for_status()
-
-            # 确定文件扩展名
-            ext = parsed.path.split(".")[-1] if parsed.path else "jpg"
-            if ext not in ("jpg", "jpeg", "png", "webp", "gif", "bmp"):
-                ext = "jpg"
-
-            # 保存到临时文件
-            tmp_file = tempfile.NamedTemporaryFile(
-                suffix=f".{ext}", delete=False, dir="/tmp"
-            )
-            tmp_file.write(resp.content)
-            tmp_file.close()
-            return tmp_file.name
-
-    # MinIO/S3 对象存储 URL
-    if "/pipixia-images/" in url or "minio" in url:
-        import httpx
-
-        # 假设 MinIO 有预签名 URL 或可通过控制台访问
-        try:
-            async with httpx.AsyncClient(timeout=15.0) as client:
-                resp = await client.get(url)
-                resp.raise_for_status()
-
-                tmp_file = tempfile.NamedTemporaryFile(suffix=".jpg", delete=False, dir="/tmp")
-                tmp_file.write(resp.content)
-                tmp_file.close()
-                return tmp_file.name
-        except Exception:
-            pass
-
-    return ""
+        return {"text": "", "confidence": 0, "blocks": []}
 
 
 async def node_translate_text(state: WorkflowState) -> WorkflowState:
@@ -278,24 +166,64 @@ async def ai_translate_text(text: str, src_lang: str = "zh", tgt_lang: str = "th
 
 
 async def node_translate_images(state: WorkflowState) -> WorkflowState:
-    """节点3：翻译图片中的文字（OCR → AI翻译 → 合成新图片）"""
+    """
+    节点3：翻译图片中的文字（OCR → AI翻译 → 合成新图片）—— S07 实现
+
+    通过 worker.tasks.process_image 同步任务执行完整 OCR→翻译→合成链路，
+    合成后的新 URL 回写到 state["images"][i]["translated_image_url"]。
+    LangGraph 节点内调用 Celery task 的 __wrapped__ 绕过 eager 模式开销。
+    """
     try:
-        images = state.get("images", [])
+        images = state.get("images") or []
+        if not images:
+            logger.info("商品无图片，跳过图片翻译节点")
+            state["translate_status"] = "processing"
+            return state
+
+        from api.services.image_translate import translate_image as _translate_image
+
+        product_id = state["product_id"]
+        for i, img in enumerate(images):
+            url = img.get("url")
+            if not url:
+                continue
+            result = _translate_image(
+                image_url=url,
+                product_id=product_id,
+                image_index=i,
+            )
+            img["translated_image_url"] = result.get("result_url")
+            img["translated_blocks"] = result.get("translated_blocks", 0)
+            img["ocr_blocks"] = result.get("ocr_blocks", 0)
+            logger.info(
+                f"图片翻译 #{i}: ocr={img['ocr_blocks']} "
+                f"translated={img['translated_blocks']} → {img['translated_image_url']}"
+            )
+
+        # 同步翻译记录到 Translate 表（type=image）
         for img in images:
-            if img.get("ocr_text"):
-                translated_text = await ai_translate_text(
-                    img["ocr_text"], "zh", "th"
-                )
-                # TODO: 合成新图片（泰语文字覆盖）
-                # img["translated_image_url"] = await synthesize_image(...)
-                logger.info(f"图片翻译: {img.get('url', '')}")
+            if img.get("ocr_text") and img.get("translated_image_url"):
+                try:
+                    from api.services.translator import translate_text as _t
+                    translated_text = _t(img["ocr_text"], "zh", "th")
+                    await save_translate_record(
+                        product_id=product_id,
+                        translate_type="image",
+                        source_text=img.get("ocr_text", ""),
+                        target_text=translated_text,
+                        source_image_url=img.get("url"),
+                        target_image_url=img.get("translated_image_url"),
+                    )
+                except Exception as e:
+                    logger.warning(f"图片翻译记录保存失败: {e}")
 
         state["translate_status"] = "processing"
-        logger.info(f"商品图片翻译完成")
+        logger.info("商品图片翻译完成")
         return state
-
     except Exception as e:
-        logger.error(f"图片翻译失败: {e}")
+        logger.error(f"图片翻译失败: {e}", exc_info=True)
+        # 图片翻译失败不应阻断主流程文本翻译已完成的结果
+        state["translate_status"] = "processing"
         return state
 
 

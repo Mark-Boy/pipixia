@@ -77,6 +77,18 @@ app.include_router(webhooks.router, prefix="/webhook", tags=["Webhooks"])
 from .routers import shopee
 app.include_router(shopee.router, prefix="/api/v1", tags=["Shopee"])
 
+# 拼多多爬虫代理路由（解决 CORS + 302 问题）
+from .routers import pdd_proxy
+app.include_router(pdd_proxy.router, prefix="/api/v1")
+
+# 拼多多采集账号路由
+from .routers import pdd_accounts
+app.include_router(pdd_accounts.router, prefix="/api/v1")
+
+# 扩展兼容路由（接收 Chrome 扩展采集回传）
+from .routers import extension_compat
+app.include_router(extension_compat.router, prefix="/api/v1/open")
+
 # 启动调度器
 from api.services.scheduler import start_scheduler
 import asyncio

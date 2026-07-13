@@ -46,3 +46,11 @@ api.interceptors.response.use(
 );
 
 export default api;
+
+// ==================== 拼多多爬虫代理服务 ====================
+export const pddProxyService = {
+  search: (keyword: string, page = 1, page_size = 20) =>
+    api.get("/api/v1/pdd/search", { params: { keyword, page, page_size } }),
+  itemDetail: (item_id: string) =>
+    api.get("/api/v1/pdd/item/detail", { params: { item_id } }),
+};

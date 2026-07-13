@@ -185,6 +185,15 @@ export function ProductsPage() {
             )}
             刷新
           </Button>
+          {/* 扩展采集提示横幅 */}
+          <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg flex items-start gap-3">
+            <Package className="h-5 w-5 text-blue-600 shrink-0 mt-0.5" />
+            <div className="text-sm text-blue-800">
+              <strong>推荐：安装 Chrome 扩展「pipixia 采集助手」</strong>，在拼多多官网商品页直接点击「采集到 pipixia」按钮，一键入库。
+              <br />
+              <span className="text-xs text-blue-700">扩展安装包位于项目目录 <code>EasyBoss ERP - Plugin/</code>，开发者模式加载即可。未装扩展时可用下方「粘贴链接导入」或「站内采集器」。</span>
+            </div>
+          </div>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button>
@@ -193,13 +202,25 @@ export function ProductsPage() {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent>
+              <DropdownMenuItem
+                onClick={() =>
+                  window.open(
+                    "https://mobile.yangkeduo.com",
+                    "_blank",
+                    "noopener,noreferrer"
+                  )
+                }
+              >
+                <ShoppingBag className="mr-2 h-4 w-4 text-red-500" />
+                打开拼多多官网（新标签页采集）
+              </DropdownMenuItem>
               <DropdownMenuItem onClick={() => setImportDialogOpen(true)}>
                 <LinkIcon className="mr-2 h-4 w-4" />
-                粘贴 1688/拼多多 链接
+                粘贴 1688/拼多多 链接导入
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => router.push("/dashboard/products/pinduoduo-crawler")}>
-                <ShoppingBag className="mr-2 h-4 w-4 text-red-500" />
-                拼多多商品采集器
+                <Sparkles className="mr-2 h-4 w-4 text-primary" />
+                拼多多商品采集器（站内）
               </DropdownMenuItem>
               <DropdownMenuItem>📁 CSV 批量导入</DropdownMenuItem>
               <DropdownMenuItem>🔗 Shopee 热销品采集</DropdownMenuItem>

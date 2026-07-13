@@ -695,6 +695,16 @@
         },
         {
             "matches": [
+                "*://*.yangkeduo.com/*",
+                "*://mobile.yangkeduo.com/*"
+            ],
+            "js": [
+                "js/biz/platform/platform-yangkeduo.js"
+            ],
+            "run_at": "document_end"
+        },
+        {
+            "matches": [
                 "*://*.yms.com/*"
             ],
             "js": [

@@ -14,6 +14,24 @@ from api.services.exchange import (
 )
 
 
+@pytest.fixture(autouse=True)
+def _isolate_exchange_cache():
+    """每个测试前后清理汇率缓存（内存 + Redis），避免测试间互相污染。
+
+    之前 test_cached_rate_returns_fast 调用 _set_cached_rate(4.9) 后没清理，
+    会污染后续 mock _fetch_from_api 的断言 —— 缓存优先级高于 mock 返回值。
+    关键: _set_cached_rate 同时写内存和 Redis（开发环境 Redis 已连上），
+    故必须用 cache_delete 而非仅清 _memory_cache。
+    """
+    from api.services.cache import cache_delete, _memory_cache
+    from api.services.exchange import EXCHANGE_RATE_KEY
+    cache_delete(EXCHANGE_RATE_KEY)
+    _memory_cache.clear()
+    yield
+    cache_delete(EXCHANGE_RATE_KEY)
+    _memory_cache.clear()
+
+
 class TestExchangeRate:
     """汇率服务测试"""
 

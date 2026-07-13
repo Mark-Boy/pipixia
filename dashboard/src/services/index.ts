@@ -1,7 +1,9 @@
-export * from "./api";
-
-import { api } from "@/services/api";
+import { api, pddProxyService } from "@/services/api";
 import axios from "axios";
+import { pddAccountService } from "@/services/pdd-account";
+
+// ==================== 导出所有服务 ====================
+export { pddAccountService, pddProxyService };
 
 // ==================== 商品服务 ====================
 export const productService = {

@@ -113,32 +113,90 @@ def translate_keywords(keywords: list[str]) -> list[str]:
 
 def generate_seo_tags(title_th: str, desc_th: str) -> list[str]:
     """
-    生成 SEO 标签（泰语）
-    
-    从标题和描述中提取高频有意义的词组作为标签
+    生成 SEO 标签（泰语）—— S09 实现
+
+    泰语是无空格分隔的连续书写语言，单纯 split() 无法分词。
+    使用 PyThaiNLP 进行泰语分词 + TF 频次过滤生成标签。
+
+    流程:
+    1. PyThaiNLP 优先（不可用时降级到空格分词 + 逗号/中点切分）
+    2. 过滤停用词、过短词、纯数字、纯标点
+    3. 以词频排序，最多保留 10 个，去重保留首次出现顺序
+    4. 标题词权重 *3，描述词权重 *1，体现 SEO 优先级
     """
     if not title_th:
         return []
 
-    # 简单分词：泰语以空格分隔，中文需要更复杂的分词
-    # 暂时使用简单的空格分割，后续可接入 PyThaiNLP
-    words = []
-    for text in [title_th, desc_th or ""]:
-        if text:
-            for word in text.split():
-                # 过滤太短的词
-                if len(word.strip()) >= 2:
-                    words.append(word.strip())
+    tokens = _thai_tokenize(title_th + " " + (desc_th or ""))
 
-    # 去重 + 限制数量
-    seen = set()
-    unique_words = []
-    for w in words:
-        if w not in seen and len(unique_words) < 10:
-            seen.add(w)
-            unique_words.append(w)
+    # 标题分词集合（用于权重提升）
+    title_tokens = set(_thai_tokenize(title_th))
 
-    return unique_words
+    stop = _thai_stopwords()
+
+    freq: dict[str, int] = {}
+    for tok in tokens:
+        tok = tok.strip()
+        if not tok:
+            continue
+        if len(tok) < 2:                      # 单字词一般无 SEO 价值
+            continue
+        if tok.isdigit():                     # 纯数字跳过
+            continue
+        if tok in stop:                       # 停用词跳过
+            continue
+        if _is_punct_only(tok):               # 纯标点跳过
+            continue
+        weight = 3 if tok in title_tokens else 1
+        freq[tok] = freq.get(tok, 0) + weight
+
+    # 按权重倒序，相同权重保留首次出现顺序
+    ordered = sorted(freq.items(), key=lambda kv: (-kv[1],))
+    unique: list[str] = []
+    for tok, _ in ordered:
+        if tok not in unique:
+            unique.append(tok)
+        if len(unique) >= 10:
+            break
+    return unique
+
+
+def _thai_tokenize(text: str) -> list[str]:
+    """泰语分词 —— 优先 PyThaiNLP，降级空格/标点切分。"""
+    if not text:
+        return []
+    try:
+        from pythainlp.tokenize import word_tokenize
+        # engine="newmm" 是 PyThaiNLP 默认且最稳定的字典分词引擎
+        return [w for w in word_tokenize(text, engine="newmm") if w.strip()]
+    except ImportError:
+        logger.debug("PyThaiNLP 未安装，降级空格分词")
+    except Exception as e:
+        logger.debug(f"PyThaiNLP 分词失败，降级: {e}")
+    # 降级: 空格 + 常见标点切分
+    import re
+    return [w for w in re.split(r"[\s,，。、|/]+", text) if w.strip()]
+
+
+def _thai_stopwords() -> set[str]:
+    """加载泰语停用词；PyThaiNLP 不可用时返回最小内置集。"""
+    try:
+        from pythainlp.corpus import thai_stopwords
+        return set(thai_stopwords())
+    except Exception:
+        pass
+    # 最小内置泰语/电商常见无 SEO 价值词
+    return {
+        "และ", "หรือ", "ของ", "ที่", "ใน", "เป็น", "ได้", "มี",
+        "ไม่", "จะ", "แล้ว", "ก็", "ให้", "นี้", "ไป", "มา",
+        "กับ", "the", "a", "an", "and", "or", "of", "in", "on",
+    }
+
+
+def _is_punct_only(token: str) -> bool:
+    """判别纯标点字符的 token。"""
+    import re
+    return bool(re.fullmatch(r"[\W_]+", token))
 
 
 def _call_llm_translate(text: str, src_lang: str, tgt_lang: str) -> str:

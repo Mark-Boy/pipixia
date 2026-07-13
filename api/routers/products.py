@@ -528,3 +528,196 @@ async def delete_product(
         await db.commit()
 
     return {"message": "商品已删除"}
+
+
+# ==================== 扩展端采集回传 ====================
+
+from pydantic import BaseModel
+from typing import Optional, Dict, Any
+
+
+class ExtensionCollectItem(BaseModel):
+    """扩展端采集单品数据格式"""
+    pageContent: str  # 页面 HTML
+    itemId: str  # goods_id
+    source: str  # "yangkeduo"
+    afterUrl: str  # 当前页面 URL
+    productExtInfo: Optional[Dict[str, Any]] = None
+
+
+@router.post("/collect-from-extension", summary="扩展端采集回传 - 单品")
+async def collect_from_extension(
+    data: ExtensionCollectItem,
+    shop_id: int = Query(..., description="目标店铺 ID"),
+    current_user: User = Depends(get_current_user_async),
+):
+    """
+    接收 Chrome 扩展采集的拼多多商品数据，解析并入库
+    
+    扩展端 POST 格式：
+    {
+        "pageContent": "<html>...",
+        "itemId": "123456",
+        "source": "yangkeduo",
+        "afterUrl": "https://mobile.yangkeduo.com/goods.html?goods_id=123456",
+        "productExtInfo": {}
+    }
+    """
+    if data.source != "yangkeduo":
+        raise HTTPException(status_code=400, detail=f"暂不支持的来源: {data.source}")
+
+    # 1. 检查店铺权限
+    async with async_session() as db:
+        shop_result = await db.execute(select(Shop).where(Shop.id == shop_id))
+        shop = shop_result.scalar_one_or_none()
+        if not shop or shop.user_id != current_user.id:
+            raise HTTPException(status_code=403, detail="无权在该店铺下采集商品")
+
+    # 2. 复用现有爬虫获取结构化数据（比解析 pageContent 更可靠）
+    try:
+        crawler = _get_crawler("pdd")
+        product_info = await crawler.fetch_product(data.afterUrl)
+    except Exception as e:
+        logger.error(f"爬虫抓取失败: {e}")
+        raise HTTPException(status_code=502, detail=f"商品抓取失败: {str(e)}")
+
+    if not product_info.title_zh:
+        raise HTTPException(status_code=422, detail="无法获取商品信息")
+
+    # 3. 上传图片到对象存储
+    image_oss_keys = []
+    if product_info.images_urls:
+        for img_url in product_info.images_urls:
+            try:
+                oss_key = upload_image_from_url(img_url)
+                if oss_key:
+                    image_oss_keys.append(oss_key)
+            except Exception as e:
+                logger.warning(f"图片上传失败 {img_url}: {e}")
+
+    # 4. 入库（去重）
+    async with async_session() as db:
+        existing = await db.execute(
+            select(Product).where(
+                Product.shop_id == shop_id,
+                Product.source_platform == "pdd",
+                Product.source_item_id == product_info.source_item_id,
+            )
+        )
+        if existing.scalar_one_or_none():
+            return {
+                "status": "exists",
+                "message": "商品已存在，跳过采集",
+            }
+
+        # 汇率 & 利润率
+        try:
+            from api.services.exchange import convert_cny_to_thb, fetch_exchange_rate
+            exchange_rate = fetch_exchange_rate()
+            price_thb = convert_cny_to_thb(product_info.price_cny) if product_info.price_cny else None
+        except Exception:
+            exchange_rate = 5.0
+            price_thb = round(product_info.price_cny * 5.0, 2) if product_info.price_cny else None
+        cost_cny = product_info.cost_cny or product_info.price_cny
+        cost_thb = cost_cny * exchange_rate if cost_cny else None
+        profit_margin = None
+        if price_thb and cost_thb and price_thb > 0:
+            profit_margin = round(((price_thb - cost_thb) / price_thb) * 100, 2)
+
+        product = Product(
+            shop_id=shop_id,
+            source_platform="pdd",
+            source_item_id=product_info.source_item_id,
+            title_zh=product_info.title_zh[:512],
+            description_zh=product_info.description_zh[:4096] if product_info.description_zh else None,
+            price_cny=product_info.price_cny,
+            price_thb=price_thb,
+            cost_cny=cost_cny,
+            profit_margin=profit_margin,
+            images_oss_keys=image_oss_keys,
+            status="pending",
+            risk_status="pending",
+        )
+        db.add(product)
+        await db.commit()
+        await db.refresh(product)
+
+    # 5. 触发翻译（异步）
+    task_id = None
+    try:
+        from worker.tasks import translate_product
+        task = translate_product.delay(product.id)
+        task_id = task.id
+    except Exception as e:
+        logger.warning(f"翻译任务提交失败: {e}")
+
+    return {
+        "status": "success",
+        "product_id": product.id,
+        "source_platform": "pdd",
+        "source_item_id": product_info.source_item_id,
+        "title_zh": product_info.title_zh,
+        "price_cny": product_info.price_cny,
+        "price_thb": price_thb,
+        "cost_cny": cost_cny,
+        "profit_margin": profit_margin,
+        "images_uploaded": len(image_oss_keys),
+        "translate_task_id": task_id,
+        "message": "采集入库成功",
+    }
+
+
+# 兼容扩展原有路径 /open/fetch/pfti
+@router.post("/open/fetch/pfti", include_in_schema=False)
+async def extension_fetch_pfti(
+    data: ExtensionCollectItem,
+    shop_id: int = Query(..., description="目标店铺 ID"),
+    current_user: User = Depends(get_current_user_async),
+):
+    """兼容扩展原有回传路径"""
+    return await collect_from_extension(data, shop_id, current_user)
+
+
+@router.post("/open/niu/push_collect_box", include_in_schema=False)
+async def extension_push_collect_box(
+    data: Dict[str, Any],
+    shop_id: int = Query(..., description="目标店铺 ID"),
+    current_user: User = Depends(get_current_user_async),
+):
+    """兼容扩展批量采集回传路径"""
+    # 扩展发送格式: { isAutoPublish: 1, itemSimpleDetails: "{...}" }
+    item_simple_details = data.get("itemSimpleDetails")
+    if not item_simple_details:
+        raise HTTPException(status_code=400, detail="缺少 itemSimpleDetails")
+    
+    import json
+    try:
+        items = json.loads(item_simple_details) if isinstance(item_simple_details, str) else item_simple_details
+    except Exception:
+        raise HTTPException(status_code=400, detail="itemSimpleDetails 解析失败")
+    
+    results = []
+    for item_key, item_data in items.items():
+        # item_data 结构: {source, site, itemId, itemUrl, title, itemImg}
+        item_url = item_data.get("itemUrl")
+        if not item_url:
+            continue
+        try:
+            # 复用单品采集逻辑
+            collect_data = ExtensionCollectItem(
+                pageContent="",
+                itemId=item_data.get("itemId", ""),
+                source=item_data.get("source", "yangkeduo"),
+                afterUrl=item_url,
+            )
+            result = await collect_from_extension(collect_data, shop_id, current_user)
+            results.append({"itemId": item_data.get("itemId"), "result": result})
+        except Exception as e:
+            results.append({"itemId": item_data.get("itemId"), "error": str(e)})
+    
+    return {
+        "status": "completed",
+        "collected": len([r for r in results if r.get("result", {}).get("status") == "success"]),
+        "total": len(results),
+        "details": results,
+    }

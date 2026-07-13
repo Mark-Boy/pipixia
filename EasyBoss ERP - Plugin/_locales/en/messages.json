@@ -1,9 +1,9 @@
 {
     "extensionName": {
-        "message": "EasyBoss ERP"
+        "message": "pipixia Collector"
     },
     "extensionDescription": {
-        "message": "Support collecting products from multiple platforms"
+        "message": "pipixia cross-border e-commerce product collection assistant"
     },
     "welcome": {
         "message": "Welcome"

@@ -23,3 +23,4 @@ class User(Base):
 
     # 关系
     shops = relationship("Shop", back_populates="owner", foreign_keys="Shop.user_id", cascade="all, delete-orphan")
+    pdd_accounts = relationship("PddAccount", back_populates="user", cascade="all, delete-orphan")

@@ -13,11 +13,13 @@ import {
   FileText,
   Settings,
   LogOut,
+  Puzzle,
 } from "lucide-react";
 
 const navItems = [
   { href: "/dashboard/overview", label: "概览", icon: LayoutDashboard },
   { href: "/dashboard/products", label: "商品管理", icon: Package },
+  { href: "/dashboard/extension-install", label: "采集插件", icon: Puzzle },
   { href: "/dashboard/audit", label: "审核中心", icon: ClipboardList },
   { href: "/dashboard/finance", label: "财务看板", icon: Wallet },
   { href: "/dashboard/risk", label: "风控日志", icon: ShieldAlert },
